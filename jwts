@@ -1,0 +1,52 @@
+public class JWT {
+    
+    private static final String JWT_SECRET = "a3f4c2d9e8b71a5f6c3d2b9f0e1a4c7d8f9b0c1a2d3e4f56789ab0c1d2e3f41b";
+    
+    public static String createJwt(User u) {
+    
+        Instant now = Instant.now();
+        
+        String token = Jwts.builder()
+                .setIssuer("IAKK")
+                .setSubject("backend_alapok")
+                .claim("id", u.getId())
+                .claim("phone", u.getPhone())
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plus(30, ChronoUnit.SECONDS)))
+                .signWith(
+                        SignatureAlgorithm.HS256,
+                        TextCodec.BASE64.decode(JWT_SECRET)
+                )
+                .compact();
+        
+        return token;
+    }
+    
+    public static Boolean validateJwt(String token) {
+        
+        try {
+            
+            byte[] secretArray = Base64.getDecoder().decode(JWT_SECRET);
+            Jws<Claims> tokenResult = Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(secretArray)).parseClaimsJws(token);
+            
+            Integer userIdClaim = tokenResult.getBody().get("id", Integer.class);
+            
+            if (userIdClaim == null) {
+                return false;
+            }
+            else {
+                return true;
+            }
+            
+        } catch (SignatureException | MalformedJwtException | IllegalArgumentException | UnsupportedJwtException ex) {
+            // invalid
+            return false;
+            
+        } catch (ExpiredJwtException ex) {
+            // lejárt token
+            return null;
+        }
+        
+    }
+    
+}
