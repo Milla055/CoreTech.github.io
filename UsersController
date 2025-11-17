@@ -1,1 +1,23 @@
+@POST
+    @Path("/createUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createUser(String body) {
+        JSONObject bodyObject = new JSONObject(body);
 
+        Users createdUser = new Users(
+            bodyObject.getString("username"),
+            bodyObject.getString("email"),
+            bodyObject.getString("phone"),
+            bodyObject.getString("password"),
+            bodyObject.getString("role")
+        );
+
+        String confirmPassword = bodyObject.getString("confirmPassword");
+        JSONObject toReturn = layer.createUser(createdUser, confirmPassword);
+
+        return Response.status(toReturn.getInt("statusCode"))
+                       .entity(toReturn.toString())
+                       .type(MediaType.APPLICATION_JSON)
+                       .build();
+    }
