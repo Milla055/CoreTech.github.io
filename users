@@ -1,1 +1,29 @@
-asd
+ public static Boolean createUser(Users createdUser) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("createUser");
+            spq.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
+
+            createdUser.setCreatedAt(new Date());
+            createdUser.setIsDeleted(false);
+
+            spq.setParameter("usernameIN", createdUser.getUsername());
+            spq.setParameter("emailIN", createdUser.getEmail());
+            spq.setParameter("phoneIN", createdUser.getPhone());
+            spq.setParameter("passwordIN", createdUser.getPasswordHash());
+            spq.setParameter("roleIN", createdUser.getRole());
+
+            spq.execute();
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
