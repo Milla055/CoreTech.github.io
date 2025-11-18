@@ -156,3 +156,45 @@ public JSONObject updatePassword(int userId, String newPassword) {
 
         return resp;
     }
+//getordersbyuserid
+public JSONObject getOrdersByUserId(int userId) {
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("getOrdersByUserId");
+
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("userIdIN", userId);
+
+            List<Object[]> rows = spq.getResultList();
+            JSONArray arr = new JSONArray();
+
+            for (Object[] row : rows) {
+                JSONObject obj = new JSONObject();
+
+                obj.put("orderId", row[0]);
+                obj.put("productName", row[1]);
+                obj.put("imageUrl", row[2]);
+                obj.put("totalPrice", row[3]);
+                obj.put("status", row[4]);
+                obj.put("quantity", row[5]);
+                obj.put("createdAt", row[6]);
+
+                arr.put(obj);
+            }
+
+            resp.put("orders", arr);
+            resp.put("status", "Success");
+            resp.put("statusCode", 200);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+        } finally {
+            em.close();
+        }
+
+        return resp;
+    }
