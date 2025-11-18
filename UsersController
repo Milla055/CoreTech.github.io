@@ -39,3 +39,22 @@
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+//updateuser
+@PUT
+    @Path("updateUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateUser(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+        String email = obj.getString("email");
+        String phone = obj.getString("phone");
+
+        JSONObject result = layer.updateUser(userId, email, phone);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
