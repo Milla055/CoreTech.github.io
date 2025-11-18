@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             version="2.2"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+
+    <persistence-unit name="com.mycompany_coreTech2_war_1.0-SNAPSHOTPU" transaction-type="JTA">
+        <jta-data-source>java:/vizsgaremek</jta-data-source>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <!-- opcionális beállítások jöhetnek ide -->
+        </properties>
+    </persistence-unit>
+
+</persistence>
+
