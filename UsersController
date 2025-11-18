@@ -76,3 +76,16 @@
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+//getOrderByUserId
+@GET
+    @Path("getOrdersByUserId/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOrdersByUserId(@PathParam("userId") int userId) {
+
+        JSONObject result = layer.getOrdersByUserId(userId);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
