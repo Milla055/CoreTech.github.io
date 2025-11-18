@@ -1,3 +1,4 @@
+//createUser
 public JSONObject createUser(String username, String email, String phone, String password, String role) {
     JSONObject resp = new JSONObject();
     EntityManager em = emf.createEntityManager();
@@ -42,3 +43,36 @@ public JSONObject createUser(String username, String email, String phone, String
 
     return resp;
 }
+//softdel
+public JSONObject softDeleteUser(int userId) {
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("softdelUser");
+            spq.registerStoredProcedureParameter("userIDIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("userIDIN", userId);
+
+            spq.execute();
+
+            em.getTransaction().commit();
+
+            resp.put("status", "UserSoftDeleted");
+            resp.put("statusCode", 200);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+
+        } finally {
+            em.close();
+        }
+
+        return resp;
+    }
