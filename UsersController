@@ -58,3 +58,21 @@
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+//updatePassword
+@PUT
+    @Path("updatePassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePassword(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+        String password = obj.getString("password");
+
+        JSONObject result = layer.updatePassword(userId, password);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
