@@ -1,0 +1,16 @@
+@POST
+    @Path("login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(String body) {
+        JSONObject bodyObject = new JSONObject(body);
+
+        User user = new User(
+                bodyObject.getString("email"),
+                bodyObject.getString("password")
+        );
+
+        JSONObject toReturn = layer.login(user);
+
+        return Response.status(Integer.parseInt(toReturn.get("statusCode").toString())).entity(toReturn.toString()).type(MediaType.APPLICATION_JSON).build();
+    }
+}

@@ -1,0 +1,110 @@
+//createUser
+@POST
+    @Path("/createUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createUser(String body) {
+        JSONObject bodyObject = new JSONObject(body);
+
+        Users createdUser = new Users(
+            bodyObject.getString("username"),
+            bodyObject.getString("email"),
+            bodyObject.getString("phone"),
+            bodyObject.getString("password"),
+            bodyObject.getString("role")
+        );
+
+        String confirmPassword = bodyObject.getString("confirmPassword");
+        JSONObject toReturn = layer.createUser(createdUser, confirmPassword);
+
+        return Response.status(toReturn.getInt("statusCode"))
+                       .entity(toReturn.toString())
+                       .type(MediaType.APPLICATION_JSON)
+                       .build();
+    }
+//softdel
+@PUT
+    @Path("softDeleteUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response softDeleteUser(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+
+        JSONObject result = layer.softDeleteUser(userId);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+//updateuser
+@PUT
+    @Path("updateUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateUser(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+        String email = obj.getString("email");
+        String phone = obj.getString("phone");
+
+        JSONObject result = layer.updateUser(userId, email, phone);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+//updatePassword
+@PUT
+    @Path("updatePassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePassword(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+        String password = obj.getString("password");
+
+        JSONObject result = layer.updatePassword(userId, password);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+//getOrderByUserId
+@GET
+    @Path("getOrdersByUserId/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOrdersByUserId(@PathParam("userId") int userId) {
+
+        JSONObject result = layer.getOrdersByUserId(userId);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+//login
+@POST
+    @Path("login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response login(String body) {
+
+        JSONObject obj = new JSONObject(body);
+
+        String email = obj.getString("email");
+        String password = obj.getString("password");
+
+        JSONObject result = layer.login(email, password);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
