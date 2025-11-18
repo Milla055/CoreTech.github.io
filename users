@@ -64,3 +64,36 @@ public JSONObject softDeleteUser(int userId) {
 
         return resp;
     }
+
+//updateUser
+public static boolean updateUser(Integer userId, String email, String phone) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updateUser");
+
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+
+            spq.setParameter("userIdIN", userId);
+            spq.setParameter("emailIN", email);
+            spq.setParameter("phoneIN", phone);
+
+            spq.execute();
+
+            em.getTransaction().commit();
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            return false;
+        } finally {
+            em.close();
+        }
+    }
