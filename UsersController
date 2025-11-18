@@ -1,3 +1,4 @@
+//createUser
 @POST
     @Path("/createUser")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -20,4 +21,21 @@
                        .entity(toReturn.toString())
                        .type(MediaType.APPLICATION_JSON)
                        .build();
+    }
+//softdel
+@PUT
+    @Path("softDeleteUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response softDeleteUser(String body) {
+        JSONObject obj = new JSONObject(body);
+
+        int userId = obj.getInt("userId");
+
+        JSONObject result = layer.softDeleteUser(userId);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
