@@ -95,5 +95,39 @@ public static boolean updateUser(Integer userId, String email, String phone) {
             return false;
         } finally {
             em.close();
+    }
+}
+//updatePassword
+public static boolean updatePassword(Integer userId, String newPassword) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+
+            em.getTransaction().begin();
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
+
+            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+
+            spq.setParameter("passwordIN", hashed);
+            spq.setParameter("userIdIN", userId);
+
+            spq.execute();
+            em.getTransaction().commit();
+
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            return false;
+
+        } finally {
+            em.close();
         }
     }
+    
