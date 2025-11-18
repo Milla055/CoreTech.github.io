@@ -1,73 +1,44 @@
-public JSONObject createUser(Users createdUser, String confirmPassword) {
-        JSONObject toReturn = new JSONObject();
-        String status = "success";
-        int statusCode = 200;
+public JSONObject createUser(String username, String email, String phone, String password, String role) {
+    JSONObject resp = new JSONObject();
+    EntityManager em = emf.createEntityManager();
 
-        // Validáció: minden kötelező mező
-        if (createdUser.getUsername() == null || createdUser.getUsername().trim().isEmpty()
-                || createdUser.getEmail() == null || createdUser.getEmail().trim().isEmpty()
-                || createdUser.getPhone() == null || createdUser.getPhone().trim().isEmpty()
-                || createdUser.getPasswordHash() == null || createdUser.getPasswordHash().trim().isEmpty()) {
+    try {
+        // Hash password
+        String hashedPw = BCrypt.hashpw(password, BCrypt.gensalt(12));
 
-            status = "MissingRequiredField";
-            statusCode = 400;
-            toReturn.put("status", status);
-            toReturn.put("statusCode", statusCode);
-            return toReturn;
+        // Default role
+        if (role == null || role.trim().isEmpty()) {
+            role = "customer";
         }
 
-        // Jelszó egyeztetés
-        if (!createdUser.getPasswordHash().equals(confirmPassword)) {
-            status = "PasswordsDoNotMatch";
-            statusCode = 400;
-            toReturn.put("status", status);
-            toReturn.put("statusCode", statusCode);
-            return toReturn;
-        }
+        StoredProcedureQuery query = em.createStoredProcedureQuery("createUser");
 
-        EntityManager em = emf.createEntityManager();
-        try {
-            // Ellenőrzés: email már létezik?
-            TypedQuery<Users> query = em.createQuery(
-                    "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = false", Users.class
-            );
+        query.registerStoredProcedureParameter("usernIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("passwIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
 
-            query.setParameter("email", createdUser.getEmail());
-            List<Users> existing = query.getResultList();
-            if (!existing.isEmpty()) {
-                status = "EmailTaken";
-                statusCode = 409;
-                toReturn.put("status", status);
-                toReturn.put("statusCode", statusCode);
-                return toReturn;
-            }
+        query.setParameter("usernIN", username);
+        query.setParameter("emailIN", email);
+        query.setParameter("phoneIN", phone);
+        query.setParameter("passwIN", hashedPw);
+        query.setParameter("roleIN", role);
 
-            // DB insert
-            em.getTransaction().begin();
-            em.persist(createdUser);
-            em.getTransaction().commit();
+        em.getTransaction().begin();
+        query.execute();
+        em.getTransaction().commit();
 
-            JSONObject result = new JSONObject();
-            result.put("username", createdUser.getUsername());
-            result.put("email", createdUser.getEmail());
-            result.put("phone", createdUser.getPhone());
-            result.put("role", createdUser.getRole());
+        resp.put("status", "UserCreated");
+        resp.put("statusCode", 201);
 
-            toReturn.put("result", result);
-
-        } catch (Exception ex) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            ex.printStackTrace();
-            status = "DatabaseError";
-            statusCode = 500;
-
-        } finally {
-            em.close();
-        }
-
-        toReturn.put("status", status);
-        toReturn.put("statusCode", statusCode);
-        return toReturn;
+    } catch (Exception e) {
+        resp.put("status", "DatabaseError");
+        resp.put("statusCode", 500);
+        e.printStackTrace();
+    } finally {
+        em.close();
     }
+
+    return resp;
+}
