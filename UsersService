@@ -198,3 +198,65 @@ public JSONObject getOrdersByUserId(int userId) {
 
         return resp;
     }
+//login
+public JSONObject login(String email, String password) {
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.setParameter("emailIN", email);
+
+            try {
+                spq.execute();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                resp.put("status", "DatabaseError");
+                resp.put("statusCode", 500);
+                return resp;
+            }
+
+            
+            List<Object> rows = spq.getResultList();
+
+            // nincs találat
+            if (rows == null || rows.isEmpty()) {
+                resp.put("status", "InvalidEmailOrPassword");
+                resp.put("statusCode", 401);
+                return resp;
+            }
+
+            // HASH lekérése (EGY darab string)
+            String storedHash = rows.get(0).toString();
+
+            // bcrypt ellenőrzés
+            try {
+                if (!BCrypt.checkpw(password, storedHash)) {
+                    resp.put("status", "InvalidEmailOrPassword");
+                    resp.put("statusCode", 401);
+                    return resp;
+                }
+            } catch (Exception e) {
+                resp.put("status", "InvalidEmailOrPassword");
+                resp.put("statusCode", 401);
+                return resp;
+            }
+
+            // itt minden ok
+            resp.put("status", "LoginSuccess");
+            resp.put("statusCode", 200);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+
+        } finally {
+            em.close();
+        }
+
+        return resp;
+    }
+
