@@ -1,29 +1,32 @@
- public static Boolean createUser(Users createdUser) {
+ public static JSONObject createUser(String username, String email, String phone, String passwordHash, String role) {
+    JSONObject resp = new JSONObject();
+
+    try {
         EntityManager em = emf.createEntityManager();
-        try {
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("createUser");
-            spq.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
+        StoredProcedureQuery query = em.createStoredProcedureQuery("createUser");
 
-            createdUser.setCreatedAt(new Date());
-            createdUser.setIsDeleted(false);
+        query.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
 
-            spq.setParameter("usernameIN", createdUser.getUsername());
-            spq.setParameter("emailIN", createdUser.getEmail());
-            spq.setParameter("phoneIN", createdUser.getPhone());
-            spq.setParameter("passwordIN", createdUser.getPasswordHash());
-            spq.setParameter("roleIN", createdUser.getRole());
+        query.setParameter("usernameIN", username);
+        query.setParameter("emailIN", email);
+        query.setParameter("phoneIN", phone);
+        query.setParameter("passwordIN", passwordHash);
+        query.setParameter("roleIN", role);
 
-            spq.execute();
-            return true;
+        query.execute();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        } finally {
-            em.close();
-        }
+        resp.put("status", "Success");
+        resp.put("statusCode", 201);
+
+    } catch (Exception e) {
+        resp.put("status", "DatabaseError");
+        resp.put("statusCode", 500);
+        e.printStackTrace();
     }
+
+    return resp;
+}
