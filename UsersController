@@ -89,3 +89,22 @@
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+//login
+@POST
+    @Path("login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response login(String body) {
+
+        JSONObject obj = new JSONObject(body);
+
+        String email = obj.getString("email");
+        String password = obj.getString("password");
+
+        JSONObject result = layer.login(email, password);
+
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
