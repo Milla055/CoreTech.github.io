@@ -169,3 +169,32 @@ public static boolean updatePassword(Integer userId, String newPassword) {
             em.close();
         }
     }
+//login
+
+public static boolean login(String email, String password) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.setParameter("emailIN", email);
+
+            List<Object[]> result = spq.getResultList();
+
+            if (result.isEmpty()) {
+                return false;  // email nem létezik
+            }
+
+            String storedHash = (String) result.get(0)[0];
+
+            return BCrypt.checkpw(password, storedHash);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+
+        } finally {
+            em.close();
+        }
+    }
