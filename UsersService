@@ -260,3 +260,51 @@ public JSONObject login(String email, String password) {
         return resp;
     }
 
+//login +jwt 
+public JSONObject login(String email, String password) {
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.setParameter("emailIN", email);
+
+            spq.execute();
+
+            List<Object> rows = spq.getResultList();
+
+            if (rows == null || rows.isEmpty()) {
+                resp.put("status", "InvalidEmailOrPassword");
+                resp.put("statusCode", 401);
+                return resp;
+            }
+
+            String storedHash = rows.get(0).toString();
+
+            if (!BCrypt.checkpw(password, storedHash)) {
+                resp.put("status", "InvalidEmailOrPassword");
+                resp.put("statusCode", 401);
+                return resp;
+            }
+
+            //token
+            String token = JwtUtil.generateToken(email);
+
+            resp.put("status", "LoginSuccess");
+            resp.put("statusCode", 200);
+            resp.put("token", token);  
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+
+        } finally {
+            em.close();
+        }
+
+        return resp;
+    }
+
