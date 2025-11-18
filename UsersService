@@ -116,3 +116,43 @@ public JSONObject updateUser(int userId, String email, String phone) {
 
         return resp;
     }
+
+//updatePassword
+public JSONObject updatePassword(int userId, String newPassword) {
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            // hash password
+            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+
+            em.getTransaction().begin();
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
+
+            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+
+            spq.setParameter("passwordIN", hashed);
+            spq.setParameter("userIdIN", userId);
+
+            spq.execute();
+
+            em.getTransaction().commit();
+
+            resp.put("status", "PasswordUpdated");
+            resp.put("statusCode", 200);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+        } finally {
+            em.close();
+        }
+
+        return resp;
+    }
