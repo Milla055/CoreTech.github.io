@@ -1,48 +1,56 @@
 //createUser
 public JSONObject createUser(String username, String email, String phone, String password, String role) {
-    JSONObject resp = new JSONObject();
-    EntityManager em = emf.createEntityManager();
+        JSONObject resp = new JSONObject();
+        EntityManager em = emf.createEntityManager();
 
-    try {
-        // Hash password
-        String hashedPw = BCrypt.hashpw(password, BCrypt.gensalt(12));
+        try {
+            // Hash password
+            String hashedPw = BCrypt.hashpw(password, BCrypt.gensalt(12));
 
-        // Default role
-        if (role == null || role.trim().isEmpty()) {
-            role = "customer";
+            // Default role
+            if (role == null || role.trim().isEmpty()) {
+                role = "customer";
+            }
+
+            StoredProcedureQuery query = em.createStoredProcedureQuery("createUser");
+
+            query.registerStoredProcedureParameter("usernIN", String.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("passwIN", String.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
+
+            query.setParameter("usernIN", username);
+            query.setParameter("emailIN", email);
+            query.setParameter("phoneIN", phone);
+            query.setParameter("passwIN", hashedPw);
+            query.setParameter("roleIN", role);
+
+            em.getTransaction().begin();
+            query.execute();
+            em.getTransaction().commit();
+            
+            EmailService.sendEmail(
+                    email,
+                    "Sikeres regisztráció ✔",
+                    "<h1>Üdv a CoreTech-ben, " + username + "!</h1><p>A regisztrációd sikeres.</p>"
+            );
+
+            resp.put("status", "UserCreated");
+            resp.put("statusCode", 201);
+
+            
+
+        } catch (Exception e) {
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
 
-        StoredProcedureQuery query = em.createStoredProcedureQuery("createUser");
-
-        query.registerStoredProcedureParameter("usernIN", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("passwIN", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
-
-        query.setParameter("usernIN", username);
-        query.setParameter("emailIN", email);
-        query.setParameter("phoneIN", phone);
-        query.setParameter("passwIN", hashedPw);
-        query.setParameter("roleIN", role);
-
-        em.getTransaction().begin();
-        query.execute();
-        em.getTransaction().commit();
-
-        resp.put("status", "UserCreated");
-        resp.put("statusCode", 201);
-
-    } catch (Exception e) {
-        resp.put("status", "DatabaseError");
-        resp.put("statusCode", 500);
-        e.printStackTrace();
-    } finally {
-        em.close();
+        return resp;
     }
-
-    return resp;
-}
 //softdel
 public JSONObject softDeleteUser(int userId) {
         JSONObject resp = new JSONObject();
