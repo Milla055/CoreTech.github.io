@@ -1,0 +1,133 @@
+.backdrop {
+  background-color: rgba(47, 47, 47, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+dialog {
+  width: fit-content;
+  background-color: #E9EBF5;
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  padding: 1rem;
+  top: 5rem;
+}
+
+.control-row {
+    border-radius: 5%;
+    margin: auto;
+    width: 450px;
+    height: 400px;
+    background-color: #E9EBF5;
+    padding-top: 20px;
+}
+
+h1 {
+    color: #3B5998;
+    font-size: 32px;
+    margin-bottom: 50px;
+    margin-left: 25px;
+}
+
+.control-no-margin {
+    text-align: center;
+}
+
+#email {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+}
+
+#password {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+    margin-top: 10px;
+}
+
+.container {
+    text-align: center;
+    width: 300px;
+    margin: auto;
+}
+
+.button {
+    position:relative;
+    width: 300px;
+    height: 35px;
+    background-color: #3D4474;
+    color: #E9EBF5;
+    font-size: 18px;
+    border-radius: 12px;
+    margin-top: 50px;
+}
+
+.buttonReg {
+    position:relative;
+    width: 300px;
+    height: 35px;
+    background-color: #E9EBF5;
+    color: #3D4474;
+    font-size: 18px;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #31375C;
+}
+
+.buttonReg:hover {
+    background-color: #3D4474;
+    color: #E9EBF5;
+    transition: 0.3s;
+}
+
+.control-error {
+    color: #6B88AA;
+    font-size: 18px;
+}
+
+.remember-me {
+    margin-top: 10px;
+    font-size: 18px;
+    margin-left: 25px;
+}
+.closeBtn {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+.closeBtn:hover {
+    background-color: transparent;
+}
+
+.closeIcon {
+    width: 25px;
+    height: 25px;
+    background-color: transparent;
+}
+.checkbox {
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+}

@@ -1,0 +1,18 @@
+@if(loginPopup){
+    <app-login (cancel)="closeLogin()"></app-login>
+}
+<header class="navbar">
+    <div class="header-container">
+        <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
+        <p class="core">CoreTech</p>
+        <div class="searchContainer">
+            <div class="searchbar">
+                <button class="searchBtn">
+                    <img src="assets/searchicon.png" class="searchIcon">
+                </button>
+                <input type="text" placeholder="Keresés..." class="searchInput">
+            </div>
+        </div>
+        <button (click)="onLogin()" class="loginBtn">Bejelentkezés</button>
+    </div>
+</header>

@@ -1,0 +1,34 @@
+<div class="backdrop"><dialog open>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    
+
+    <div class="control-row">
+        <h1>Bejelentkezés</h1>
+        <button class="closeBtn" (click)="closeLogin()"><img src="assets/favicon-32x32.png" class="closeIcon"></button>
+        <div class="control-no-margin">
+            <label for="email"></label>
+            <input type="email" id="email" [formControl]="form.controls.email" placeholder="E-mail">
+            <!-- @if (emailIsInvalid) {
+        <p class="control-error">Kérlek, érvényes e-mail címet adj meg.</p>
+    } -->
+        </div>
+        <div class="control-no-margin">
+            <label for="password"></label>
+            <input type="password" id="password" formControlName="password" placeholder="Jelszó">
+            <!-- @if (passwordIsInvalid) {
+        <p class="control-error">Kérlek, érvényes jelszót addj meg (Legalább 8 karakter hosszú).</p>
+    } -->
+        </div>
+        <div class="remember-me">
+            <label>
+                <input type="checkbox" class="checkbox"> <span>Emlékezz rám!</span>
+            </label>
+        </div>
+        <div class="container">
+            <button class="button">Bejelentkezés</button>
+            <button class="buttonReg">Regisztráció</button>
+        </div>
+    </div>
+    </form>
+    </dialog>
+</div>
