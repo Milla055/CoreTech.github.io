@@ -1,10 +1,17 @@
 @if(loginPopup){
     <app-login (cancel)="closeLogin()"></app-login>
 }
+@if(shopMenu){
+    <app-shopmenu (close)="closeShopMenu()"></app-shopmenu>
+}
 <header class="navbar">
     <div class="header-container">
         <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
         <p class="core">CoreTech</p>
+        <div class="menuContainer">
+            <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
+            
+        </div>
         <div class="searchContainer">
             <div class="searchbar">
                 <button class="searchBtn">
