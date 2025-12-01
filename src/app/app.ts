@@ -3,11 +3,12 @@ import { LoginComponent } from "./login/login.component";
 import { HeaderComponent } from "./header/header.component";
 import { RouterOutlet } from '@angular/router';
 import { ShopmenuComponent } from "./shopmenu/shopmenu.component";
+import { MainpageComponent } from "./mainpage/mainpage.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [LoginComponent, HeaderComponent, RouterOutlet, ShopmenuComponent],
+  imports: [LoginComponent, HeaderComponent, RouterOutlet, ShopmenuComponent, MainpageComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

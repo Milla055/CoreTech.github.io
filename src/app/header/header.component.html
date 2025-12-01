@@ -1,25 +1,41 @@
-@if(loginPopup){
-    <app-login (cancel)="closeLogin()"></app-login>
-}
-@if(shopMenu){
-    <app-shopmenu (close)="closeShopMenu()"></app-shopmenu>
-}
+<app-login [hidden]="!loginPopup" (cancel)="closeLogin()"></app-login>
+<app-shopmenu [hidden]="!shopMenu" (close)="closeShopMenu()"></app-shopmenu>
+
 <header class="navbar">
-    <div class="header-container">
-        <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
-        <p class="core">CoreTech</p>
-        <div class="menuContainer">
-            <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
-            
-        </div>
-        <div class="searchContainer">
-            <div class="searchbar">
-                <button class="searchBtn">
-                    <img src="assets/searchicon.png" class="searchIcon">
-                </button>
-                <input type="text" placeholder="Keresés..." class="searchInput">
-            </div>
-        </div>
-        <button (click)="onLogin()" class="loginBtn">Bejelentkezés</button>
+  <div class="header-container">
+    <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
+    <p class="core">CoreTech</p>
+
+    <div class="menuContainer">
+      <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
     </div>
+
+    <div class="searchContainer" (click)="$event.stopPropagation()">
+      <div class="searchbar">
+        <button class="searchBtn">
+          <img src="assets/searchicon.png" class="searchIcon">
+        </button>
+        <input
+          type="text"
+          placeholder="Keresés..."
+          class="searchInput"
+          [value]="searchQuery"
+          (input)="onSearch($event.target.value)"
+          (focus)="openSearch()"
+          aria-autocomplete="list"
+          aria-controls="search-results"
+          >
+      </div>
+
+      <div id="search-results" class="search-results" [hidden]="!showSuggestions">
+        <div class="result-list" [innerHTML]="suggestionsHtml" (click)="onSuggestionClick($event)"></div>
+        <div class="no-results" [hidden]="filteredSuggestions.length !== 0">
+          Nincs találat...
+        </div>
+      </div>
+    </div>
+
+    <button (click)="onLogin()" class="loginBtn">Bejelentkezés</button>
+    <button class="cartBtn"><img src="assets/carticon-32x32.png" alt="cart" class="cartIcon"></button>
+  </div>
 </header>

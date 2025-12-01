@@ -48,8 +48,8 @@
 
 .submenu{
   position: absolute;
-  left: 100%;
-  top: 0;
+  left: 105%;
+  top: -43px;
   transform: none;
   width: 0;
   overflow: hidden;
