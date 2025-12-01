@@ -3,11 +3,16 @@ com\mycompany\coretech3\service\EmailService$1.class
 com\mycompany\coretech3\model\ProductAttributes.class
 com\mycompany\coretech3\service\UsersService.class
 com\mycompany\coretech3\model\Products.class
+com\mycompany\coretech3\service\OrdersService.class
+com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\model\Users.class
+com\mycompany\coretech3\service\AdminUsersService.class
 com\mycompany\coretech3\service\EmailService.class
+com\mycompany\coretech3\controller\AdminUsersController.class
 com\mycompany\coretech3\controller\ApplicationConfig.class
 com\mycompany\coretech3\model\OrderItems.class
 com\mycompany\coretech3\model\Reviews.class
+com\mycompany\coretech3\scheduler\OrderStatusScheduler.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Attributes.class
 com\mycompany\coretech3\model\Addresses.class

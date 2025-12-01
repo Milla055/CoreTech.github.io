@@ -50,9 +50,9 @@ public class UsersService {
             query.execute();
 
             EmailService.sendEmail(
-                email,
-                "Sikeres regisztráció ✔",
-                "<h1>Üdv a CoreTech-ben, " + username + "!</h1><p>A regisztrációd sikeres.</p>"
+                    email,
+                    "Sikeres regisztráció ✔",
+                    "<h1>Üdv a CoreTech-ben, " + username + "!</h1><p>A regisztrációd sikeres.</p>"
             );
 
             resp.put("status", "UserCreated");
@@ -71,12 +71,32 @@ public class UsersService {
         JSONObject resp = new JSONObject();
 
         try {
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("softdelUser");
+            // 1) user betöltése
+            Users user = em.find(Users.class, userId);
+            if (user == null) {
+                resp.put("status", "UserNotFound");
+                resp.put("statusCode", 404);
+                return resp;
+            }
 
+            String email = user.getEmail();
+            String username = user.getUsername();
+
+            // 2) stored procedure hívása
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("softDelUser");
             spq.registerStoredProcedureParameter("userIDIN", Integer.class, ParameterMode.IN);
             spq.setParameter("userIDIN", userId);
 
             spq.execute();
+
+            // 3) Email küldés
+            EmailService.sendEmail(
+                    email,
+                    "Fiók deaktiválva ✔",
+                    "<h1>Szia " + username + "!</h1>"
+                    + "<p>A fiókod sikeresen deaktiválva lett.</p>"
+                    + "<p>Ha nem te voltál, azonnal vedd fel velünk a kapcsolatot!</p>"
+            );
 
             resp.put("status", "UserSoftDeleted");
             resp.put("statusCode", 200);
@@ -94,17 +114,38 @@ public class UsersService {
         JSONObject resp = new JSONObject();
 
         try {
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("updateUser");
+            // betöltjük a usert (emailhez kell)
+            Users user = em.find(Users.class, userId);
+            if (user == null) {
+                resp.put("status", "UserNotFound");
+                resp.put("statusCode", 404);
+                return resp;
+            }
+
+            String oldEmail = user.getEmail();
+            String username = user.getUsername();
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updateUserById");
 
             spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
             spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
 
             spq.setParameter("userIdIN", userId);
+            spq.setParameter("usernameIN", username);
             spq.setParameter("emailIN", email);
-            spq.setParameter("phoneIN", phone);
+            spq.setParameter("roleIN", user.getRole());
 
             spq.execute();
+
+            // EMAIL
+            EmailService.sendEmail(
+                    oldEmail,
+                    "Fiók módosítva ✔",
+                    "<h1>Szia " + username + "!</h1>"
+                    + "<p>A fiók adataid frissítve lettek.</p>"
+            );
 
             resp.put("status", "UserUpdated");
             resp.put("statusCode", 200);
@@ -123,7 +164,6 @@ public class UsersService {
 
         try {
             Users user = em.find(Users.class, userId);
-
             if (user == null) {
                 resp.put("status", "UserNotFound");
                 resp.put("statusCode", 404);
@@ -137,18 +177,19 @@ public class UsersService {
 
             StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
 
-            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
             spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
 
-            spq.setParameter("passwordIN", hashed);
             spq.setParameter("userIdIN", userId);
+            spq.setParameter("passwordIN", hashed);
 
             spq.execute();
 
             EmailService.sendEmail(
-                email,
-                "Jelszó frissítve ✔",
-                "<h1>Szia " + username + "!</h1><p>A jelszavad sikeresen frissítve lett.</p>"
+                    email,
+                    "Jelszó frissítve ✔",
+                    "<h1>Szia " + username + "!</h1>"
+                    + "<p>A jelszavad sikeresen frissült!</p>"
             );
 
             resp.put("status", "PasswordUpdated");
