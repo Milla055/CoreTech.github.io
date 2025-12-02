@@ -121,4 +121,46 @@ public class AdminUsersController {
                 .build();
     }
 
+    @GET
+    @Path("filter/admin/{adminId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAdmins(@PathParam("adminId") int adminId) {
+
+        if (!isAdmin(adminId)) {
+            return Response.status(403)
+                    .entity("{\"error\":\"Forbidden - Admin only\"}")
+                    .build();
+        }
+
+        JSONArray users = adminUsersService.getAdmins();
+
+        JSONObject resp = new JSONObject();
+        resp.put("status", "Success");
+        resp.put("statusCode", 200);
+        resp.put("admins", users);
+
+        return Response.ok(resp.toString()).build();
+    }
+
+    @GET
+    @Path("filter/customer/{adminId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCustomers(@PathParam("adminId") int adminId) {
+
+        if (!isAdmin(adminId)) {
+            return Response.status(403)
+                    .entity("{\"error\":\"Forbidden - Admin only\"}")
+                    .build();
+        }
+
+        JSONArray users = adminUsersService.getCustomers();
+
+        JSONObject resp = new JSONObject();
+        resp.put("status", "Success");
+        resp.put("statusCode", 200);
+        resp.put("customers", users);
+
+        return Response.ok(resp.toString()).build();
+    }
+
 }

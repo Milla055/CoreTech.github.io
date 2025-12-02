@@ -140,4 +140,53 @@ public class AdminUsersService {
 
         return resp;
     }
+
+    public JSONArray getAdmins() {
+        List<Object[]> rows = em.createNativeQuery(
+                "SELECT id, username, email, phone, role, created_at "
+                + "FROM users "
+                + "WHERE role = 'admin' AND (is_deleted IS NULL OR is_deleted = 0) "
+                + "ORDER BY created_at DESC"
+        ).getResultList();
+
+        JSONArray arr = new JSONArray();
+
+        for (Object[] row : rows) {
+            JSONObject obj = new JSONObject();
+            obj.put("id", row[0]);
+            obj.put("username", row[1]);
+            obj.put("email", row[2]);
+            obj.put("phone", row[3]);
+            obj.put("role", row[4]);
+            obj.put("createdAt", row[5]);
+            arr.put(obj);
+        }
+
+        return arr;
+    }
+
+    public JSONArray getCustomers() {
+        List<Object[]> rows = em.createNativeQuery(
+                "SELECT id, username, email, phone, role, created_at "
+                + "FROM users "
+                + "WHERE role = 'customer' AND (is_deleted IS NULL OR is_deleted = 0) "
+                + "ORDER BY created_at DESC"
+        ).getResultList();
+
+        JSONArray arr = new JSONArray();
+
+        for (Object[] row : rows) {
+            JSONObject obj = new JSONObject();
+            obj.put("id", row[0]);
+            obj.put("username", row[1]);
+            obj.put("email", row[2]);
+            obj.put("phone", row[3]);
+            obj.put("role", row[4]);
+            obj.put("createdAt", row[5]);
+            arr.put(obj);
+        }
+
+        return arr;
+    }
+
 }

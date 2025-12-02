@@ -3,6 +3,7 @@ com\mycompany\coretech3\service\EmailService$1.class
 com\mycompany\coretech3\model\ProductAttributes.class
 com\mycompany\coretech3\service\UsersService.class
 com\mycompany\coretech3\model\Products.class
+com\mycompany\coretech3\controller\AnalyticsController.class
 com\mycompany\coretech3\service\OrdersService.class
 com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\model\Users.class
@@ -16,6 +17,7 @@ com\mycompany\coretech3\scheduler\OrderStatusScheduler.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Attributes.class
 com\mycompany\coretech3\model\Addresses.class
+com\mycompany\coretech3\service\AnalyticsService.class
 com\mycompany\coretech3\model\Orders.class
 com\mycompany\coretech3\model\Categories.class
 com\mycompany\coretech3\security\JwtUtil.class
