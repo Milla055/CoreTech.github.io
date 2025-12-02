@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Products.findById", query = "SELECT p FROM Products p WHERE p.id = :id"),
     @NamedQuery(name = "Products.findByName", query = "SELECT p FROM Products p WHERE p.name = :name"),
     @NamedQuery(name = "Products.findByPrice", query = "SELECT p FROM Products p WHERE p.price = :price"),
+    @NamedQuery(name = "Products.findByPPrice", query = "SELECT p FROM Products p WHERE p.pPrice = :pPrice"),
     @NamedQuery(name = "Products.findByStock", query = "SELECT p FROM Products p WHERE p.stock = :stock"),
     @NamedQuery(name = "Products.findByImageUrl", query = "SELECT p FROM Products p WHERE p.imageUrl = :imageUrl"),
     @NamedQuery(name = "Products.findByCreatedAt", query = "SELECT p FROM Products p WHERE p.createdAt = :createdAt"),
@@ -68,6 +69,10 @@ public class Products implements Serializable {
     @NotNull
     @Column(name = "price")
     private BigDecimal price;
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "p_price")
+    private BigDecimal pPrice;
     @Column(name = "stock")
     private Integer stock;
     @Size(max = 255)
@@ -103,10 +108,11 @@ public class Products implements Serializable {
         this.id = id;
     }
 
-    public Products(Integer id, String name, BigDecimal price, Date createdAt) {
+    public Products(Integer id, String name, BigDecimal price, BigDecimal pPrice, Date createdAt) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.pPrice = pPrice;
         this.createdAt = createdAt;
     }
 
@@ -140,6 +146,14 @@ public class Products implements Serializable {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getPPrice() {
+        return pPrice;
+    }
+
+    public void setPPrice(BigDecimal pPrice) {
+        this.pPrice = pPrice;
     }
 
     public Integer getStock() {

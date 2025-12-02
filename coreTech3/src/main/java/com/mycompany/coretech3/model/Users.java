@@ -25,6 +25,10 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+/**
+ *
+ * @author kamil
+ */
 @Entity
 @Table(name = "users")
 @XmlRootElement
@@ -37,79 +41,76 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Users.findByPasswordHash", query = "SELECT u FROM Users u WHERE u.passwordHash = :passwordHash"),
     @NamedQuery(name = "Users.findByRole", query = "SELECT u FROM Users u WHERE u.role = :role"),
     @NamedQuery(name = "Users.findByCreatedAt", query = "SELECT u FROM Users u WHERE u.createdAt = :createdAt"),
+    @NamedQuery(name = "Users.findByIsSubscripted", query = "SELECT u FROM Users u WHERE u.isSubscripted = :isSubscripted"),
     @NamedQuery(name = "Users.findByIsDeleted", query = "SELECT u FROM Users u WHERE u.isDeleted = :isDeleted"),
-    @NamedQuery(name = "Users.findByDeletedAt", query = "SELECT u FROM Users u WHERE u.deletedAt = :deletedAt")
-})
+    @NamedQuery(name = "Users.findByDeletedAt", query = "SELECT u FROM Users u WHERE u.deletedAt = :deletedAt")})
 public class Users implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
-
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
     @Column(name = "username")
     private String username;
-
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "email")
     private String email;
-
+    // @Pattern(regexp="^\\(?(\\d{3})\\)?[- ]?(\\d{3})[- ]?(\\d{4})$", message="Invalid phone/fax format, should be as xxx-xxx-xxxx")//if the field contains phone or fax number consider using this annotation to enforce field validation
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 50)
     @Column(name = "phone")
     private String phone;
-
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "password_hash")
     private String passwordHash;
-
     @Size(max = 8)
     @Column(name = "role")
     private String role;
-
     @Basic(optional = false)
     @NotNull
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-
+    @Column(name = "is_subscripted")
+    private Boolean isSubscripted;
     @Column(name = "is_deleted")
     private Boolean isDeleted;
-
     @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Addresses> addressesCollection;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Reviews> reviewsCollection;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Orders> ordersCollection;
 
-    
-
-    public Users() {}
-
+    public Users() {
+    }
 
     public Users(Integer id) {
         this.id = id;
     }
 
- 
+    public Users(Integer id, String username, String email, String phone, String passwordHash, Date createdAt) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.createdAt = createdAt;
+    }
 
     public Integer getId() {
         return id;
@@ -167,6 +168,14 @@ public class Users implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Boolean getIsSubscripted() {
+        return isSubscripted;
+    }
+
+    public void setIsSubscripted(Boolean isSubscripted) {
+        this.isSubscripted = isSubscripted;
+    }
+
     public Boolean getIsDeleted() {
         return isDeleted;
     }
@@ -219,17 +228,20 @@ public class Users implements Serializable {
 
     @Override
     public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Users)) {
             return false;
         }
         Users other = (Users) object;
-        return !((this.id == null && other.id != null) || 
-                (this.id != null && !this.id.equals(other.id)));
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
         return "com.mycompany.coretech3.model.Users[ id=" + id + " ]";
     }
+    
 }
-

@@ -101,7 +101,7 @@ public class AdminUsersController {
                 .build();
     }
 
-    @DELETE
+    @PUT
     @Path("delete/{adminId}/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response softDeleteUser(
