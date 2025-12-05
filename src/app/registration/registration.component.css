@@ -1,0 +1,73 @@
+#username {
+    position: relative;
+    width: 320px;
+    height: 25px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+#email {
+    position: relative;
+    width: 320px;
+    height: 25px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+#password {
+    position: relative;
+    width: 320px;
+    height: 25px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+#confirmPassword {
+    position: relative;
+    width: 320px;
+    height: 25px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #6B88AA;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+.registrationForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-left: 80px;
+    margin-top: 70px;
+    width: 300px;
+    align-items: center;
+}
+.button {
+    position:relative;
+    width: 300px;
+    height: 35px;
+    background-color: #3D4474;
+    color: #E9EBF5;
+    font-size: 18px;
+    border-radius: 12px;
+    margin-top: 50px;
+    border: 2px solid #3D4474;
+    cursor: pointer;
+}
+h1 {
+    color: #3D4474;
+    margin-bottom: 20px;
+    margin-left: 60px;
+    margin-top: 90px;
+}
+.text-container {
+    width: 500px;
+    font-size: 16px;
+    color: #333333;
+    float: right;
+}

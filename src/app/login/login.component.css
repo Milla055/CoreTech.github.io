@@ -75,6 +75,7 @@ h1 {
     border-radius: 12px;
     margin-top: 50px;
     border: 2px solid #3D4474;
+    cursor: pointer;
 }
 
 .buttonReg {
@@ -87,6 +88,7 @@ h1 {
     border-radius: 12px;
     margin-top: 10px;
     border: 2px solid #3D4474;
+    cursor: pointer;
 }
 
 button:hover {

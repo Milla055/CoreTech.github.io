@@ -28,7 +28,7 @@
     background-color: #212645;
     border-radius: 25px;
     color: #E9EBF5;
-    font-size: 16px;
+    
     border: none;
     cursor: pointer;
     margin-right: 50px;
@@ -51,7 +51,7 @@
 
 .searchbar {
     border-radius: 25px;
-    background-color: #6B88AA;
+    background-color: #9EB5CB;
     padding: 5px;
     width: 400px;
 }
