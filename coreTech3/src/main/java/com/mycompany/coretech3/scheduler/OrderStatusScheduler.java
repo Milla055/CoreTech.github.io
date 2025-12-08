@@ -13,17 +13,16 @@ import javax.inject.Inject;
 /**
  *
  * @author kamil
- */
-@Singleton
+ */@Singleton
 @Startup
 public class OrderStatusScheduler {
 
-    @Inject
-    OrdersService ordersService;
-
-    @Schedule(hour="*", minute="*/3", second="0", persistent=false)
-    public void autoUpdateOrders() {
-        ordersService.autoProgressOrders();
-    }
+//    @Inject
+//    OrdersService ordersService;
+//
+//    @Schedule(hour="*", minute="*/3", second="0", persistent=false)
+//    public void autoUpdateOrders() {
+//        ordersService.autoProgressOrders();
+//    }
 }
 

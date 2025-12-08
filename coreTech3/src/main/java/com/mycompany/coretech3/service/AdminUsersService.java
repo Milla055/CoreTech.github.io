@@ -9,6 +9,7 @@ package com.mycompany.coretech3.service;
  * @author kamil
  */
 import com.mycompany.coretech3.model.Users;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;

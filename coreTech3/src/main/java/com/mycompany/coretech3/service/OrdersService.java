@@ -8,16 +8,13 @@ package com.mycompany.coretech3.service;
  *
  * @author kamil
  */
-import com.mycompany.coretech3.model.Orders;
 import com.mycompany.coretech3.model.Users;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.json.JSONObject;
-
 import javax.persistence.StoredProcedureQuery;
-
 import javax.persistence.ParameterMode;
 import org.json.JSONArray;
 
@@ -27,11 +24,12 @@ public class OrdersService {
     @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
     private EntityManager em;
 
-    // ============== CREATE ORDER ==============
     public JSONObject createOrder(int userId, int addressId, String totalPrice, String status) {
+
         JSONObject resp = new JSONObject();
 
         try {
+            // Ellenőrzés hogy a user létezik
             Users user = em.find(Users.class, userId);
 
             if (user == null) {
@@ -43,7 +41,7 @@ public class OrdersService {
             String email = user.getEmail();
             String username = user.getUsername();
 
-            // Stored procedure call
+            // PROCEDURE
             StoredProcedureQuery spq = em.createStoredProcedureQuery("createOrders");
 
             spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
@@ -58,14 +56,14 @@ public class OrdersService {
 
             spq.execute();
 
-            // Email
+            // EMAIL
             EmailService.sendEmail(
-                email,
-                "Rendelés leadva ✔",
-                "<h1>Szia " + username + "!</h1>"
-                + "<p>A rendelésed sikeresen leadásra került.</p>"
-                + "<p><b>Végösszeg:</b> " + totalPrice + " Ft</p>"
-                + "<p>Státusz: " + status + "</p>"
+                    email,
+                    "Rendelés leadva ✔",
+                    "<h1>Szia " + username + "!</h1>"
+                            + "<p>A rendelésed sikeresen leadva.</p>"
+                            + "<p><b>Végösszeg:</b> " + totalPrice + " Ft</p>"
+                            + "<p>Státusz: <b>" + status + "</b></p>"
             );
 
             resp.put("status", "OrderCreated");
@@ -81,51 +79,40 @@ public class OrdersService {
     }
 
     // ============== AUTO PROGRESS ==============
-    public void autoProgressOrders() {
-        try {
-            List<Orders> orders = em.createQuery(
-                "SELECT o FROM Orders o WHERE o.status <> 'delivered'", Orders.class
-            ).getResultList();
-
-            for (Orders o : orders) {
-
-                String newStatus;
-
-                switch (o.getStatus()) {
-                    case "pending":
-                        newStatus = "paid";       // rövidített
-                        break;
-
-                    case "paid":
-                        newStatus = "shipping";   // rövidített
-                        break;
-
-                    case "shipped":
-                        newStatus = "delivered";  // rövidített
-                        break;
-
-                    default:
-                        newStatus = o.getStatus();
-                        break;
-                }
-
-                if (!newStatus.equals(o.getStatus())) {
-
-                    o.setStatus(newStatus);
-                    em.merge(o);
-
-                    EmailService.sendEmail(
-                        o.getUserId().getEmail(),
-                        "Rendelés státusz frissítve ✔",
-                        "<h1>Új státusz: " + newStatus + "</h1>"
-                    );
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public void autoProgressOrders() {
+//        try {
+//            List<Orders> orders = em.createQuery(
+//                "SELECT o FROM Orders o WHERE o.status <> 'delivered'", 
+//                Orders.class
+//            ).getResultList();
+//
+//            for (Orders o : orders) {
+//
+//                String newStatus = switch (o.getStatus()) {
+//                    case "pending"  -> "paid";
+//                    case "paid"     -> "shipping";
+//                    case "shipping" -> "shipped";
+//                    case "shipped"  -> "delivered";
+//                    default         -> o.getStatus();
+//                };
+//
+//                if (!newStatus.equals(o.getStatus())) {
+//
+//                    o.setStatus(newStatus);
+//                    em.merge(o);
+//
+//                    EmailService.sendEmail(
+//                        o.getUserId().getEmail(),
+//                        "Rendelés státusz frissítve ✔",
+//                        "<h1>Új státusz: " + newStatus + "</h1>"
+//                    );
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     // ============== GET ORDERS BY USER ==============
     public JSONObject getOrdersByUserId(int userId) {
@@ -138,26 +125,23 @@ public class OrdersService {
             spq.setParameter("userIdIN", userId);
 
             List<Object[]> results = spq.getResultList();
-
-            JSONArray ordersArray = new JSONArray();
+            JSONArray arr = new JSONArray();
 
             for (Object[] row : results) {
-                JSONObject order = new JSONObject();
-
-                order.put("order_id", row[0]);
-                order.put("product_name", row[1]);
-                order.put("image_url", row[2]);
-                order.put("total_price", row[3]);
-                order.put("status", row[4]);
-                order.put("quantity", row[5]);
-                order.put("created_at", row[6]);
-
-                ordersArray.put(order);
+                JSONObject obj = new JSONObject();
+                obj.put("order_id", row[0]);
+                obj.put("product_name", row[1]);
+                obj.put("image_url", row[2]);
+                obj.put("total_price", row[3]);
+                obj.put("status", row[4]);
+                obj.put("quantity", row[5]);
+                obj.put("created_at", row[6]);
+                arr.put(obj);
             }
 
             resp.put("status", "OK");
             resp.put("statusCode", 200);
-            resp.put("orders", ordersArray);
+            resp.put("orders", arr);
 
         } catch (Exception e) {
             e.printStackTrace();

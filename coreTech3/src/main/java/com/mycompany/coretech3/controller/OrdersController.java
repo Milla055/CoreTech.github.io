@@ -22,9 +22,8 @@ import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
 @Stateless
-@Path("Orders")
+@Path("orders")
 public class OrdersController {
-
     @Inject
     private OrdersService ordersService;
 
@@ -39,47 +38,34 @@ public class OrdersController {
         int userId = obj.getInt("userId");
         int addressId = obj.getInt("addressId");
         String totalPrice = obj.getString("totalPrice");
-        String status = obj.getString("status"); // pl. "pending"
+        String status = obj.has("status") ? obj.getString("status") : "pending";
 
         JSONObject result = ordersService.createOrder(userId, addressId, totalPrice, status);
 
-        return Response
-                .status(result.getInt("statusCode"))
+        return Response.status(result.getInt("statusCode"))
                 .entity(result.toString())
-                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
-    @GET
-    @Path("autoProgress")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response autoProgressOrders() {
-        try {
-            ordersService.autoProgressOrders();
 
-            JSONObject resp = new JSONObject();
-            resp.put("status", "OrdersProgressed");
-            resp.put("statusCode", 200);
 
-            return Response.ok(resp.toString(), MediaType.APPLICATION_JSON).build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JSONObject resp = new JSONObject();
-            resp.put("status", "ServerError");
-            resp.put("statusCode", 500);
-
-            return Response.status(500)
-                    .entity(resp.toString())
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-    }
+//    @GET
+//    @Path("autoprogress")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response autoProgressOrders() {
+//        ordersService.autoProgressOrders();
+//
+//        JSONObject resp = new JSONObject();
+//        resp.put("status", "OrdersProgressed");
+//        resp.put("statusCode", 200);
+//
+//        return Response.ok(resp.toString()).build();
+//    }
 
     @GET
-    @Path("/getOrdersByUserId/{userId}")
+    @Path("user/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getOrdersByUserId(@PathParam("userId") int userId) {
+    public Response getOrdersByUser(@PathParam("userId") int userId) {
 
         JSONObject result = ordersService.getOrdersByUserId(userId);
 
@@ -88,5 +74,5 @@ public class OrdersController {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
-
 }
+

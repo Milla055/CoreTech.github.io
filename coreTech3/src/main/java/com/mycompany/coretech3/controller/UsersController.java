@@ -6,6 +6,7 @@ package com.mycompany.coretech3.controller;
 
 import com.mycompany.coretech3.service.EmailService;
 import com.mycompany.coretech3.service.UsersService;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -103,18 +104,7 @@ public class UsersController {
                 .build();
     }
 
-    @GET
-    @Path("getOrdersByUserId/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getOrdersByUserId(@PathParam("userId") int userId) {
 
-        JSONObject result = usersService.getOrdersByUserId(userId);
-
-        return Response.status(result.getInt("statusCode"))
-                .entity(result.toString())
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
 
     @POST
     @Path("login")

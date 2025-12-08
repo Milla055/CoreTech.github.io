@@ -10,6 +10,7 @@ package com.mycompany.coretech3.controller;
  */
 import com.mycompany.coretech3.model.Users;
 import com.mycompany.coretech3.service.AdminUsersService;
+import com.mycompany.coretech3.service.UsersService;
 import javax.inject.Inject;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -30,11 +31,17 @@ public class AdminUsersController {
     @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
     private EntityManager em;
 
+    
     private boolean isAdmin(int adminId) {
         Users admin = em.find(Users.class, adminId);
         return admin != null && "admin".equals(admin.getRole());
     }
 
+    @GET
+@Path("test")
+public Response test() {
+    return Response.ok("{\"msg\":\"admin controller OK\"}").build();
+}
     @GET
     @Path("getAll/{adminId}")
     @Produces(MediaType.APPLICATION_JSON)
