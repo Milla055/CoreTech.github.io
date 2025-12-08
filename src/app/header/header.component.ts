@@ -1,12 +1,13 @@
 import { Component, HostListener } from '@angular/core';
 import { LoginComponent } from "../login/login.component";
 import { ShopmenuComponent } from "../shopmenu/shopmenu.component";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  imports: [ShopmenuComponent, LoginComponent],
+  imports: [ShopmenuComponent, RouterLink],
 })
 export class HeaderComponent {
   loginPopup = false;

@@ -1,34 +1,37 @@
-<div class="backdrop"><dialog open>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    
-
+<div class="backdrop">
+    <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p>CoreTech</p></header></div>
     <div class="control-row">
+        <img src="assets/CoreTechLogo.png" alt="logo" class="logoSmall">
+        <span class="welcomeText">Üdv újra!<br><br>
+            Örülünk, hogy visszatértél!
+        </span>
         <h1>Bejelentkezés</h1>
-        <button class="closeBtn" (click)="closeLogin()"><img src="assets/favicon-32x32.png" class="closeIcon"></button>
         <div class="control-no-margin">
-            <label for="email"></label>
-            <input type="email" id="email" [formControl]="form.controls.email" placeholder="E-mail">
+            
+            <label for="email">E-mail cím: *</label><br>
+            <input type="email" id="email" [formControl]="form.controls.email">
             <!-- @if (emailIsInvalid) {
         <p class="control-error">Kérlek, érvényes e-mail címet adj meg.</p>
     } -->
         </div>
         <div class="control-no-margin">
-            <label for="password"></label>
-            <input type="password" id="password" formControlName="password" placeholder="Jelszó">
+            <label for="password">Jelszó: *</label><br>
+            <input type="password" id="password" formControlName="password">
             <!-- @if (passwordIsInvalid) {
         <p class="control-error">Kérlek, érvényes jelszót addj meg (Legalább 8 karakter hosszú).</p>
     } -->
+        
         </div>
         <div class="remember-me">
             <label>
                 <input type="checkbox" class="checkbox"> <span>Emlékezz rám!</span>
             </label>
+            <a href="#" class="forgotPass">Elfelejtettem a jelszavam!</a>
         </div>
         <div class="container">
             <button class="button">Bejelentkezés</button>
-            <button type="button" class="buttonReg">Regisztráció</button>
+            <span class="notRegistered">Nincs még felhasználói fiókod?</span><a routerLink="/registration" class="registration">Regisztráció</a><br>
+            <span class="backToMain">Vissza a <a routerLink="/mainpage">Főoldalra</a>!</span>
         </div>
     </div>
-    </form>
-    </dialog>
 </div>

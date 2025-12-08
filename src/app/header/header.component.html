@@ -1,4 +1,3 @@
-<app-login [hidden]="!loginPopup" (cancel)="closeLogin()"></app-login>
 <app-shopmenu [hidden]="!shopMenu" (close)="closeShopMenu()"></app-shopmenu>
 
 <header class="navbar">
@@ -35,7 +34,7 @@
       </div>
     </div>
 
-    <button (click)="onLogin()" class="loginBtn">Bejelentkezés</button>
+    <button routerLink="/login" class="loginBtn">Bejelentkezés</button>
     <button class="cartBtn"><img src="assets/carticon-32x32.png" alt="cart" class="cartIcon"></button>
   </div>
 </header>

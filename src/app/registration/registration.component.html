@@ -1,21 +1,53 @@
-<app-header></app-header>
+<div class="backdrop">
+    <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p>CoreTech</p></header></div>
+    <div class="control-row" [formGroup]="form">
+        <h1>Regisztráció</h1>
+        <div class="control-no-margin">
 
-<h1>Regisztráció</h1>
-<div class="registrationForm">
-    
-    <input type="text" id="username" placeholder="Felhasználónév"> 
-    <input type="email" id="email" placeholder="Email cím">
-    <input type="password" id="password" placeholder="Jelszó">
-    <input type="password" id="confirmPassword" placeholder="Jelszó megerősítése">
-    <button type="button" class="button">Regisztráció</button>
+            <label for="email">E-mail cím: *</label><br>
+            <input type="email" id="email" formControlName="email">
+        </div>
+        
+
+        <div class="control-no-margin">
+            <label for="username">Felhasználónév: *</label><br>
+            <input type="text" id="username" formControlName="username">
+        </div>
+        
+
+        <div class="control-no-margin">
+            <label for="password">Jelszó: *</label><br>
+            <input type="password" id="password" formControlName="password">
+        </div>
+        
+
+        <div class="control-no-margin">
+            <label for="confirmPassword">Jelszó megerősítése: *</label><br>
+            <input type="password" id="confirmPassword" formControlName="confirmPassword">
+        </div>
+        
+
+        <div class="optional">
+            <label>
+                <input type="checkbox" class="checkbox"> <span>(Opcionális) Szeretnék személyre szabott ajánlatokat kapni a CoreTech-től!</span>
+            </label>
+        </div>
+        <div class="optional">
+            <label>
+                <input type="checkbox" class="checkbox"> <span>Megértettem, és beleegyezek a CoreTech <a href="#" class="link">Általános felhasználói feltételeibe</a> és az <a href="#" class="link">Adatvédelmi szabályzatba</a>!</span>
+            </label>
+        </div>
+        <div class="container">
+            <button class="button">Regisztráció</button>
+        </div>
+        <div class="optional-login">
+            <span>Vissza a <a routerLink="/login" class="backToLogin">Bejelentkezéshez</a></span>
+        </div>
+        <div class="control-error">
+            <p class="control-error1" *ngIf="emailIsInvalid">Kérlek, érvényes e-mail címet adj meg.</p>
+            <p class="control-error2" *ngIf="usernameIsInvalid">Kérlek, adj meg egy felhasználónevet.</p>
+            <p class="control-error3" *ngIf="passwordIsInvalid">Kérlek, érvényes jelszót adj meg (legalább 8 karakter).</p>
+            <p class="control-error4" *ngIf="confirmPasswordIsInvalid">A jelszavak nem egyeznek!</p>
+        </div>
+    </div>
 </div>
-
-<div class="text-container">
-    Üdvözlünk a CoreTech közösségében!
-Nálunk a legújabb technológiai újdonságokat, megbízható eszközöket és praktikus kiegészítőket találod egy helyen.
-Regisztrálj, hogy gyorsabban vásárolhass, nyomon követhesd rendeléseidet, és elsőként értesülj a legjobb ajánlatainkról.
-Lépj be a CoreTech világába – ahol a technológia érted dolgozik!
-</div>
-
-
-
