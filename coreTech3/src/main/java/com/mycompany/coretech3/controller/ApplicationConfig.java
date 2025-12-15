@@ -32,6 +32,8 @@ public class ApplicationConfig extends Application {
         resources.add(com.mycompany.coretech3.controller.AnalyticsController.class);
         resources.add(com.mycompany.coretech3.controller.OrdersController.class);
         resources.add(com.mycompany.coretech3.controller.UsersController.class);
+        resources.add(com.mycompany.coretech3.filter.CorsFilter.class);
+        resources.add(com.mycompany.coretech3.security.JwtAuthFilter.class);
         
     }
 

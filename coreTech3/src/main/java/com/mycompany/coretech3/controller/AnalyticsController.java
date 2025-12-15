@@ -20,18 +20,28 @@ import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.mycompany.coretech3.service.AnalyticsService;
+import java.util.List;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 @Stateless
 @Path("admin/analytics")
+@Produces(MediaType.APPLICATION_JSON)
 public class AnalyticsController {
 
     @Inject
     private AnalyticsService analyticsService;
 
+    // ================= TOTAL REVENUE =================
     @GET
     @Path("revenue")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getTotalRevenue() {
-
         try {
             long totalRevenue = analyticsService.getTotalRevenue();
 
@@ -41,23 +51,16 @@ public class AnalyticsController {
             resp.put("totalRevenue", totalRevenue);
 
             return Response.ok(resp.toString()).build();
-
         } catch (Exception e) {
             e.printStackTrace();
-
-            JSONObject resp = new JSONObject();
-            resp.put("status", "Error");
-            resp.put("statusCode", 500);
-
-            return Response.status(500).entity(resp.toString()).build();
+            return error();
         }
     }
 
+    // ================= TOTAL PROFIT =================
     @GET
     @Path("profit")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getTotalProfit() {
-
         try {
             long totalProfit = analyticsService.getTotalProfit();
 
@@ -67,25 +70,18 @@ public class AnalyticsController {
             resp.put("totalProfit", totalProfit);
 
             return Response.ok(resp.toString()).build();
-
         } catch (Exception e) {
             e.printStackTrace();
-
-            JSONObject resp = new JSONObject();
-            resp.put("status", "Error");
-            resp.put("statusCode", 500);
-
-            return Response.status(500).entity(resp.toString()).build();
+            return error();
         }
     }
 
+    // ================= USER SPENDING =================
     @GET
     @Path("user-spending")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getUserSpending() {
         try {
             List<Object[]> rows = analyticsService.getUserSpendings();
-
             JSONArray arr = new JSONArray();
 
             for (Object[] row : rows) {
@@ -94,7 +90,6 @@ public class AnalyticsController {
                 obj.put("username", row[1]);
                 obj.put("email", row[2]);
                 obj.put("totalSpent", row[3]);
-
                 arr.put(obj);
             }
 
@@ -104,21 +99,15 @@ public class AnalyticsController {
             resp.put("users", arr);
 
             return Response.ok(resp.toString()).build();
-
         } catch (Exception e) {
             e.printStackTrace();
-
-            JSONObject resp = new JSONObject();
-            resp.put("status", "Error");
-            resp.put("statusCode", 500);
-
-            return Response.status(500).entity(resp.toString()).build();
+            return error();
         }
     }
 
+    // ================= ORDER COUNT =================
     @GET
     @Path("orders/count")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getOrdersCount() {
         try {
             long count = analyticsService.getTotalOrdersCount();
@@ -129,29 +118,25 @@ public class AnalyticsController {
             resp.put("totalOrders", count);
 
             return Response.ok(resp.toString()).build();
-
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(500)
-                    .entity("{\"status\":\"Error\",\"statusCode\":500}")
-                    .build();
+            return error();
         }
     }
 
+    // ================= ORDER STATUS DISTRIBUTION =================
     @GET
     @Path("orders/status")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getOrderStatusDistribution() {
-
         try {
-            List<Object[]> rows = analyticsService.getOrderStatusDistribution();
-            JSONArray arr = new JSONArray();
+            List<Object[]> rows =
+                    analyticsService.getOrderStatusDistribution();
 
+            JSONArray arr = new JSONArray();
             for (Object[] row : rows) {
                 JSONObject obj = new JSONObject();
                 obj.put("status", row[0]);
                 obj.put("count", row[1]);
-
                 arr.put(obj);
             }
 
@@ -161,14 +146,17 @@ public class AnalyticsController {
             resp.put("distribution", arr);
 
             return Response.ok(resp.toString()).build();
-
         } catch (Exception e) {
             e.printStackTrace();
-
-            return Response.status(500)
-                    .entity("{\"status\":\"Error\",\"statusCode\":500}")
-                    .build();
+            return error();
         }
     }
 
+    // ================= ERROR HELPER =================
+    private Response error() {
+        JSONObject resp = new JSONObject();
+        resp.put("status", "Error");
+        resp.put("statusCode", 500);
+        return Response.status(500).entity(resp.toString()).build();
+    }
 }

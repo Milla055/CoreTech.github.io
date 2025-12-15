@@ -6,10 +6,12 @@ package com.mycompany.coretech3.service;
 
 import com.mycompany.coretech3.model.Users;
 import com.mycompany.coretech3.security.JwtUtil;
+import com.mycompany.coretech3.util.EmailTemplateLoader;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
@@ -37,22 +39,26 @@ public class UsersService {
 
             query.registerStoredProcedureParameter("usernIN", String.class, ParameterMode.IN);
             query.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
-            query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
             query.registerStoredProcedureParameter("passwIN", String.class, ParameterMode.IN);
+            query.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
             query.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
 
             query.setParameter("usernIN", username);
             query.setParameter("emailIN", email);
-            query.setParameter("phoneIN", phone);
             query.setParameter("passwIN", hashedPw);
+            query.setParameter("phoneIN", phone);
             query.setParameter("roleIN", role);
 
             query.execute();
 
-            EmailService.sendEmail(
+            String template = EmailTemplateLoader.loadTemplate("regEmail.html");
+            template = template.replace("{{username}}", username);
+
+            EmailService.sendEmailWithImage(
                     email,
                     "Sikeres regisztráció ✔",
-                    "<h1>Üdv a CoreTech-ben, " + username + "!</h1><p>A regisztrációd sikeres.</p>"
+                    template,
+                    "checkmark.png"
             );
 
             resp.put("status", "UserCreated");
@@ -246,34 +252,50 @@ public class UsersService {
         JSONObject resp = new JSONObject();
 
         try {
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+            // 1️⃣ Hash lekérés (stored procedure)
+            StoredProcedureQuery spq
+                    = em.createStoredProcedureQuery("getPasswordByEmail");
 
-            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter(
+                    "emailIN", String.class, ParameterMode.IN
+            );
             spq.setParameter("emailIN", email);
 
-            spq.execute();
+            String storedHash = spq.getSingleResult().toString();
 
-            List<Object> rows = spq.getResultList();
-
-            if (rows == null || rows.isEmpty()) {
-                resp.put("status", "InvalidEmailOrPassword");
-                resp.put("statusCode", 401);
-                return resp;
-            }
-
-            String storedHash = rows.get(0).toString();
-
+            // 2️⃣ Jelszó ellenőrzés
             if (!BCrypt.checkpw(password, storedHash)) {
                 resp.put("status", "InvalidEmailOrPassword");
                 resp.put("statusCode", 401);
                 return resp;
             }
 
-            String token = JwtUtil.generateToken(email);
+            // 3️⃣ TELJES USER ENTITY LEKÉRÉS
+            Users user = em.createQuery(
+                    "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = 0",
+                    Users.class
+            )
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            // 4️⃣ Tokenek
+            String accessToken = JwtUtil.generateAccessToken(
+                    user.getEmail(),
+                    user.getRole()
+            );
+
+            String refreshToken = JwtUtil.generateRefreshToken(
+                    Long.valueOf(user.getId())
+            );
 
             resp.put("status", "LoginSuccess");
             resp.put("statusCode", 200);
-            resp.put("token", token);
+            resp.put("accessToken", accessToken);
+            resp.put("refreshToken", refreshToken);
+
+        } catch (NoResultException e) {
+            resp.put("status", "InvalidEmailOrPassword");
+            resp.put("statusCode", 401);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,5 +305,5 @@ public class UsersService {
 
         return resp;
     }
-}
 
+}

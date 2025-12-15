@@ -8,13 +8,9 @@ package com.mycompany.coretech3.controller;
  *
  * @author kamil
  */
-import com.mycompany.coretech3.model.Users;
 import com.mycompany.coretech3.service.AdminUsersService;
-import com.mycompany.coretech3.service.UsersService;
-import javax.inject.Inject;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -23,35 +19,22 @@ import org.json.JSONObject;
 
 @Stateless
 @Path("admin/users")
+@Produces(MediaType.APPLICATION_JSON)
 public class AdminUsersController {
 
     @Inject
-    private AdminUsersService adminUsersService;  // ← EZ AZ ÚJ
+    private AdminUsersService adminUsersService;
 
-    @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
-    private EntityManager em;
-
-    
-    private boolean isAdmin(int adminId) {
-        Users admin = em.find(Users.class, adminId);
-        return admin != null && "admin".equals(admin.getRole());
+    // ================= TEST =================
+    @GET
+    @Path("test")
+    public Response test() {
+        return Response.ok("{\"msg\":\"admin users controller OK\"}").build();
     }
 
+    // ================= GET ALL USERS =================
     @GET
-@Path("test")
-public Response test() {
-    return Response.ok("{\"msg\":\"admin controller OK\"}").build();
-}
-    @GET
-    @Path("getAll/{adminId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllUsers(@PathParam("adminId") int adminId) {
-
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
+    public Response getAllUsers() {
 
         JSONArray users = adminUsersService.getAllUsersAdmin();
 
@@ -63,18 +46,11 @@ public Response test() {
         return Response.ok(resp.toString()).build();
     }
 
+    // ================= GET USER BY ID =================
     @GET
-    @Path("getById/{adminId}/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{userId}")
     public Response getUserById(
-            @PathParam("adminId") int adminId,
             @PathParam("userId") int userId) {
-
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
 
         JSONObject result = adminUsersService.getUserAdmin(userId);
 
@@ -83,61 +59,42 @@ public Response test() {
                 .build();
     }
 
+    // ================= UPDATE USER ROLE =================
     @PUT
-    @Path("role/{adminId}")
+    @Path("role")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updateRole(
-            @PathParam("adminId") int adminId,
-            String body) {
-
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
+    public Response updateRole(String body) {
 
         JSONObject obj = new JSONObject(body);
         int userId = obj.getInt("userId");
         String newRole = obj.getString("newRole");
 
-        JSONObject result = adminUsersService.updateUserRole(userId, newRole);
+        JSONObject result =
+                adminUsersService.updateUserRole(userId, newRole);
 
         return Response.status(result.getInt("statusCode"))
                 .entity(result.toString())
                 .build();
     }
 
+    // ================= SOFT DELETE USER =================
     @PUT
-    @Path("delete/{adminId}/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("delete/{userId}")
     public Response softDeleteUser(
-            @PathParam("adminId") int adminId,
             @PathParam("userId") int userId) {
 
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
-
-        JSONObject result = adminUsersService.softDeleteUser(userId);
+        JSONObject result =
+                adminUsersService.softDeleteUser(userId);
 
         return Response.status(result.getInt("statusCode"))
                 .entity(result.toString())
                 .build();
     }
 
+    // ================= GET ADMINS =================
     @GET
-    @Path("filter/admin/{adminId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAdmins(@PathParam("adminId") int adminId) {
-
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
+    @Path("filter/admin")
+    public Response getAdmins() {
 
         JSONArray users = adminUsersService.getAdmins();
 
@@ -149,16 +106,10 @@ public Response test() {
         return Response.ok(resp.toString()).build();
     }
 
+    // ================= GET CUSTOMERS =================
     @GET
-    @Path("filter/customer/{adminId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCustomers(@PathParam("adminId") int adminId) {
-
-        if (!isAdmin(adminId)) {
-            return Response.status(403)
-                    .entity("{\"error\":\"Forbidden - Admin only\"}")
-                    .build();
-        }
+    @Path("filter/customer")
+    public Response getCustomers() {
 
         JSONArray users = adminUsersService.getCustomers();
 
@@ -169,5 +120,4 @@ public Response test() {
 
         return Response.ok(resp.toString()).build();
     }
-
 }

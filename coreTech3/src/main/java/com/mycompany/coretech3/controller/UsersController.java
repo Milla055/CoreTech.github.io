@@ -4,11 +4,16 @@
  */
 package com.mycompany.coretech3.controller;
 
+import com.mycompany.coretech3.model.Users;
+import com.mycompany.coretech3.security.JwtUtil;
 import com.mycompany.coretech3.service.EmailService;
 import com.mycompany.coretech3.service.UsersService;
+import io.jsonwebtoken.Claims;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -16,6 +21,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
@@ -28,6 +34,7 @@ public class UsersController {
 
     @Inject   // ← CDI injektálja a UsersService EJB-t
     private UsersService usersService;
+    private EntityManager em;
 
     @POST
     @Path("createUser")
@@ -104,8 +111,6 @@ public class UsersController {
                 .build();
     }
 
-
-
     @POST
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -126,18 +131,53 @@ public class UsersController {
                 .build();
     }
 
-    @GET
-    @Path("testEmail")
+    @POST
+    @Path("refresh")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response testEmail() {
+    public Response refresh(@CookieParam("refreshToken") String refreshToken) {
 
-        EmailService.sendEmail(
-                "valaki@gmail.com",
-                "Teszt email",
-                "<h1>Hello Milla!</h1><p>Működik a Gmail smtp!</p>"
+        if (refreshToken == null) {
+            return Response.status(401).build();
+        }
+
+        try {
+            Claims claims = JwtUtil.validate(refreshToken);
+            Long userId = claims.get("uid", Long.class);
+
+            Users user = em.find(Users.class, userId.intValue());
+            if (user == null || Boolean.TRUE.equals(user.getIsDeleted())) {
+                return Response.status(401).build();
+            }
+
+            String newAccessToken
+                    = JwtUtil.generateAccessToken(user.getEmail(), user.getRole());
+
+            JSONObject resp = new JSONObject();
+            resp.put("accessToken", newAccessToken);
+
+            return Response.ok(resp.toString()).build();
+
+        } catch (Exception e) {
+            return Response.status(401).build();
+        }
+    }
+
+    @POST
+    @Path("logout")
+    public Response logout() {
+
+        NewCookie deleteCookie = new NewCookie(
+                "refreshToken", "",
+                "/", null,
+                "logout",
+                0,
+                false,
+                true
         );
 
-        return Response.ok("{\"status\":\"email sent\"}").build();
+        return Response.ok()
+                .cookie(deleteCookie)
+                .build();
     }
 
 }

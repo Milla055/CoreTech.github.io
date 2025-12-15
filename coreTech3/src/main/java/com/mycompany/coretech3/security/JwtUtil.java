@@ -4,6 +4,7 @@
  */
 package com.mycompany.coretech3.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -15,25 +16,61 @@ import javax.crypto.SecretKey;
  * @author kamil
  */
 public class JwtUtil {
-    
-    // Minimum 32 karakter !!!
-    private static final String SECRET = "THIS_IS_A_REALLY_LONG_SECRET_KEY_1234567890";
-    private static final long EXPIRATION_MS = 1000L * 60 * 60; // 1 óra
+
+    private static final String SECRET =
+        System.getenv("JWT_SECRET");
+
+    private static final long ACCESS_EXP =
+        Long.parseLong(System.getenv("JWT_ACCESS_EXP"));
+
+    private static final long REFRESH_EXP =
+        Long.parseLong(System.getenv("JWT_REFRESH_EXP"));
 
     private static SecretKey getSigningKey() {
-        // EZ FONTOS: byte[] -> SecretKey
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    public static String generateToken(String email) {
+    // 🔑 ACCESS TOKEN
+    public static String generateAccessToken(
+            String email, String role) {
+
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION_MS);
 
         return Jwts.builder()
-                .setSubject(email)           // token tulajdonosa
-                .setIssuedAt(now)            // kiadás idő
-                .setExpiration(expiry)       // lejárat
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(
+                    new Date(now.getTime() + ACCESS_EXP)
+                )
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    // 🔁 REFRESH TOKEN
+    public static String generateRefreshToken(Long userId) {
+
+        Date now = new Date();
+
+        return Jwts.builder()
+                .claim("uid", userId)
+                .setIssuedAt(now)
+                .setExpiration(
+                    new Date(now.getTime() + REFRESH_EXP)
+                )
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    //  VALIDÁLÁS (mindkettőhöz)
+    public static Claims validate(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+  
+    
 }
