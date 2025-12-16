@@ -13,10 +13,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-/**
- *
- * @author kamil
- */
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class JwtAuthFilter implements ContainerRequestFilter {
@@ -25,18 +21,25 @@ public class JwtAuthFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext ctx) {
 
         String path = ctx.getUriInfo().getPath();
+        System.out.println("JWT FILTER PATH = " + path);
 
-        // PUBLIC ENDPOINTS
-        if (path.startsWith("Users/login")
-            || path.startsWith("Users/refresh")
-            || path.startsWith("Users/create")) {
+        // 🔓 PUBLIC ENDPOINTS
+        if (
+            path.contains("Users/login") ||
+            path.contains("Users/refresh") ||
+            path.contains("Users/createUser")
+        ) {
             return;
         }
 
         String auth = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         if (auth == null || !auth.startsWith("Bearer ")) {
-            ctx.abortWith(Response.status(401).build());
+            ctx.abortWith(
+                Response.status(401)
+                    .entity("Missing or invalid Authorization header")
+                    .build()
+            );
             return;
         }
 
@@ -46,15 +49,23 @@ public class JwtAuthFilter implements ContainerRequestFilter {
             Claims claims = JwtUtil.validate(token);
             String role = claims.get("role", String.class);
 
-            // ADMIN védelem
-            if (path.startsWith("admin") &&
-                !"admin".equalsIgnoreCase(role)) {
+            //  ADMIN védelem
+            if (path.contains("admin")
+                && !"admin".equalsIgnoreCase(role)) {
 
-                ctx.abortWith(Response.status(403).build());
+                ctx.abortWith(
+                    Response.status(403)
+                        .entity("Admin only")
+                        .build()
+                );
             }
 
         } catch (Exception e) {
-            ctx.abortWith(Response.status(401).build());
+            ctx.abortWith(
+                Response.status(401)
+                    .entity("Invalid or expired token")
+                    .build()
+            );
         }
     }
 }
