@@ -14,7 +14,7 @@
     border-radius: 10px;
     margin: auto;
     width: 500px;
-    height: 770px;
+    height: 800px;
     margin-top: 20px;
     background-color: #E9EBF5;
     padding-top: 20px;
@@ -40,10 +40,22 @@ h1 {
     font-size: 15px;
     border-radius: 10px;
     border: 1px solid white;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding-left: 7px;
     background-color: #dfe1ec;
-    margin-top: 5px;
+    
+}
+#phone {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 25px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
 }
 #password {
     position: relative;
@@ -52,10 +64,10 @@ h1 {
     font-size: 15px;
     border-radius: 10px;
     border: 1px solid white;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding-left: 7px;
     background-color: #dfe1ec;
-    margin-top: 5px;
+    
 }
 #username {
     position: relative;
@@ -64,10 +76,10 @@ h1 {
     font-size: 15px;
     border-radius: 10px;
     border: 1px solid white;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding-left: 7px;
     background-color: #dfe1ec;
-    margin-top: 5px;
+    
 }
 #confirmPassword {
     position: relative;
@@ -76,10 +88,10 @@ h1 {
     font-size: 15px;
     border-radius: 10px;
     border: 1px solid white;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     padding-left: 7px;
     background-color: #dfe1ec;
-    margin-top: 5px;
+    
 }
 #email:focus, #password:focus, #username:focus, #confirmPassword:focus {
     outline: none;
@@ -99,7 +111,7 @@ h1 {
     color: #E9EBF5;
     font-size: 18px;
     border-radius: 12px;
-    margin-top: 40px;
+    margin-top: 20px;
     border: 2px solid #3D4474;
     cursor: pointer;
     margin-bottom: 10px;
@@ -205,7 +217,7 @@ button:hover {
 .control-error{
     color: #ff0000;
     font-size: 13px;
-    
+    margin-top: 15px;
     display: block;
     clear: both;
 }
@@ -216,12 +228,29 @@ button:hover {
 .control-error2 {
     color: #ff0000;
     font-size: 15px;
+    margin-top: 15px;
 }
 .control-error3 {
     color: #ff0000;
     font-size: 15px;
+    margin-top: 15px;
 }
 .control-error4 {
     color: #ff0000;
     font-size: 15px;
+    margin-top: 15px;
+}
+.control-error5 {
+    color: #ff0000;
+    font-size: 15px;
+    margin-top: 15px;
+}
+.logoText {
+    position: absolute;
+    top: 3px;
+    margin-left: 80px;
+    margin-top: 24px;
+    font-size: 24px;
+    color: #E9EBF5;
+    font-weight: 700;
 }

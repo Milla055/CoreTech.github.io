@@ -1,7 +1,7 @@
 <div class="backdrop">
     <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p>CoreTech</p></header></div>
     <div class="control-row">
-        <img src="assets/CoreTechLogo.png" alt="logo" class="logoSmall">
+        <img src="assets/CoreTechLogoKek.png" alt="logo" class="logoSmall">
         <span class="welcomeText">Üdv újra!<br><br>
             Örülünk, hogy visszatértél!
         </span>
@@ -10,16 +10,10 @@
             
             <label for="email">E-mail cím: *</label><br>
             <input type="email" id="email" [formControl]="form.controls.email">
-            <!-- @if (emailIsInvalid) {
-        <p class="control-error">Kérlek, érvényes e-mail címet adj meg.</p>
-    } -->
         </div>
         <div class="control-no-margin">
             <label for="password">Jelszó: *</label><br>
             <input type="password" id="password" formControlName="password">
-            <!-- @if (passwordIsInvalid) {
-        <p class="control-error">Kérlek, érvényes jelszót addj meg (Legalább 8 karakter hosszú).</p>
-    } -->
         
         </div>
         <div class="remember-me">
@@ -29,7 +23,7 @@
             <a href="#" class="forgotPass">Elfelejtettem a jelszavam!</a>
         </div>
         <div class="container">
-            <button class="button">Bejelentkezés</button>
+            <button class="button" (click)="onSubmit()">Bejelentkezés</button>
             <span class="notRegistered">Nincs még felhasználói fiókod?</span><a routerLink="/registration" class="registration">Regisztráció</a><br>
             <span class="backToMain">Vissza a <a routerLink="/mainpage">Főoldalra</a>!</span>
         </div>

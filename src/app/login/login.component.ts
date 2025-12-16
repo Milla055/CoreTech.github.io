@@ -6,25 +6,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink} from '@angular/router';
 import { debounceTime, of } from 'rxjs';
-
-/*export function mustContainSpecialCharacters(control: AbstractControl) {
-  const specialChars = ['?', '.', ':', '#', '/', '@', '&', ',', '!', '=', '-', '_', '%', '$'];
-
-  for (let i = 0; i < specialChars.length; i++) {
-    if (control.value.includes(specialChars[i])) return null;
-  }
-  return { doesNotContainSpecialCharacters: true };
-}*/
-
-/*function emailIsUnique(control: AbstractControl) {
-  if (control.value === 'test@example.com') {
-    return of(null);
-  }
-
-  return of({ emailIsNotUnique: true });
-}*/
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -35,15 +19,16 @@ import { debounceTime, of } from 'rxjs';
 export class LoginComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
   private destroyRef = inject(DestroyRef);
+  private AuthService = inject(AuthService);
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
-      /*asyncValidators: [emailIsUnique],*/
     }),
     password: new FormControl('', {
-      validators: [Validators.required, /*mustContainQuestionMark*/],
+      validators: [Validators.required,],
     }),
   });
+  router: any;
 
   get emailIsInvalid() {
     return (
@@ -85,10 +70,23 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    const enteredEmail = this.form.value.email;
-    const enteredPassword = this.form.value.password;
+    if (this.form.invalid) return;
+    const finalData = {email:this.form.value.email!, password:this.form.value.password!}
 
-    console.log(enteredEmail, enteredPassword);
+    this.AuthService.login(finalData).subscribe({
+      next: (result) => {
+        console.log(result);
+        localStorage.setItem('JWT', result.token!);
+        this.router.navigate(['/mainpage']);
+      },
+      error: (err) => {
+        console.error('Hiba történt:', err);
+        alert('Hibás email vagy jelszó');
+      }
+    });
   }
+  //TODO login fetch
+
+
 }
 

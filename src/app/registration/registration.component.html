@@ -1,5 +1,5 @@
 <div class="backdrop">
-    <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p>CoreTech</p></header></div>
+    <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p class="logoText">CoreTech</p></header></div>
     <div class="control-row" [formGroup]="form">
         <h1>Regisztráció</h1>
         <div class="control-no-margin">
@@ -14,6 +14,10 @@
             <input type="text" id="username" formControlName="username">
         </div>
         
+        <div class="control-no-margin">
+            <label for="phone">Telefonszám: *</label><br>
+            <input type="phone" id="phone" formControlName="phone">
+        </div>
 
         <div class="control-no-margin">
             <label for="password">Jelszó: *</label><br>
@@ -38,7 +42,7 @@
             </label>
         </div>
         <div class="container">
-            <button class="button">Regisztráció</button>
+            <button class="button" (click)="onSubmit()">Regisztráció</button>
         </div>
         <div class="optional-login">
             <span>Vissza a <a routerLink="/login" class="backToLogin">Bejelentkezéshez</a></span>
@@ -46,8 +50,9 @@
         <div class="control-error">
             <p class="control-error1" *ngIf="emailIsInvalid">Kérlek, érvényes e-mail címet adj meg.</p>
             <p class="control-error2" *ngIf="usernameIsInvalid">Kérlek, adj meg egy felhasználónevet.</p>
-            <p class="control-error3" *ngIf="passwordIsInvalid">Kérlek, érvényes jelszót adj meg (legalább 8 karakter).</p>
-            <p class="control-error4" *ngIf="confirmPasswordIsInvalid">A jelszavak nem egyeznek!</p>
+            <p class="control-error3" *ngIf="phoneNumberIsInvalid">Kérlek, adj meg egy érvényes telefonszámot!</p>
+            <p class="control-error4" *ngIf="passwordIsInvalid">Kérlek, érvényes jelszót adj meg (legalább 8 karakter).</p>
+            <p class="control-error5" *ngIf="confirmPasswordIsInvalid">A jelszavak nem egyeznek!</p>
         </div>
     </div>
 </div>

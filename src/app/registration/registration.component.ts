@@ -2,7 +2,8 @@ import { Component, DestroyRef, EventEmitter, inject, Output } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { of } from 'rxjs';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { AuthService } from '../services/auth.service';
 
 export function mustContainSpecialCharacters(control: AbstractControl) {
   const specialChars = ['?', '.', ':', '#', '/', '@', '&', ',', '!', '=', '-', '_', '%', '$'];
@@ -22,7 +23,7 @@ function emailIsUnique(control: AbstractControl) {
 }
 
 function usernameIsUnique(control: AbstractControl) {
-  if (control.value !== 'fityma123') {
+  if (control.value !== 'username123') {
     return of(null);
   }
 
@@ -59,11 +60,17 @@ export class RegistrationComponent {
     password: new FormControl('', {
       validators: [Validators.required, Validators.minLength(8), mustContainSpecialCharacters],
     }),
+    phone: new FormControl(' ', {
+      validators: [Validators.required]
+    }),
     confirmPassword: new FormControl('', {
       validators: [Validators.required],
       asyncValidators: [passwordIsMatching],
     })
   });
+
+  constructor(private AuthService: AuthService, private router: Router){}
+
 passwordIsNotMatching: any;
 passwordIsMatching: any;
 
@@ -100,6 +107,14 @@ passwordIsMatching: any;
     );
   }
 
+  get phoneNumberIsInvalid() {
+    return (
+      this.form.controls.phone.touched &&
+      this.form.controls.phone.dirty &&
+      this.form.controls.phone.invalid
+    );
+  }
+
   ngOnInit() {
     const savedForm = window.localStorage.getItem('saved-login-form');
 
@@ -116,9 +131,26 @@ passwordIsMatching: any;
   }
 
   onSubmit() {
-    const enteredEmail = this.form.value.email;
-    const enteredPassword = this.form.value.password;
+  if (this.form.invalid) return;
 
-    console.log(enteredEmail, enteredPassword);
-  }
+  const finalData = {
+    email: this.form.value.email!,
+    username: this.form.value.username!,
+    password: this.form.value.password!,
+    phone: this.form.value.phone!,
+    marketing: false
+  };
+
+  this.AuthService.register(finalData).subscribe({
+    next: (result) => {
+      console.log(result);
+      alert("Sikeres regisztráció! Jelentkezz be.");
+      this.router.navigate(['/login']);
+    },
+    error: (err) => {
+      console.error('Hiba történt:', err);
+      alert('A regisztráció sikertelen.');
+    }
+  });
+}
 }
