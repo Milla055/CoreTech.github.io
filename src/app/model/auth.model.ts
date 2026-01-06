@@ -14,7 +14,6 @@ export interface registerRequest{
     username: string,
     password: string,
     phone: string,
-    marketing?: boolean
 }
 
 export interface registerResponse{

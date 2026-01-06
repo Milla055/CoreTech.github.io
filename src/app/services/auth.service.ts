@@ -14,16 +14,15 @@ export class AuthService {
 
   headers = {
     headers: new HttpHeaders({
-      'Conent-Type': 'application/json',
-      'Acces-Control-Allow-Origin': 'http://localhost:4200/'
+      'Content-Type': 'application/json',
     })
   }
 
   login(body: loginRequest): Observable<loginResponse> {
-    return this.http.post<loginResponse>(`${this.apiUrl}/users/login`, body, this.headers);
+    return this.http.post<loginResponse>(`${this.apiUrl}/Users/login`, body, this.headers);
   }
 
   register(body: registerRequest): Observable<registerResponse> {
-    return this.http.post<registerResponse>(`${this.apiUrl}/users/register`, body, this.headers);
+    return this.http.post<registerResponse>(`${this.apiUrl}/Users/createUser`, body, this.headers);
   }
 }
