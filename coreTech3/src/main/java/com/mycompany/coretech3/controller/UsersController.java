@@ -6,19 +6,15 @@ package com.mycompany.coretech3.controller;
 
 import com.mycompany.coretech3.model.Users;
 import com.mycompany.coretech3.security.JwtUtil;
-import com.mycompany.coretech3.service.EmailService;
 import com.mycompany.coretech3.service.UsersService;
 import io.jsonwebtoken.Claims;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
@@ -55,6 +51,7 @@ public class UsersController {
                 .entity(result.toString())
                 .type(MediaType.APPLICATION_JSON)
                 .build();
+        
     }
 
     @PUT

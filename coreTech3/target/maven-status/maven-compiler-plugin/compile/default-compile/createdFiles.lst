@@ -21,6 +21,7 @@ com\mycompany\coretech3\security\JwtAuthFilter.class
 com\mycompany\coretech3\service\EmailService.class
 com\mycompany\coretech3\util\EmailTemplateLoader.class
 com\mycompany\coretech3\model\OrderItems.class
+com\mycompany\coretech3\filter\OptionsResource.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Addresses.class
 com\mycompany\coretech3\service\AnalyticsService.class
