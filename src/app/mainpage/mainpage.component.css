@@ -202,3 +202,14 @@ hr{
     border-color: #3D4474;
     box-shadow: 0 0 5px rgba(61, 68, 116, 0.5);
 }
+
+.subscribeBtn{
+    width: 145px;
+    height: 30px;
+    background-color: #3D4474;
+    color: #E9EBF5;
+    margin-left: 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}

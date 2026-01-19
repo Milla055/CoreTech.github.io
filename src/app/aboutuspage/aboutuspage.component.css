@@ -1,0 +1,109 @@
+*{
+    font-family: 'Arial', sans-serif;
+}
+
+.aboutus-header {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.aboutus-text {
+    display: block;
+    max-width: 1000px;
+    margin: 20px auto;
+    font-size: 17px;
+    color: #333333;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    color: #333333;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+h3 {
+    color: #3D4474;
+    margin-bottom: 10px;
+}
+
+.aboutus-team {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.team-member {
+    background-color: #FAFAFA;
+    border: 3px solid #6B88AA;
+    border-radius: 30px;
+    box-shadow: #3d4474dd 0px 0px 20px;
+    text-align: center;
+    margin: 20px;
+    padding: 20px;
+    height: 250px;
+    width: 300px;
+}
+
+.team-member:hover {
+    transform: scale(1.005);
+    transition: all 0.3s ease-in-out;
+}
+
+.image {
+    width: 220px;
+    height: 150px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+}
+.image-kamilla {
+    width: 200px;
+    height: 150px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+}
+
+.labels-container {
+    display: flex;
+    flex-direction: column;
+    
+    margin-top: 40px;
+    margin-bottom: 70px;
+}
+
+.team-label{
+    background-color: #FAFAFA;
+    border: 3px solid #6B88AA;
+    border-radius: 30px;
+    box-shadow: #3d4474dd 0px 0px 20px;
+    margin: 20px;
+     margin-left: 200px;
+    padding: 20px;
+    padding-left: 40px;
+    height: 150px;
+    width: 1000px;
+}
+
+.team-label2{
+    background-color: #FAFAFA;
+    border: 3px solid #6B88AA;
+    border-radius: 30px;
+    box-shadow: #3d4474dd 0px 0px 20px;
+    margin-left: 300px;
+    padding: 20px;
+    padding-left: 40px;
+    height: 150px;
+    width: 1000px;
+}
+
+.team-label:hover {
+    transform: scale(1.005);
+    transition: all 0.3s ease-in-out;
+}
+.team-label2:hover {
+    transform: scale(1.005);
+    transition: all 0.3s ease-in-out;
+}

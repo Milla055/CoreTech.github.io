@@ -139,7 +139,6 @@ export class RegistrationComponent {
       username: this.form.value.username!,
       password: this.form.value.password!,
       phone: this.form.value.phone!,
-      marketing: false,
     };
 
     this.AuthService.register(finalData).subscribe({

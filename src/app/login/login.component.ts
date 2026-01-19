@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink} from '@angular/router';
+import { Router, RouterLink} from '@angular/router';
 import { debounceTime, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
@@ -19,7 +19,7 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
   private destroyRef = inject(DestroyRef);
-  private AuthService = inject(AuthService);
+  private authService = inject(AuthService);
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
@@ -28,7 +28,8 @@ export class LoginComponent implements OnInit {
       validators: [Validators.required,],
     }),
   });
-  router: any;
+
+  constructor(private AuthService: AuthService, private router: Router) {}
 
   get emailIsInvalid() {
     return (
@@ -70,22 +71,21 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
-    const finalData = {email:this.form.value.email!, password:this.form.value.password!}
+  if (this.form.invalid) return;
+  const finalData = {email:this.form.value.email!, password:this.form.value.password!}
 
-    this.AuthService.login(finalData).subscribe({
-      next: (result) => {
-        console.log(result);
-        localStorage.setItem('JWT', result.token!);
-        this.router.navigate(['/mainpage']);
-      },
-      error: (err) => {
-        console.error('Hiba történt:', err);
-        alert('Hibás email vagy jelszó');
-      }
-    });
-  }
-  //TODO login fetch
+  this.AuthService.login(finalData).subscribe({
+    next: (result) => {
+      console.log(result);
+      // Navigation is now automatic because AuthService handles everything
+      this.router.navigate(['/mainpage']);
+    },
+    error: (err) => {
+      console.error('Hiba történt:', err);
+      alert('Hibás email vagy jelszó');
+    }
+  });
+}
 
 
 }

@@ -34,7 +34,19 @@
       </div>
     </div>
 
-    <button routerLink="/login" class="loginBtn">Bejelentkezés</button>
-    <button class="cartBtn"><img src="assets/carticon-32x32.png" alt="cart" class="cartIcon"></button>
+    <!-- Show login button if NOT logged in -->
+<button *ngIf="!username" routerLink="/login" class="loginBtn">Bejelentkezés</button>
+
+<!-- Show username button if logged in -->
+<button *ngIf="username" (click)="navigateToProfile()" class="loginBtn">
+  {{ username }}
+</button>
+
+<!-- Optional: logout button (you can style this differently) -->
+<button *ngIf="username" (click)="logout()" class="logoutBtn" style="margin-left: 10px;">
+  Kijelentkezés
+</button>
+
+<button class="cartBtn"><img src="assets/carticon-32x32.png" alt="cart" class="cartIcon"></button>
   </div>
 </header>

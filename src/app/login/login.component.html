@@ -13,8 +13,8 @@
         </div>
         <div class="control-no-margin">
             <label for="password">Jelszó: *</label><br>
-            <input type="password" id="password" formControlName="password">
-        
+            <input type="password" id="password" [formControl]="form.controls.password">
+
         </div>
         <div class="remember-me">
             <label>

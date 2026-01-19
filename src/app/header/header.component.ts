@@ -1,17 +1,19 @@
-import { Component, HostListener } from '@angular/core';
-import { LoginComponent } from "../login/login.component";
+import { Component, HostListener, OnInit } from '@angular/core';
 import { ShopmenuComponent } from "../shopmenu/shopmenu.component";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { AuthService } from "../services/auth.service"; // adjust your path
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  imports: [ShopmenuComponent, RouterLink],
+  imports: [ShopmenuComponent, RouterLink, CommonModule],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   loginPopup = false;
   shopMenu = false;
+  username: string | null = null;
 
   searchQuery = '';
   showSuggestions = false;
@@ -23,8 +25,26 @@ export class HeaderComponent {
   filteredSuggestions: string[] = [];
   suggestionsHtml = '';
 
-  onLogin(){ this.loginPopup = true; }
-  closeLogin(){ this.loginPopup = false; }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    // Subscribe to user changes
+    this.authService.currentUser$.subscribe(user => {
+      this.username = user?.username || null;
+    });
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/mainpage']);
+  }
 
   toggleShopMenu(){ this.shopMenu = !this.shopMenu; }
   closeShopMenu(){ this.shopMenu = false; }
@@ -65,7 +85,6 @@ export class HeaderComponent {
     this.showSuggestions = false;
     this.filteredSuggestions = [];
     this.suggestionsHtml = '';
-    // később: navigáció vagy tényleges keresés indítása
   }
 
   @HostListener('document:click')
