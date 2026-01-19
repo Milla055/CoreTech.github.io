@@ -58,16 +58,17 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
     
-    public static String generateAccessToken(String email, String role) {
-        Date now = new Date();
-        return Jwts.builder()
-                .setSubject(email)
-                .claim("role", role)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + ACCESS_EXP))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+    public static String generateAccessToken(String email, String role, Long userId) {
+    Date now = new Date();
+    return Jwts.builder()
+            .setSubject(email)
+            .claim("role", role)
+            .claim("userId", userId)  //idkell
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + ACCESS_EXP))
+            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .compact();
+}
     
     public static String generateRefreshToken(Long userId) {
         Date now = new Date();

@@ -95,14 +95,18 @@ public class UsersService {
 
             spq.execute();
 
-            // 3) Email küldés
-            EmailService.sendEmail(
-                    email,
-                    "Fiók deaktiválva ✔",
-                    "<h1>Szia " + username + "!</h1>"
-                    + "<p>A fiókod sikeresen deaktiválva lett.</p>"
-                    + "<p>Ha nem te voltál, azonnal vedd fel velünk a kapcsolatot!</p>"
-            );
+            String template = EmailTemplateLoader.loadTemplate("fiokdeakt.html");
+
+            if (template != null) {
+                template = template.replace("{{username}}", username);
+
+                EmailService.sendEmailWithImage(
+                        email,
+                        "Fiók deaktiválva ✔",
+                        template,
+                        "checkmark.png"
+                );
+            }
 
             resp.put("status", "UserSoftDeleted");
             resp.put("statusCode", 200);
@@ -145,13 +149,16 @@ public class UsersService {
 
             spq.execute();
 
-            // EMAIL
-            EmailService.sendEmail(
-                    oldEmail,
-                    "Fiók módosítva ✔",
-                    "<h1>Szia " + username + "!</h1>"
-                    + "<p>A fiók adataid frissítve lettek.</p>"
+            String template = EmailTemplateLoader.loadTemplate("fiokmod.html");
+            template = template.replace("{{username}}", username);
+
+            EmailService.sendEmailWithImage(
+                    email,
+                    "Sikeres regisztráció ✔",
+                    template,
+                    "checkmark.png"
             );
+
 
             resp.put("status", "UserUpdated");
             resp.put("statusCode", 200);
@@ -250,17 +257,14 @@ public class UsersService {
 
     public JSONObject login(String email, String password) {
         JSONObject resp = new JSONObject();
-
         try {
             // 1️⃣ Hash lekérés (stored procedure)
             StoredProcedureQuery spq
                     = em.createStoredProcedureQuery("getPasswordByEmail");
-
             spq.registerStoredProcedureParameter(
                     "emailIN", String.class, ParameterMode.IN
             );
             spq.setParameter("emailIN", email);
-
             String storedHash = spq.getSingleResult().toString();
 
             // 2️⃣ Jelszó ellenőrzés
@@ -281,9 +285,9 @@ public class UsersService {
             // 4️⃣ Tokenek
             String accessToken = JwtUtil.generateAccessToken(
                     user.getEmail(),
-                    user.getRole()
+                    user.getRole(),
+                    Long.valueOf(user.getId()) // added
             );
-
             String refreshToken = JwtUtil.generateRefreshToken(
                     Long.valueOf(user.getId())
             );
@@ -296,13 +300,11 @@ public class UsersService {
         } catch (NoResultException e) {
             resp.put("status", "InvalidEmailOrPassword");
             resp.put("statusCode", 401);
-
         } catch (Exception e) {
             e.printStackTrace();
             resp.put("status", "DatabaseError");
             resp.put("statusCode", 500);
         }
-
         return resp;
     }
 

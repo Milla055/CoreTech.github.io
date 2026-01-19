@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -55,21 +56,37 @@ public class UsersController {
     }
 
     @PUT
-    @Path("softDeleteUser")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response softDeleteUser(String body) {
-        JSONObject obj = new JSONObject(body);
-
-        int userId = obj.getInt("userId");
-
+@Path("softDeleteUser")
+@Produces(MediaType.APPLICATION_JSON)
+public Response softDeleteUser(@HeaderParam("Authorization") String authHeader) {
+    try {
+        // Extract and validate token
+        String token = authHeader.substring(7); // Remove "Bearer "
+        Claims claims = JwtUtil.validate(token);
+        
+        // Get userId from token
+        int userId = claims.get("userId", Integer.class);
+        
+        // Call service
         JSONObject result = usersService.softDeleteUser(userId);
-
+        
         return Response.status(result.getInt("statusCode"))
                 .entity(result.toString())
                 .type(MediaType.APPLICATION_JSON)
                 .build();
+                
+    } catch (Exception e) {
+        e.printStackTrace();
+        JSONObject error = new JSONObject();
+        error.put("status", "Error");
+        error.put("statusCode", 401);
+        error.put("message", "Invalid token");
+        return Response.status(401)
+                .entity(error.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
+}
 
     @PUT
     @Path("updateUser")
@@ -109,55 +126,82 @@ public class UsersController {
     }
 
     @POST
-    @Path("login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response login(String body) {
-        System.out.println("BODY RAW: " + body);
-
-        JSONObject obj = new JSONObject(body);
-
-        String email = obj.getString("email");
-        String password = obj.getString("password");
-
-        JSONObject result = usersService.login(email, password);
-
+@Path("login")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public Response login(String body) {
+    JSONObject obj = new JSONObject(body);
+    String email = obj.getString("email");
+    String password = obj.getString("password");
+    
+    JSONObject result = usersService.login(email, password);
+    
+    if (result.getInt("statusCode") == 200) {
+        String refreshToken = result.getString("refreshToken");
+        
+        // Remove refreshToken from JSON response
+        result.remove("refreshToken");
+        
+        // Set refreshToken as HttpOnly cookie
+        NewCookie cookie = new NewCookie(
+            "refreshToken",           // name
+            refreshToken,             // value
+            "/",                      // path
+            null,                     // domain
+            null,                     // comment
+            7 * 24 * 60 * 60,        // maxAge (7 days)
+            false,                    // secure (use true in production with HTTPS)
+            true                      // httpOnly
+        );
+        
         return Response.status(result.getInt("statusCode"))
                 .entity(result.toString())
+                .cookie(cookie)
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+    
+    return Response.status(result.getInt("statusCode"))
+            .entity(result.toString())
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+}
 
     @POST
-    @Path("refresh")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response refresh(@CookieParam("refreshToken") String refreshToken) {
-
-        if (refreshToken == null) {
-            return Response.status(401).build();
-        }
-
-        try {
-            Claims claims = JwtUtil.validate(refreshToken);
-            Long userId = claims.get("uid", Long.class);
-
-            Users user = em.find(Users.class, userId.intValue());
-            if (user == null || Boolean.TRUE.equals(user.getIsDeleted())) {
-                return Response.status(401).build();
-            }
-
-            String newAccessToken
-                    = JwtUtil.generateAccessToken(user.getEmail(), user.getRole());
-
-            JSONObject resp = new JSONObject();
-            resp.put("accessToken", newAccessToken);
-
-            return Response.ok(resp.toString()).build();
-
-        } catch (Exception e) {
-            return Response.status(401).build();
-        }
+@Path("refresh")
+@Produces(MediaType.APPLICATION_JSON)
+public Response refresh(@CookieParam("refreshToken") String refreshToken) {
+    
+    if (refreshToken == null) {
+        return Response.status(401).build();
     }
+    
+    try {
+        Claims claims = JwtUtil.validate(refreshToken);
+        Long userId = claims.get("uid", Long.class);
+        
+        Users user = em.find(Users.class, userId.intValue());
+        
+        if (user == null || Boolean.TRUE.equals(user.getIsDeleted())) {
+            return Response.status(401).build();
+        }
+        
+        String newAccessToken
+                = JwtUtil.generateAccessToken(
+                    user.getEmail(), 
+                    user.getRole(),
+                    Long.valueOf(user.getId())  // ADDED THIS PARAMETER 
+                );
+        
+        JSONObject resp = new JSONObject();
+        resp.put("accessToken", newAccessToken);
+        
+        return Response.ok(resp.toString()).build();
+        
+    } catch (Exception e) {
+        return Response.status(401).build();
+    }
+}
 
     @POST
     @Path("logout")

@@ -20,12 +20,6 @@ public class ApplicationConfig extends Application {
         addRestResourceClasses(resources);
         return resources;
     }
-
-    /**
-     * Do not modify addRestResourceClasses() method. It is automatically
-     * populated with all resources defined in the project. If required, comment
-     * out calling this method in getClasses().
-     */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.mycompany.coretech3.controller.AdminOrdersController.class);
         resources.add(com.mycompany.coretech3.controller.AdminUsersController.class);
