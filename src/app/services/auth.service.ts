@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { loginRequest, loginResponse, registerRequest, registerResponse } from '../model/auth.model';
 
 @Injectable({
@@ -34,33 +34,16 @@ export class AuthService {
         // Store tokens
         localStorage.setItem('JWT', result.accessToken);
         localStorage.setItem('refreshToken', result.refreshToken);
-      }),
-      switchMap((result) => {
-        // Fetch user profile to get username
-        return this.getUserProfile().pipe(
-          tap((profile: any) => {
-            const userData = {
-              username: profile.username,
-              email: profile.email || body.email
-            };
-            localStorage.setItem('user', JSON.stringify(userData));
-            this.currentUserSubject.next(userData);
-          }),
-          // Return the original login result
-          tap(() => result)
-        );
+        
+        // Store user data from login response
+        const userData = {
+          username: result.username || body.email.split('@')[0], // Use username from response, or extract from email if not available
+          email: body.email
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        this.currentUserSubject.next(userData);
       })
     );
-  }
-
-  // Add this method to fetch user profile
-  getUserProfile(): Observable<any> {
-    const token = localStorage.getItem('JWT');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.get(`${this.apiUrl}/Users/login`, { headers }); // adjust endpoint
   }
 
   register(body: registerRequest): Observable<registerResponse> {
