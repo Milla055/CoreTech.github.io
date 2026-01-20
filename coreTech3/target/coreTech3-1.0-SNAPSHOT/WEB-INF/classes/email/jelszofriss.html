@@ -1,80 +1,63 @@
- <!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hu">
   <head>
-    <meta charset="UTF-8" />
-    <title>Jelszó frissítve</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sikeres Jelszó Frissítés</title>
+  </head>
 
-    <style>
-        body {
-            background: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+  <body style="margin:0;padding:0;background-color:#f4f4f4;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f4;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
 
-        .main-container {
-            width: 100%;
-            padding: 40px 0;
-            display: flex;
-            justify-content: center;
-        }
+          <!-- Card -->
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+                 style="width:600px;max-width:600px;background:#ffffff;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.12);">
+            <tr>
+              <td align="center" style="padding:28px 26px 10px 26px;">
 
-        .card {
-            width: 600px;
-            background: #ffffff;
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.25);
-            text-align: center;
-        }
+                <!-- Checkmark (CID!) -->
+                <img src="cid:checkmark"
+                     width="72" height="72" alt="Sikeres"
+                     style="display:block;border:0;outline:none;text-decoration:none;margin:0 auto 14px auto;" />
 
-        .checkmark {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-        }
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:28px;font-weight:700;color:#111111;">
+                  Sikeres Jelszó Frissítés!
+                </div>
 
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #222;
-        }
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#333333;margin-top:14px;">
+                  Szia <b>{{username}}</b>!<br /><br />
+                  Fiókod jelszava sikeresen frissítve lett!
+                  <br /><br />
+                  Ha nem te voltál, azonnal vedd fel velünk a kapcsolatot.
+                </div>
 
-        .text {
-            color: #444;
-            font-size: 16px;
-            line-height: 0.5;
-            margin-top: 25px;
-        }
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#333333;margin-top:18px;">
+                  Üdvözlettel,<br />
+                  A CoreTech csapata
+                </div>
 
-        .brand {
-            margin-top: 50px;
-            font-size: 52px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-    </style>
-</head>
+              </td>
+            </tr>
 
-<body>
-    <div class="main-container">
-        <div class="card">
+            <tr>
+              <td align="center" style="padding:16px 26px 28px 26px;">
+                <!-- “Logo” szöveg (e-mailben biztonságos) -->
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:34px;line-height:40px;font-weight:800;letter-spacing:.3px;color:#000000;">
+                  CoreTech
+                </div>
 
-            <!-- INLINE KÉP -->     
-            <img src="cid:checkmark" alt="Success" class="checkmark">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#777777;margin-top:10px;">
+                  © CoreTech • Automatikus üzenet, kérjük ne válaszolj rá.
+                </div>
+              </td>
+            </tr>
+          </table>
+          <!-- /Card -->
 
-            <div class="title">Fiókod jelszava sikeresen frissítve lett!</div>
-
-            <div class="text">
-                <h3>Szia {{username}}!</h3><br><br>
-
-                <p>A jelszavad sikeresen frissült!</p><br><br>
-            </div>
-
-            <div class="brand">CoreTech</div>
-
-        </div>
-    </div>
-</body>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>

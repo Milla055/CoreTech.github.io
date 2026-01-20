@@ -7,7 +7,6 @@ package com.mycompany.coretech3.service;
 import com.mycompany.coretech3.model.Users;
 import com.mycompany.coretech3.security.JwtUtil;
 import com.mycompany.coretech3.util.EmailTemplateLoader;
-import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -56,7 +55,7 @@ public class UsersService {
 
             EmailService.sendEmailWithImage(
                     email,
-                    "Sikeres regisztráció ✔",
+                    "Sikeres Regisztráció!",
                     template,
                     "checkmark.png"
             );
@@ -102,7 +101,7 @@ public class UsersService {
 
                 EmailService.sendEmailWithImage(
                         email,
-                        "Fiók deaktiválva ✔",
+                        "Sikeres Deaktiváció! ",
                         template,
                         "checkmark.png"
                 );
@@ -141,11 +140,13 @@ public class UsersService {
             spq.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
             spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
             spq.registerStoredProcedureParameter("roleIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
 
             spq.setParameter("userIdIN", userId);
             spq.setParameter("usernameIN", username);
             spq.setParameter("emailIN", email);
             spq.setParameter("roleIN", user.getRole());
+            spq.setParameter("phoneIN", phone);
 
             spq.execute();
 
@@ -154,7 +155,7 @@ public class UsersService {
 
             EmailService.sendEmailWithImage(
                     email,
-                    "Sikeres regisztráció ✔",
+                    "Sikeres Modifikáció!",
                     template,
                     "checkmark.png"
             );
@@ -173,49 +174,60 @@ public class UsersService {
     }
 
     public JSONObject updatePassword(int userId, String newPassword) {
-        JSONObject resp = new JSONObject();
-
-        try {
-            Users user = em.find(Users.class, userId);
-            if (user == null) {
-                resp.put("status", "UserNotFound");
-                resp.put("statusCode", 404);
-                return resp;
-            }
-
-            String email = user.getEmail();
-            String username = user.getUsername();
-
-            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
-
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
-
-            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
-
-            spq.setParameter("userIdIN", userId);
-            spq.setParameter("passwordIN", hashed);
-
-            spq.execute();
-
-            EmailService.sendEmail(
-                    email,
-                    "Jelszó frissítve ✔",
-                    "<h1>Szia " + username + "!</h1>"
-                    + "<p>A jelszavad sikeresen frissült!</p>"
-            );
-
-            resp.put("status", "PasswordUpdated");
-            resp.put("statusCode", 200);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.put("status", "DatabaseError");
-            resp.put("statusCode", 500);
+    JSONObject resp = new JSONObject();
+    try {
+        // 1) user betöltése
+        Users user = em.find(Users.class, userId);
+        if (user == null) {
+            resp.put("status", "UserNotFound");
+            resp.put("statusCode", 404);
+            return resp;
         }
-
-        return resp;
+        
+        // Validate new password strength
+        if (newPassword == null || newPassword.length() < 8) {
+            resp.put("status", "WeakPassword");
+            resp.put("statusCode", 400);
+            resp.put("message", "Password must be at least 8 characters");
+            return resp;
+        }
+        
+        String email = user.getEmail();
+        String username = user.getUsername();
+        
+        // Hash the password
+        String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        
+        // 2) stored procedure hívása
+        StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
+        spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+        spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+        
+        spq.setParameter("userIdIN", userId);
+        spq.setParameter("passwordIN", hashed);
+        
+        spq.execute();
+        
+        String template = EmailTemplateLoader.loadTemplate("jelszofriss.html");
+        if (template != null) {
+            template = template.replace("{{username}}", username);
+            EmailService.sendEmailWithImage(
+                    email,
+                    "Sikeres Jelszó Módosítás!",
+                    template,
+                    "checkmark.png"
+            );
+        }
+        
+        resp.put("status", "PasswordUpdated");
+        resp.put("statusCode", 200);
+    } catch (Exception e) {
+        e.printStackTrace();
+        resp.put("status", "DatabaseError");
+        resp.put("statusCode", 500);
     }
+    return resp;
+}
 
     public JSONObject getOrdersByUserId(int userId) {
         JSONObject resp = new JSONObject();
