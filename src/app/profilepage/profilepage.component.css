@@ -1,0 +1,302 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  background: #e8e8f0;
+  padding: 40px 60px;
+  min-height: 100vh;
+}
+
+/* Profile Header */
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.profile-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #4a5278;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-avatar svg {
+  width: 65px;
+  height: 65px;
+  fill: #ffffff;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.profile-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c2c3e;
+  margin: 0;
+}
+
+.profile-role {
+  background: white;
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: #2c2c3e;
+  font-weight: 500;
+}
+
+.profile-email {
+  color: #4a4a5e;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: #4a5278;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.tab-button:hover {
+  background: #5a6288;
+}
+
+.tab-button.active {
+  background: #e74c3c;
+}
+
+/* Divider */
+.divider {
+  height: 2px;
+  background: #a8a8b8;
+  margin: 25px 0;
+}
+
+/* Favorites Section */
+.favorites-section {
+  margin-bottom: 35px;
+}
+
+.favorites-button {
+  background: #4a5278;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.favorites-button:hover {
+  background: #5a6288;
+}
+
+/* Info Section */
+.info-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3a3a4e;
+  margin-bottom: 12px;
+}
+
+.info-list {
+  margin-bottom: 0;
+}
+
+.info-item {
+  margin-bottom: 6px;
+  color: #2c2c3e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.info-label {
+  font-weight: 700;
+}
+
+/* Form Section */
+.form-section {
+  background: #f8f8fc;
+  padding: 20px 25px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  border: 1px solid #d8d8e0;
+}
+
+.form-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2c2c3e;
+  margin-bottom: 18px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: #4a4a5e;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #c8c8d0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2c2c3e;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4a5278;
+  box-shadow: 0 0 0 1px #4a5278;
+}
+
+.form-input::placeholder {
+  color: #a0a0b0;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 0;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-row .form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #4a5278;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #5a6288;
+}
+
+.btn-secondary {
+  background: white;
+  color: #4a4a5e;
+  border: 1px solid #c8c8d0;
+}
+
+.btn-secondary:hover {
+  background: #f8f8fc;
+  border-color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-name-row {
+    justify-content: center;
+  }
+
+  .profile-tabs {
+    justify-content: center;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}

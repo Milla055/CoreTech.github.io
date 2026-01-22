@@ -2,51 +2,57 @@
 
 <header class="navbar">
   <div class="header-container">
-    <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
-    <p class="core">CoreTech</p>
-
-    <div class="menuContainer">
-      <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
+    <!-- Left Section: Logo -->
+    <div class="logo-section">
+      <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
+      <p class="core">CoreTech</p>
     </div>
 
-    <div class="searchContainer" (click)="$event.stopPropagation()">
-      <div class="searchbar">
-        <button class="searchBtn">
-          <i class="fa-solid fa-magnifying-glass" style="color: #3d4474;"></i>
-        </button>
-        <input
-          type="text"
-          placeholder="Keresés..."
-          class="searchInput"
-          [value]="searchQuery"
-          (input)="onSearch($event.target.value)"
-          (focus)="openSearch()"
-          aria-autocomplete="list"
-          aria-controls="search-results"
-          >
+    <!-- Center Section: Menu + Search -->
+    <div class="center-section">
+      <div class="menuContainer">
+        <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
       </div>
 
-      <div id="search-results" class="search-results" [hidden]="!showSuggestions">
-        <div class="result-list" [innerHTML]="suggestionsHtml" (click)="onSuggestionClick($event)"></div>
-        <div class="no-results" [hidden]="filteredSuggestions.length !== 0">
-          Nincs találat...
+      <div class="searchContainer" (click)="$event.stopPropagation()">
+        <div class="searchbar">
+          <button class="searchBtn">
+            <i class="fa-solid fa-magnifying-glass" style="color: #3d4474;"></i>
+          </button>
+          <input
+            type="text"
+            placeholder="Keresés..."
+            class="searchInput"
+            [value]="searchQuery"
+            (input)="onSearch($event.target.value)"
+            (focus)="openSearch()"
+            aria-autocomplete="list"
+            aria-controls="search-results"
+          >
+        </div>
+
+        <div id="search-results" class="search-results" [hidden]="!showSuggestions">
+          <div class="result-list" [innerHTML]="suggestionsHtml" (click)="onSuggestionClick($event)"></div>
+          <div class="no-results" [hidden]="filteredSuggestions.length !== 0">
+            Nincs találat...
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Show login button if NOT logged in -->
-<button *ngIf="!username" routerLink="/login" class="loginBtn">Bejelentkezés</button>
+    <!-- Right Section: Login/User + Cart -->
+    <div class="right-section">
+      <!-- Show login button if NOT logged in -->
+      <button *ngIf="!username" routerLink="/login" class="loginBtn">Bejelentkezés</button>
 
-<!-- Show username button if logged in -->
-<button *ngIf="username" (click)="navigateToProfile()" class="loginBtn">
-  {{ username }}
-</button>
+      <!-- Show username button if logged in -->
+      <button *ngIf="username" routerLink="/profile" class="loginBtn">
+        {{ username }}
+      </button>
 
-<!-- Optional: logout button (you can style this differently) -->
-<button *ngIf="username" (click)="logout()" class="logoutBtn" style="margin-left: 10px;">
-  Kijelentkezés
-</button>
-
-<button class="cartBtn"><img src="assets/carticon-32x32.png" alt="cart" class="cartIcon"></button>
+      <button class="cartBtn">
+        <img src="assets/carticon-32x32.png" alt="cart" class="cartIcon">
+      </button>
+    </div>
   </div>
 </header>

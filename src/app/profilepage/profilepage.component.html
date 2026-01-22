@@ -1,0 +1,192 @@
+<app-header></app-header>
+
+<div class="container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+    </div>
+    
+    <div class="profile-info">
+      <div class="profile-name-row">
+        <h1 class="profile-name">{{ getFullName() }}</h1>
+        <span class="profile-role">{{ userData?.role || 'User' }}</span>
+      </div>
+      <p class="profile-email">{{ userData?.email }}</p>
+      
+      <div class="profile-tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'fiokkezeles'"
+          (click)="setActiveTab('fiokkezeles')">
+          Fiók kezelése
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'kijelentkezes'"
+          (click)="setActiveTab('kijelentkezes')">
+          Kijelentkezés
+        </button>
+        <button 
+          class="tab-button"
+          (click)="setActiveTab('adminbeallitasok')">
+          Adminbeállítások
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Kedvencek Section -->
+  <div class="favorites-section">
+    <button class="favorites-button">Kedvencek</button>
+  </div>
+
+  <!-- Adatok Section -->
+  <div class="info-section">
+    <h2 class="section-title">Adatok</h2>
+    <div class="info-list">
+      <p class="info-item"><span class="info-label">E-mail:</span> {{ userData?.email }}</p>
+    </div>
+  </div>
+
+  <!-- Személyes adatok Form -->
+  <div class="form-section">
+    <h3 class="form-section-title">Vásárlói Adatok</h3>
+    <form>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          class="form-input" 
+          formControlName="email">
+      </div>
+      
+      <div class="form-row">
+
+        
+        <div class="form-group">
+          <label for="keresztNev">Keresztnév</label>
+          <input 
+            type="text" 
+            id="keresztNev" 
+            class="form-input" 
+            formControlName="keresztNev">
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Jelszó Form -->
+  <div class="form-section">
+    <h3 class="form-section-title">Jelszó</h3>
+    <form>
+      <div class="form-group">
+        <label for="regiJelszo">Régi jelszó</label>
+        <input 
+          type="password" 
+          id="regiJelszo" 
+          class="form-input" 
+          formControlName="regiJelszo">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ujJelszo">Új jelszó</label>
+          <input 
+            type="password" 
+            id="ujJelszo" 
+            class="form-input" 
+            formControlName="ujJelszo">
+        </div>
+        
+        <div class="form-group">
+          <label for="ujJelszoMegerosites">Új jelszó megerősítése</label>
+          <input 
+            type="password" 
+            id="ujJelszoMegerosites" 
+            class="form-input" 
+            formControlName="ujJelszoMegerosites">
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Szállítási Adatok Form -->
+  <div class="form-section">
+    <h3 class="form-section-title">Szállítási Adatok</h3>
+    <form>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="orszag">Ország</label>
+          <input 
+            type="text" 
+            id="orszag" 
+            class="form-input" 
+            formControlName="orszag">
+        </div>
+        
+        <div class="form-group">
+          <label for="iranyitoszam">Irányítószám</label>
+          <input 
+            type="text" 
+            id="iranyitoszam" 
+            class="form-input" 
+            formControlName="iranyitoszam">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="varos">Város</label>
+          <input 
+            type="text" 
+            id="varos" 
+            class="form-input" 
+            formControlName="varos">
+        </div>
+        
+        <div class="form-group">
+          <label for="utcaHazszam">Utca, házszám</label>
+          <input 
+            type="text" 
+            id="utcaHazszam" 
+            class="form-input" 
+            formControlName="utcaHazszam">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="deliveryEmail">E-mail</label>
+          <input 
+            type="email" 
+            id="deliveryEmail" 
+            class="form-input" 
+            formControlName="email">
+        </div>
+        
+        <div class="form-group">
+          <label for="telefonszam">Telefonszám</label>
+          <input 
+            type="tel" 
+            id="telefonszam" 
+            class="form-input" 
+            formControlName="telefonszam">
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="btn-secondary" (click)="resetChanges()">Változások visszaállítása</button>
+    <button class="btn-primary" (click)="onSubmit()">Változások mentése</button>
+  </div>
+</div>
+
+<app-footer></app-footer>

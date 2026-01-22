@@ -4,6 +4,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { MainpageComponent } from './mainpage/mainpage.component';
 import { AboutuspageComponent } from './aboutuspage/aboutuspage.component';
 import { ProductcardComponent } from './productcard/productcard.component';
+import { ProfilepageComponent } from './profilepage/profilepage.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'mainpage', component: MainpageComponent },
   { path: 'aboutuspage', component: AboutuspageComponent },
   { path: 'productcard', component: ProductcardComponent },
+  { path: 'profile', component: ProfilepageComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
