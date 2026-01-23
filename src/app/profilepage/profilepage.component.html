@@ -12,25 +12,21 @@
     <div class="profile-info">
       <div class="profile-name-row">
         <h1 class="profile-name">{{ getFullName() }}</h1>
-        <span class="profile-role">{{ userData?.role || 'User' }}</span>
+        <span class="profile-role">{{ userData?.role || 'Customer' }}</span>
       </div>
       <p class="profile-email">{{ userData?.email }}</p>
       
       <div class="profile-tabs">
         <button 
           class="tab-button" 
-          [class.active]="activeTab === 'fiokkezeles'"
-          (click)="setActiveTab('fiokkezeles')">
-          Fiók kezelése
-        </button>
-        <button 
-          class="tab-button" 
           [class.active]="activeTab === 'kijelentkezes'"
-          (click)="setActiveTab('kijelentkezes')">
+          (click)="logout()">
           Kijelentkezés
         </button>
         <button 
+          *ngIf="isAdmin()"
           class="tab-button"
+          [class.active]="activeTab === 'adminbeallitasok'"
           (click)="setActiveTab('adminbeallitasok')">
           Adminbeállítások
         </button>
@@ -56,7 +52,7 @@
   <!-- Személyes adatok Form -->
   <div class="form-section">
     <h3 class="form-section-title">Vásárlói Adatok</h3>
-    <form>
+    <form [formGroup]="customerDataForm">
       <div class="form-group">
         <label for="email">Email</label>
         <input 
@@ -67,7 +63,14 @@
       </div>
       
       <div class="form-row">
-
+        <div class="form-group">
+          <label for="vezetekNev">Vezetéknév</label>
+          <input 
+            type="text" 
+            id="vezetekNev" 
+            class="form-input" 
+            formControlName="vezetekNev">
+        </div>
         
         <div class="form-group">
           <label for="keresztNev">Keresztnév</label>
@@ -84,7 +87,7 @@
   <!-- Jelszó Form -->
   <div class="form-section">
     <h3 class="form-section-title">Jelszó</h3>
-    <form>
+    <form [formGroup]="passwordForm">
       <div class="form-group">
         <label for="regiJelszo">Régi jelszó</label>
         <input 
@@ -102,6 +105,10 @@
             id="ujJelszo" 
             class="form-input" 
             formControlName="ujJelszo">
+          <small *ngIf="passwordForm.get('ujJelszo')?.hasError('minlength') && passwordForm.get('ujJelszo')?.touched" 
+                 style="color: red;">
+            A jelszónak legalább 6 karakter hosszúnak kell lennie.
+          </small>
         </div>
         
         <div class="form-group">
@@ -111,7 +118,22 @@
             id="ujJelszoMegerosites" 
             class="form-input" 
             formControlName="ujJelszoMegerosites">
+          <small *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('ujJelszoMegerosites')?.touched" 
+                 style="color: red;">
+            A jelszavak nem egyeznek!
+          </small>
         </div>
+      </div>
+      
+      <!-- Password Change Button -->
+      <div class="password-action" style="margin-top: 15px;">
+        <button 
+          type="button" 
+          class="btn-primary" 
+          (click)="onPasswordChange()"
+          [disabled]="!passwordForm.valid">
+          Jelszó megváltoztatása
+        </button>
       </div>
     </form>
   </div>
@@ -119,7 +141,7 @@
   <!-- Szállítási Adatok Form -->
   <div class="form-section">
     <h3 class="form-section-title">Szállítási Adatok</h3>
-    <form>
+    <form [formGroup]="deliveryDataForm">
       <div class="form-row">
         <div class="form-group">
           <label for="orszag">Ország</label>

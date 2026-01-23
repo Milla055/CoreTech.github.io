@@ -4,6 +4,7 @@ export interface loginRequest{
 }
 
 export interface loginResponse{
+    role: string
     status: string,
     statusCode: number,
     accessToken: string,
