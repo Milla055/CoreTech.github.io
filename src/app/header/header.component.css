@@ -35,6 +35,7 @@
     font-size: 24px;
     font-weight: bold;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 /* Center section - Menu and Search */

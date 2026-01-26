@@ -33,7 +33,6 @@ export class ProfilepageComponent {
 
   ngOnInit(): void {
     this.loadUserData();
-    // initializeForms is now called inside loadUserData after data is fetched
   }
 
   loadUserData(): void {
@@ -41,38 +40,19 @@ export class ProfilepageComponent {
     const currentUser = this.authService.getCurrentUser();
     
     if (currentUser) {
-      // Try to fetch updated user details from backend (including role)
-      this.authService.getUserDetails().subscribe(
-        (backendUser) => {
-          // Use backend data if available
-          this.userData = {
-            email: backendUser.email,
-            username: backendUser.username,
-            role: backendUser.role || 'Customer',
-            telefonszam: backendUser.telefonszam || '',
-            vezetekNev: backendUser.vezetekNev || '',
-            keresztNev: backendUser.keresztNev || '',
-            cim: backendUser.cim || {}
-          };
-          
-          localStorage.setItem('currentUser', JSON.stringify(this.userData));
-          this.initializeForms();
-        },
-        (error) => {
-          console.error('Error fetching user details from backend:', error);
-          // Fallback to localStorage data if backend call fails
-          this.userData = {
-            email: currentUser.email,
-            username: currentUser.username,
-            role: currentUser.role || 'Customer',
-            telefonszam: '',
-            vezetekNev: '',
-            keresztNev: ''
-          };
-          localStorage.setItem('currentUser', JSON.stringify(this.userData));
-          this.initializeForms();
-        }
-      );
+      // User is logged in, use their data directly from localStorage
+      this.userData = {
+        email: currentUser.email,
+        username: currentUser.username,
+        role: currentUser.role, // Use exact role from backend (no fallback)
+        telefonszam: '',
+        vezetekNev: '',
+        keresztNev: '',
+        cim: {}
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(this.userData));
+      this.initializeForms();
     } else {
       // No user logged in, redirect to login
       this.router.navigate(['/login']);
@@ -80,9 +60,9 @@ export class ProfilepageComponent {
   }
 
   initializeForms(): void {
-    // Vásárlói Adatok Form - populated with current user data
+    // Vásárlói Adatok Form - populated with current user data (email field empty)
     this.customerDataForm = this.fb.group({
-      email: [this.userData?.email || '', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       vezetekNev: [this.userData?.vezetekNev || '', Validators.required],
       keresztNev: [this.userData?.keresztNev || '', Validators.required]
     });
@@ -149,7 +129,7 @@ export class ProfilepageComponent {
         }
       };
 
-      // TODO: Call your API to update user data
+       /* TODO: Call your API to update user data
        this.userService.updateUser(updatedData).subscribe(
          response => {
            console.log('User updated successfully');
@@ -162,7 +142,7 @@ export class ProfilepageComponent {
            alert('Hiba történt a mentés során!');
          }
        );
-
+ */
       console.log('Updated Data:', updatedData);
       
       // For now, update localStorage
@@ -214,7 +194,7 @@ export class ProfilepageComponent {
   resetChanges(): void {
     // Reset forms to original user data
     this.customerDataForm.patchValue({
-      email: this.userData?.email || '',
+      email: '',
       vezetekNev: this.userData?.vezetekNev || '',
       keresztNev: this.userData?.keresztNev || ''
     });

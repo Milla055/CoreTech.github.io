@@ -35,14 +35,24 @@ export class AuthService {
         localStorage.setItem('JWT', result.accessToken);
         localStorage.setItem('refreshToken', result.refreshToken);
         
-        // Store user data from login response
+        // Store initial user data from login response (without username yet)
         const userData = {
-          username: result.username || body.email.split('@')[0], // Use username from response, or extract from email if not available
+          username: body.email.split('@')[0], // Temporary username from email
           email: body.email,
-          role: result.role || 'User' // Store role from backend response
+          role: result.role
         };
         localStorage.setItem('user', JSON.stringify(userData));
         this.currentUserSubject.next(userData);
+        
+        // Fetch full user details (including username) after login
+        this.getUserDetails().subscribe(
+          (fullUserData) => {
+            console.log('Full user details fetched successfully with username');
+          },
+          (error) => {
+            console.warn('Could not fetch full user details, using email prefix as username');
+          }
+        );
       })
     );
   }
@@ -55,7 +65,7 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get(`${this.apiUrl}/Users/current`, { headers }).pipe(
+    return this.http.get(`${this.apiUrl}/admin/users/ID`, { headers }).pipe(
       tap((userData: any) => {
         // Update stored user data with backend info including role
         const updatedUser = {

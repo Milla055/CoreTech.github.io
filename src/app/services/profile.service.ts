@@ -22,7 +22,7 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:3000/api'; // Replace with your API URL
+  private apiUrl = 'http://localhost:4200'; // Replace with your API URL
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
