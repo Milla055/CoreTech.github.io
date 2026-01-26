@@ -1,7 +1,9 @@
 com\mycompany\coretech3\model\Brands.class
 com\mycompany\coretech3\model\ProductAttributes.class
+com\mycompany\coretech3\controller\ProductsController.class
 com\mycompany\coretech3\filter\CorsFilter.class
 com\mycompany\coretech3\service\UsersService.class
+com\mycompany\coretech3\service\ProductsService.class
 com\mycompany\coretech3\model\Products.class
 com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\model\Users.class
@@ -18,6 +20,7 @@ com\mycompany\coretech3\service\EmailService$1.class
 com\mycompany\coretech3\controller\AnalyticsController.class
 com\mycompany\coretech3\service\OrdersService.class
 com\mycompany\coretech3\security\JwtAuthFilter.class
+com\mycompany\coretech3\controller\AdminProductsController.class
 com\mycompany\coretech3\service\EmailService.class
 com\mycompany\coretech3\util\EmailTemplateLoader.class
 com\mycompany\coretech3\model\OrderItems.class

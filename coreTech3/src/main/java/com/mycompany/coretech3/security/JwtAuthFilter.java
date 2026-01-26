@@ -23,22 +23,30 @@ public class JwtAuthFilter implements ContainerRequestFilter {
         String path = ctx.getUriInfo().getPath();
         System.out.println("JWT FILTER PATH = " + path);
 
-        // 🔓 PUBLIC ENDPOINTS
-        if (
-            path.contains("Users/login") ||
-            path.contains("Users/refresh") ||
-            path.contains("Users/createUser")
-        ) {
+        if (path.contains("Users/login")
+                || path.contains("Users/refresh")
+                || path.contains("Users/createUser")) {
+            System.out.println("✅ PUBLIC USER ENDPOINT - ALLOWED");
             return;
         }
+
+        
+        if ((path.equals("products") || path.equals("/products")
+                || path.startsWith("products/") || path.startsWith("/products/"))
+                && !path.contains("admin")) {
+            System.out.println("✅ PUBLIC PRODUCT ENDPOINT - ALLOWED");
+            return;
+        }
+
+        System.out.println("🔒 PROTECTED ENDPOINT - JWT REQUIRED");
 
         String auth = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         if (auth == null || !auth.startsWith("Bearer ")) {
             ctx.abortWith(
-                Response.status(401)
-                    .entity("Missing or invalid Authorization header")
-                    .build()
+                    Response.status(401)
+                            .entity("Missing or invalid Authorization header")
+                            .build()
             );
             return;
         }
@@ -51,20 +59,20 @@ public class JwtAuthFilter implements ContainerRequestFilter {
 
             //  ADMIN védelem
             if (path.contains("admin")
-                && !"admin".equalsIgnoreCase(role)) {
+                    && !"admin".equalsIgnoreCase(role)) {
 
                 ctx.abortWith(
-                    Response.status(403)
-                        .entity("Admin only")
-                        .build()
+                        Response.status(403)
+                                .entity("Admin only")
+                                .build()
                 );
             }
 
         } catch (Exception e) {
             ctx.abortWith(
-                Response.status(401)
-                    .entity("Invalid or expired token")
-                    .build()
+                    Response.status(401)
+                            .entity("Invalid or expired token")
+                            .build()
             );
         }
     }

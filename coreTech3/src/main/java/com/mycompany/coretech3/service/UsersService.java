@@ -268,56 +268,54 @@ public class UsersService {
     }
 
     public JSONObject login(String email, String password) {
-        JSONObject resp = new JSONObject();
-        try {
-            // 1️⃣ Hash lekérés (stored procedure)
-            StoredProcedureQuery spq
-                    = em.createStoredProcedureQuery("getPasswordByEmail");
-            spq.registerStoredProcedureParameter(
-                    "emailIN", String.class, ParameterMode.IN
-            );
-            spq.setParameter("emailIN", email);
-            String storedHash = spq.getSingleResult().toString();
-
-            // 2️⃣ Jelszó ellenőrzés
-            if (!BCrypt.checkpw(password, storedHash)) {
-                resp.put("status", "InvalidEmailOrPassword");
-                resp.put("statusCode", 401);
-                return resp;
-            }
-
-            // 3️⃣ TELJES USER ENTITY LEKÉRÉS
-            Users user = em.createQuery(
-                    "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = 0",
-                    Users.class
-            )
-                    .setParameter("email", email)
-                    .getSingleResult();
-
-            // 4️⃣ Tokenek
-            String accessToken = JwtUtil.generateAccessToken(
-                    user.getEmail(),
-                    user.getRole(),
-                    Long.valueOf(user.getId()) // added
-            );
-            String refreshToken = JwtUtil.generateRefreshToken(
-                    Long.valueOf(user.getId())
-            );
-
-            resp.put("status", "LoginSuccess");
-            resp.put("statusCode", 200);
-            resp.put("accessToken", accessToken);
-            resp.put("refreshToken", refreshToken);
-
-        } catch (NoResultException e) {
+    JSONObject resp = new JSONObject();
+    try {
+        StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+        spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+        spq.setParameter("emailIN", email);
+        
+       
+        Object[] result = (Object[]) spq.getSingleResult();
+        String storedHash = result[0].toString();
+        String username = result[1].toString();
+        
+        if (!BCrypt.checkpw(password, storedHash)) {
             resp.put("status", "InvalidEmailOrPassword");
             resp.put("statusCode", 401);
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.put("status", "DatabaseError");
-            resp.put("statusCode", 500);
+            return resp;
         }
-        return resp;
+        
+        Users user = em.createQuery(
+                "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = 0",
+                Users.class
+        )
+                .setParameter("email", email)
+                .getSingleResult();
+        
+        String accessToken = JwtUtil.generateAccessToken(
+                user.getEmail(),
+                user.getRole(),
+                Long.valueOf(user.getId())
+        );
+        String refreshToken = JwtUtil.generateRefreshToken(
+                Long.valueOf(user.getId())
+        );
+        
+        resp.put("status", "LoginSuccess");
+        resp.put("statusCode", 200);
+        resp.put("accessToken", accessToken);
+        resp.put("refreshToken", refreshToken);
+        resp.put("username", username); // Ha szeretnéd a választ is beletenni
+        
+    } catch (NoResultException e) {
+        resp.put("status", "InvalidEmailOrPassword");
+        resp.put("statusCode", 401);
+    } catch (Exception e) {
+        e.printStackTrace();
+        resp.put("status", "DatabaseError");
+        resp.put("statusCode", 500);
     }
+    return resp;
+}
 
 }

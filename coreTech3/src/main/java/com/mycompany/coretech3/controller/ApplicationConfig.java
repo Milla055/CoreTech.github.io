@@ -22,9 +22,11 @@ public class ApplicationConfig extends Application {
     }
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.mycompany.coretech3.controller.AdminOrdersController.class);
+        resources.add(com.mycompany.coretech3.controller.AdminProductsController.class);
         resources.add(com.mycompany.coretech3.controller.AdminUsersController.class);
         resources.add(com.mycompany.coretech3.controller.AnalyticsController.class);
         resources.add(com.mycompany.coretech3.controller.OrdersController.class);
+        resources.add(com.mycompany.coretech3.controller.ProductsController.class);
         resources.add(com.mycompany.coretech3.controller.UsersController.class);
         resources.add(com.mycompany.coretech3.filter.CorsFilter.class);
         resources.add(com.mycompany.coretech3.filter.OptionsResource.class);
