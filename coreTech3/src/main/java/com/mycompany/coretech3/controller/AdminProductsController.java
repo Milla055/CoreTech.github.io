@@ -23,7 +23,6 @@ public class AdminProductsController {
     @Inject
     private ProductsService productsService;
     
-    // ========== CREATE PRODUCT ==========
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createProduct(String body) {

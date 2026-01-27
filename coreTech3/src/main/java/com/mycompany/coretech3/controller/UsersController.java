@@ -1,4 +1,3 @@
-
 package com.mycompany.coretech3.controller;
 
 import com.mycompany.coretech3.model.Users;
@@ -28,8 +27,6 @@ import org.json.JSONObject;
  */
 @Path("Users")
 public class UsersController {
-    
-    
 
     @Inject   // ← CDI injektálja a UsersService EJB-t
     private UsersService usersService;
@@ -125,10 +122,10 @@ public class UsersController {
     }
 
     @PUT
-    @Path("updatePassword")
+    @Path("changePassword")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updatePassword(@HeaderParam("Authorization") String authHeader, String body) {
+    public Response changePassword(@HeaderParam("Authorization") String authHeader, String body) {
         try {
             // Extract and validate token
             String token = authHeader.substring(7); // Remove "Bearer "
@@ -137,12 +134,36 @@ public class UsersController {
             // Get userId from token
             int userId = claims.get("userId", Integer.class);
 
-            // Parse request body for new password
+            // Parse request body for old and new passwords
             JSONObject obj = new JSONObject(body);
-            String newPassword = obj.getString("password");
+            String oldPassword = obj.getString("oldPassword");
+            String newPassword = obj.getString("newPassword");
 
-            // Call service
-            JSONObject result = usersService.updatePassword(userId, newPassword);
+            // Validate input
+            if (oldPassword == null || oldPassword.isEmpty()) {
+                JSONObject error = new JSONObject();
+                error.put("status", "Error");
+                error.put("statusCode", 400);
+                error.put("message", "Old password is required");
+                return Response.status(400)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            if (newPassword == null || newPassword.isEmpty() || newPassword.length() < 6) {
+                JSONObject error = new JSONObject();
+                error.put("status", "Error");
+                error.put("statusCode", 400);
+                error.put("message", "New password must be at least 6 characters");
+                return Response.status(400)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            // Call service to change password (service will verify old password)
+            JSONObject result = usersService.changePassword(userId, oldPassword, newPassword);
 
             return Response.status(result.getInt("statusCode"))
                     .entity(result.toString())
@@ -204,7 +225,6 @@ public class UsersController {
                 .build();
 
     }
-    
 
 //    @POST
 //@Path("refresh")
@@ -272,7 +292,6 @@ public class UsersController {
 //                .build();
 //    }
 //}
-
     @POST
     @Path("logout")
     public Response logout() {

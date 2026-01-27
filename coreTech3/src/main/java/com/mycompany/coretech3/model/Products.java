@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Products.findAll", query = "SELECT p FROM Products p"),
     @NamedQuery(name = "Products.findById", query = "SELECT p FROM Products p WHERE p.id = :id"),
     @NamedQuery(name = "Products.findByName", query = "SELECT p FROM Products p WHERE p.name = :name"),
+    @NamedQuery(name = "Products.findByProperties", query = "SELECT p FROM Products p WHERE p.properties = :properties"),
     @NamedQuery(name = "Products.findByPrice", query = "SELECT p FROM Products p WHERE p.price = :price"),
     @NamedQuery(name = "Products.findByPPrice", query = "SELECT p FROM Products p WHERE p.pPrice = :pPrice"),
     @NamedQuery(name = "Products.findByStock", query = "SELECT p FROM Products p WHERE p.stock = :stock"),
@@ -64,6 +65,9 @@ public class Products implements Serializable {
     @Size(max = 65535)
     @Column(name = "description")
     private String description;
+    @Size(max = 500)
+    @Column(name = "properties")
+    private String properties;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
@@ -138,6 +142,14 @@ public class Products implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     public BigDecimal getPrice() {

@@ -21,10 +21,13 @@ public class ApplicationConfig extends Application {
         return resources;
     }
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(com.mycompany.coretech3.controller.AdminBrandsController.class);
         resources.add(com.mycompany.coretech3.controller.AdminOrdersController.class);
         resources.add(com.mycompany.coretech3.controller.AdminProductsController.class);
         resources.add(com.mycompany.coretech3.controller.AdminUsersController.class);
         resources.add(com.mycompany.coretech3.controller.AnalyticsController.class);
+        resources.add(com.mycompany.coretech3.controller.BrandsController.class);
+        resources.add(com.mycompany.coretech3.controller.CategoriesController.class);
         resources.add(com.mycompany.coretech3.controller.OrdersController.class);
         resources.add(com.mycompany.coretech3.controller.ProductsController.class);
         resources.add(com.mycompany.coretech3.controller.UsersController.class);

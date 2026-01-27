@@ -56,7 +56,7 @@ public class Orders implements Serializable {
     @NotNull
     @Column(name = "total_price")
     private BigDecimal totalPrice;
-    @Size(max = 9)
+    @Size(max = 100)
     @Column(name = "status")
     private String status;
     @Basic(optional = false)

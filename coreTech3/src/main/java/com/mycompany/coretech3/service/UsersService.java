@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.mycompany.coretech3.service;
 
 import com.mycompany.coretech3.model.Users;
@@ -173,18 +170,30 @@ public class UsersService {
         return resp;
     }
 
-    public JSONObject updatePassword(int userId, String newPassword) {
+    public JSONObject changePassword(int userId, String oldPassword, String newPassword) {
     JSONObject resp = new JSONObject();
     try {
-        // 1) user betöltése
+        // 1) Load user from database
         Users user = em.find(Users.class, userId);
         if (user == null) {
             resp.put("status", "UserNotFound");
             resp.put("statusCode", 404);
+            resp.put("message", "User not found");
             return resp;
         }
         
-        // Validate new password strength
+        // 2) Verify old password
+        String storedPasswordHash = user.getPasswordHash();
+        boolean isOldPasswordCorrect = BCrypt.checkpw(oldPassword, storedPasswordHash);
+        
+        if (!isOldPasswordCorrect) {
+            resp.put("status", "Error");
+            resp.put("statusCode", 401);
+            resp.put("message", "Old password is incorrect");
+            return resp;
+        }
+        
+        // 3) Validate new password strength
         if (newPassword == null || newPassword.length() < 8) {
             resp.put("status", "WeakPassword");
             resp.put("statusCode", 400);
@@ -195,10 +204,10 @@ public class UsersService {
         String email = user.getEmail();
         String username = user.getUsername();
         
-        // Hash the password
+        // 4) Hash the new password
         String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
         
-        // 2) stored procedure hívása
+        // 5) Call stored procedure to update password
         StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
         spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
         spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
@@ -208,6 +217,7 @@ public class UsersService {
         
         spq.execute();
         
+        // 6) Send confirmation email
         String template = EmailTemplateLoader.loadTemplate("jelszofriss.html");
         if (template != null) {
             template = template.replace("{{username}}", username);
@@ -221,10 +231,13 @@ public class UsersService {
         
         resp.put("status", "PasswordUpdated");
         resp.put("statusCode", 200);
+        resp.put("message", "Password changed successfully");
+        
     } catch (Exception e) {
         e.printStackTrace();
         resp.put("status", "DatabaseError");
         resp.put("statusCode", 500);
+        resp.put("message", "Error changing password: " + e.getMessage());
     }
     return resp;
 }

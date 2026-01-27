@@ -30,11 +30,16 @@ public class JwtAuthFilter implements ContainerRequestFilter {
             return;
         }
 
-        
         if ((path.equals("products") || path.equals("/products")
                 || path.startsWith("products/") || path.startsWith("/products/"))
                 && !path.contains("admin")) {
             System.out.println("✅ PUBLIC PRODUCT ENDPOINT - ALLOWED");
+            return;
+        }
+        if (path.contains("categories") && !path.contains("admin")) {
+            return;
+        }
+        if (path.contains("brands") && !path.contains("admin")) {
             return;
         }
 
