@@ -2,6 +2,7 @@ C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\scheduler\Or
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Products.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\ProductsController.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\AdminOrdersController.java
+C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\CategoriesService.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Brands.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Orders.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Attributes.java
@@ -19,13 +20,17 @@ C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\Emai
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Categories.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\security\JwtUtil.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\AnalyticsService.java
+C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\BrandsController.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\OrderItems.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\AnalyticsController.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\model\Reviews.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\AdminProductsController.java
+C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\CategoriesController.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\AdminOrdersService.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\ProductsService.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\ApplicationConfig.java
+C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\BrandsService.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\AdminUsersController.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\util\EmailTemplateLoader.java
 C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\service\UsersService.java
+C:\hx dual\coretech\coreTech3\src\main\java\com\mycompany\coretech3\controller\AdminBrandsController.java

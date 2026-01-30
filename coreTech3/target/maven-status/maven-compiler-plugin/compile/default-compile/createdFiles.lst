@@ -8,7 +8,6 @@ com\mycompany\coretech3\model\Products.class
 com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\model\Users.class
 com\mycompany\coretech3\controller\CategoriesController.class
-com\mycompany\coretech3\service\AdminOrdersService.class
 com\mycompany\coretech3\controller\BrandsController.class
 com\mycompany\coretech3\service\AdminUsersService.class
 com\mycompany\coretech3\controller\AdminBrandsController.class

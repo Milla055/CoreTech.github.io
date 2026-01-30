@@ -96,6 +96,46 @@ public class ProductsService {
         return resp;
     }
 
+    public JSONObject getProductsByBrandId(int brandId) {
+        JSONObject resp = new JSONObject();
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("getProductsByBrandId");
+            spq.registerStoredProcedureParameter("brandIdIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("brandIdIN", brandId);
+
+            List<Object[]> results = spq.getResultList();
+
+            JSONArray productsArray = new JSONArray();
+            for (Object[] row : results) {
+                JSONObject product = new JSONObject();
+                product.put("id", row[0]);
+                product.put("name", row[1]);
+                product.put("description", row[2]);
+                product.put("price", row[3]);
+                product.put("stock", row[4]);
+                product.put("image_url", row[5]);
+                product.put("category_id", row[6]);
+                product.put("brand_id", row[7]);
+                product.put("created_at", row[8]);
+                product.put("brand_name", row[9]);
+                productsArray.put(product);
+            }
+
+            resp.put("status", "Success");
+            resp.put("statusCode", 200);
+            resp.put("products", productsArray);
+            resp.put("count", productsArray.length());
+            resp.put("brandId", brandId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
+        }
+        return resp;
+    }
+
     public JSONObject createProduct(int categoryId, int brandId, String name,
             String description, double price, int stock, String imageUrl) {
         JSONObject resp = new JSONObject();

@@ -1,22 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.coretech3.service;
 
-/**
- *
- * @author kamil
- */
-import com.mycompany.coretech3.model.Users;
-import java.util.List;
+import com.mycompany.coretech3.model.Orders;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.json.JSONObject;
-import javax.persistence.StoredProcedureQuery;
 import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
+import java.util.List;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 @Stateless
 public class OrdersService {
@@ -24,131 +16,205 @@ public class OrdersService {
     @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
     private EntityManager em;
 
-    public JSONObject createOrder(int userId, int addressId, String totalPrice, String status) {
-
+    // customer
+    public JSONObject createOrder(int userId, JSONObject orderData) {
         JSONObject resp = new JSONObject();
-
         try {
-            // Ellenőrzés hogy a user létezik
-            Users user = em.find(Users.class, userId);
+            int addressId = orderData.getInt("addressId");
+            double totalPrice = orderData.getDouble("totalPrice");
+            String status = orderData.optString("status", "pending");
+            JSONArray items = orderData.getJSONArray("items");
 
-            if (user == null) {
-                resp.put("status", "UserNotFound");
-                resp.put("statusCode", 404);
-                return resp;
+            // Step 1: Create the order
+            StoredProcedureQuery spqOrder = em.createStoredProcedureQuery("createOrders");
+            spqOrder.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+            spqOrder.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+            spqOrder.registerStoredProcedureParameter(3, Double.class, ParameterMode.IN);
+            spqOrder.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
+
+            spqOrder.setParameter(1, userId);
+            spqOrder.setParameter(2, addressId);
+            spqOrder.setParameter(3, totalPrice);
+            spqOrder.setParameter(4, status);
+            spqOrder.execute();
+
+            // Get the last inserted order ID
+            int orderId = ((Number) em.createNativeQuery("SELECT LAST_INSERT_ID()").getSingleResult()).intValue();
+
+            // Step 2: Create order items
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+
+                StoredProcedureQuery spqItem = em.createStoredProcedureQuery("createOrderItems");
+                spqItem.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+                spqItem.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+                spqItem.registerStoredProcedureParameter(3, Integer.class, ParameterMode.IN);
+                spqItem.registerStoredProcedureParameter(4, Double.class, ParameterMode.IN);
+
+                spqItem.setParameter(1, orderId);
+                spqItem.setParameter(2, item.getInt("productId"));
+                spqItem.setParameter(3, item.getInt("quantity"));
+                spqItem.setParameter(4, item.getDouble("price"));
+                spqItem.execute();
             }
-
-            String email = user.getEmail();
-            String username = user.getUsername();
-
-            // PROCEDURE
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("createOrders");
-
-            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("addressIdIN", Integer.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("totalpriceIN", String.class, ParameterMode.IN);
-            spq.registerStoredProcedureParameter("statusIN", String.class, ParameterMode.IN);
-
-            spq.setParameter("userIdIN", userId);
-            spq.setParameter("addressIdIN", addressId);
-            spq.setParameter("totalpriceIN", totalPrice);
-            spq.setParameter("statusIN", status);
-
-            spq.execute();
-
-            // EMAIL
-            EmailService.sendEmail(
-                    email,
-                    "Rendelés leadva ✔",
-                    "<h1>Szia " + username + "!</h1>"
-                            + "<p>A rendelésed sikeresen leadva.</p>"
-                            + "<p><b>Végösszeg:</b> " + totalPrice + " Ft</p>"
-                            + "<p>Státusz: <b>" + status + "</b></p>"
-            );
 
             resp.put("status", "OrderCreated");
             resp.put("statusCode", 201);
+            resp.put("orderId", orderId);
 
         } catch (Exception e) {
             e.printStackTrace();
             resp.put("status", "DatabaseError");
             resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
         }
-
         return resp;
     }
 
-    // ============== AUTO PROGRESS ==============
-//    public void autoProgressOrders() {
-//        try {
-//            List<Orders> orders = em.createQuery(
-//                "SELECT o FROM Orders o WHERE o.status <> 'delivered'", 
-//                Orders.class
-//            ).getResultList();
-//
-//            for (Orders o : orders) {
-//
-//                String newStatus = switch (o.getStatus()) {
-//                    case "pending"  -> "paid";
-//                    case "paid"     -> "shipping";
-//                    case "shipping" -> "shipped";
-//                    case "shipped"  -> "delivered";
-//                    default         -> o.getStatus();
-//                };
-//
-//                if (!newStatus.equals(o.getStatus())) {
-//
-//                    o.setStatus(newStatus);
-//                    em.merge(o);
-//
-//                    EmailService.sendEmail(
-//                        o.getUserId().getEmail(),
-//                        "Rendelés státusz frissítve ✔",
-//                        "<h1>Új státusz: " + newStatus + "</h1>"
-//                    );
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // ============== GET ORDERS BY USER ==============
+    // customer
     public JSONObject getOrdersByUserId(int userId) {
         JSONObject resp = new JSONObject();
-
         try {
             StoredProcedureQuery spq = em.createStoredProcedureQuery("getOrdersByUserId");
-
             spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
             spq.setParameter("userIdIN", userId);
 
             List<Object[]> results = spq.getResultList();
-            JSONArray arr = new JSONArray();
 
+            JSONArray ordersArray = new JSONArray();
             for (Object[] row : results) {
-                JSONObject obj = new JSONObject();
-                obj.put("order_id", row[0]);
-                obj.put("product_name", row[1]);
-                obj.put("image_url", row[2]);
-                obj.put("total_price", row[3]);
-                obj.put("status", row[4]);
-                obj.put("quantity", row[5]);
-                obj.put("created_at", row[6]);
-                arr.put(obj);
+                JSONObject order = new JSONObject();
+                order.put("order_id", row[0]);
+                order.put("product_name", row[1]);
+                order.put("image_url", row[2]);
+                order.put("total_price", row[3]);
+                order.put("status", row[4]);
+                order.put("quantity", row[5]);
+                order.put("created_at", row[6]);
+                ordersArray.put(order);
             }
 
-            resp.put("status", "OK");
+            resp.put("status", "Success");
             resp.put("statusCode", 200);
-            resp.put("orders", arr);
+            resp.put("orders", ordersArray);
+            resp.put("count", ordersArray.length());
 
         } catch (Exception e) {
             e.printStackTrace();
             resp.put("status", "DatabaseError");
             resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
         }
+        return resp;
+    }
 
+    // customer
+    public JSONObject getOrderById(int orderId, int userId) {
+        JSONObject resp = new JSONObject();
+        try {
+            // Load order and verify ownership
+            Orders order = em.find(Orders.class, orderId);
+
+            if (order == null) {
+                resp.put("status", "OrderNotFound");
+                resp.put("statusCode", 404);
+                resp.put("message", "Order with ID " + orderId + " not found");
+                return resp;
+            }
+
+            // OWNERSHIP CHECK
+            if (order.getUserId().getId() != userId) {
+                resp.put("status", "Forbidden");
+                resp.put("statusCode", 403);
+                resp.put("message", "You don't have permission to view this order");
+                return resp;
+            }
+
+            // Call stored procedure to get order details
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("getOrderById");
+            spq.registerStoredProcedureParameter("orderIdIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("orderIdIN", orderId);
+
+            List<Object[]> results = spq.getResultList();
+
+            if (results.isEmpty()) {
+                resp.put("status", "OrderNotFound");
+                resp.put("statusCode", 404);
+                return resp;
+            }
+
+            // Only 6 columns!
+            Object[] row = results.get(0);
+            JSONObject orderDetails = new JSONObject();
+            orderDetails.put("order_id", row[0]);
+            orderDetails.put("user_id", row[1]);
+            orderDetails.put("address_id", row[2]);
+            orderDetails.put("total_price", row[3]);
+            orderDetails.put("status", row[4]);
+            orderDetails.put("created_at", row[5]);
+
+            resp.put("status", "Success");
+            resp.put("statusCode", 200);
+            resp.put("order", orderDetails);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
+        }
+        return resp;
+    }
+
+    // customer
+    public JSONObject deleteMyOrder(int orderId, int userId) {
+        JSONObject resp = new JSONObject();
+        try {
+            Orders order = em.find(Orders.class, orderId);
+
+            if (order == null) {
+                resp.put("status", "OrderNotFound");
+                resp.put("statusCode", 404);
+                return resp;
+            }
+
+            // OWNERSHIP CHECK
+            if (order.getUserId().getId() != userId) {
+                resp.put("status", "Forbidden");
+                resp.put("statusCode", 403);
+                resp.put("message", "You don't have permission to delete this order");
+                return resp;
+            }
+
+            // CHECK IF PENDING
+            if (!"pending".equalsIgnoreCase(order.getStatus())) {
+                resp.put("status", "CannotDelete");
+                resp.put("statusCode", 400);
+                resp.put("message", "Can only cancel orders with 'pending' status");
+                return resp;
+            }
+
+            // Check if already deleted
+            if (order.getIsDeleted() != null && order.getIsDeleted() != 0) {
+                resp.put("status", "AlreadyDeleted");
+                resp.put("statusCode", 400);
+                return resp;
+            }
+
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("softDelOrders");
+            spq.registerStoredProcedureParameter("ordersIdIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("ordersIdIN", orderId);
+            spq.execute();
+
+            resp.put("status", "OrderCancelled");
+            resp.put("statusCode", 200);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
+        }
         return resp;
     }
 }

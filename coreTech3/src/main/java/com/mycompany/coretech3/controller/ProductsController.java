@@ -52,4 +52,15 @@ public class ProductsController {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+
+    @GET
+    @Path("brand/{brandId}")
+    public Response getProductsByBrandId(@PathParam("brandId") int brandId) {
+        System.out.println("=== GET PRODUCTS BY BRAND ID CALLED: " + brandId + " ===");
+        JSONObject result = productsService.getProductsByBrandId(brandId);
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
 }

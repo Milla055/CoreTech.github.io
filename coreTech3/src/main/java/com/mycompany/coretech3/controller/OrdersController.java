@@ -1,78 +1,141 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.coretech3.controller;
 
-/**
- *
- * @author kamil
- */
+import com.mycompany.coretech3.security.JwtUtil;
 import com.mycompany.coretech3.service.OrdersService;
-import javax.ejb.Stateless;
+import io.jsonwebtoken.Claims;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-@Stateless
 @Path("orders")
+@Produces(MediaType.APPLICATION_JSON)
 public class OrdersController {
+
     @Inject
     private OrdersService ordersService;
 
     @POST
-    @Path("createOrder")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createOrder(String body) {
+    public Response createOrder(@HeaderParam("Authorization") String authHeader, String body) {
+        System.out.println("=== CREATE ORDER CALLED ===");
+        try {
+            String token = authHeader.substring(7);
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
 
-        JSONObject obj = new JSONObject(body);
+            JSONObject orderData = new JSONObject(body);
+            JSONObject result = ordersService.createOrder(userId, orderData);
 
-        int userId = obj.getInt("userId");
-        int addressId = obj.getInt("addressId");
-        String totalPrice = obj.getString("totalPrice");
-        String status = obj.has("status") ? obj.getString("status") : "pending";
+            return Response.status(result.getInt("statusCode"))
+                    .entity(result.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
 
-        JSONObject result = ordersService.createOrder(userId, addressId, totalPrice, status);
-
-        return Response.status(result.getInt("statusCode"))
-                .entity(result.toString())
-                .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Error");
+            error.put("statusCode", 400);
+            error.put("message", e.getMessage());
+            return Response.status(400)
+                    .entity(error.toString())
+                    .build();
+        }
     }
-
-
-
-//    @GET
-//    @Path("autoprogress")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response autoProgressOrders() {
-//        ordersService.autoProgressOrders();
-//
-//        JSONObject resp = new JSONObject();
-//        resp.put("status", "OrdersProgressed");
-//        resp.put("statusCode", 200);
-//
-//        return Response.ok(resp.toString()).build();
-//    }
 
     @GET
-    @Path("user/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getOrdersByUser(@PathParam("userId") int userId) {
+    public Response getMyOrders(@HeaderParam("Authorization") String authHeader) {
+        System.out.println("=== GET MY ORDERS CALLED ===");
+        try {
+            // Extract userId from JWT
+            String token = authHeader.substring(7);
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
 
-        JSONObject result = ordersService.getOrdersByUserId(userId);
+            JSONObject result = ordersService.getOrdersByUserId(userId);
 
-        return Response.status(result.getInt("statusCode"))
-                .entity(result.toString())
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+            return Response.status(result.getInt("statusCode"))
+                    .entity(result.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Unauthorized");
+            error.put("statusCode", 401);
+            error.put("message", "Invalid token: " + e.getMessage());
+            return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("{orderId}")
+    public Response getOrderById(@HeaderParam("Authorization") String authHeader,
+            @PathParam("orderId") int orderId) {
+        System.out.println("=== GET ORDER BY ID CALLED: " + orderId + " ===");
+        try {
+            // Extract userId from JWT
+            String token = authHeader.substring(7);
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
+
+            // Get order with ownership verification
+            JSONObject result = ordersService.getOrderById(orderId, userId);
+
+            return Response.status(result.getInt("statusCode"))
+                    .entity(result.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Unauthorized");
+            error.put("statusCode", 401);
+            error.put("message", "Invalid token: " + e.getMessage());
+            return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("delete/{orderId}")
+    public Response deleteMyOrder(@HeaderParam("Authorization") String authHeader,
+            @PathParam("orderId") int orderId) {
+        System.out.println("=== DELETE MY ORDER CALLED: " + orderId + " ===");
+        try {
+            // Extract userId from JWT
+            String token = authHeader.substring(7);
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
+
+            // Delete order with ownership verification
+            JSONObject result = ordersService.deleteMyOrder(orderId, userId);
+
+            return Response.status(result.getInt("statusCode"))
+                    .entity(result.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Unauthorized");
+            error.put("statusCode", 401);
+            error.put("message", "Invalid token: " + e.getMessage());
+            return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 }
-
