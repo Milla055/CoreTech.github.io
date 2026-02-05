@@ -287,10 +287,10 @@ public class UsersService {
         spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
         spq.setParameter("emailIN", email);
         
-       
         Object[] result = (Object[]) spq.getSingleResult();
         String storedHash = result[0].toString();
         String username = result[1].toString();
+        String role = result[2].toString(); 
         
         if (!BCrypt.checkpw(password, storedHash)) {
             resp.put("status", "InvalidEmailOrPassword");
@@ -318,7 +318,8 @@ public class UsersService {
         resp.put("statusCode", 200);
         resp.put("accessToken", accessToken);
         resp.put("refreshToken", refreshToken);
-        resp.put("username", username); // Ha szeretnéd a választ is beletenni
+        resp.put("username", username);
+        resp.put("role", role); // ← ADD THIS
         
     } catch (NoResultException e) {
         resp.put("status", "InvalidEmailOrPassword");
