@@ -63,4 +63,13 @@ public class ProductsController {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+
+    @GET
+    @Path("{productId}/images/{imageIndex}")
+    @Produces("image/png")
+    public Response getProductImage(@PathParam("productId") int productId,
+            @PathParam("imageIndex") int imageIndex) {
+        System.out.println("=== GET PRODUCT IMAGE CALLED: Product " + productId + ", Image " + imageIndex + " ===");
+        return productsService.getProductImage(productId, imageIndex);
+    }
 }

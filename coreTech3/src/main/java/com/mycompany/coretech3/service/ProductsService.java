@@ -1,12 +1,16 @@
 package com.mycompany.coretech3.service;
 
 import com.mycompany.coretech3.model.Products;
+import com.mycompany.coretech3.util.ImageConfig;
+import java.io.File;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -298,5 +302,59 @@ public class ProductsService {
         }
         return resp;
     }
+    // ========== GET PRODUCT IMAGE ==========
 
+    public Response getProductImage(int productId, int imageIndex) {
+        try {
+            // 1. Check if product exists
+            Products product = em.find(Products.class, productId);
+            if (product == null) {
+                JSONObject error = new JSONObject();
+                error.put("status", "ProductNotFound");
+                error.put("statusCode", 404);
+                return Response.status(404)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            // 2. Build image path using product name as folder
+            String basePath = ImageConfig.getBasePath();
+            String productFolder = product.getName(); // "Gigabyte GeForce RTX 5050"
+            String imageName = "id" + productId + "_" + imageIndex + ".png";
+            String fullPath = basePath + File.separator + productFolder + File.separator + imageName;
+
+            System.out.println("🔍 Looking for image: " + fullPath);
+
+            // 3. Load image file
+            File imageFile = new File(fullPath);
+            if (!imageFile.exists()) {
+                JSONObject error = new JSONObject();
+                error.put("status", "ImageNotFound");
+                error.put("statusCode", 404);
+                error.put("message", "Image " + imageName + " not found at " + fullPath);
+                return Response.status(404)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            // 4. Return image
+            return Response.ok(imageFile)
+                    .type("image/png")
+                    .header("Content-Disposition", "inline; filename=\"" + imageName + "\"")
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "ServerError");
+            error.put("statusCode", 500);
+            error.put("message", e.getMessage());
+            return Response.status(500)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
 }
