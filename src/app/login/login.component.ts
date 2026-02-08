@@ -9,10 +9,11 @@ import {
 import { Router, RouterLink} from '@angular/router';
 import { debounceTime, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -20,6 +21,10 @@ export class LoginComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
   private destroyRef = inject(DestroyRef);
   private authService = inject(AuthService);
+  
+  // Jelszó megjelenítés állapota
+  showPassword: boolean = false;
+  
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
@@ -45,6 +50,11 @@ export class LoginComponent implements OnInit {
       this.form.controls.password.dirty &&
       this.form.controls.password.invalid
     );
+  }
+
+  // Jelszó megjelenítés/elrejtés váltása
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   ngOnInit() {
@@ -89,4 +99,3 @@ export class LoginComponent implements OnInit {
 
 
 }
-

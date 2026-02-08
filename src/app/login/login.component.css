@@ -229,3 +229,43 @@ p {
     top: 10px;
     left: 10px;
 }
+
+/* Password Input with Toggle Button */
+.password-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 390px;
+}
+
+.password-input {
+    padding-right: 45px !important;
+    width: 100% !important;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 9px;
+    
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.toggle-password-btn:hover {
+    background: rgba(61, 68, 116, 0.1);
+}
+
+.toggle-password-btn svg {
+    fill: #3D4474;
+    transition: fill 0.2s;
+}
+
+.toggle-password-btn:hover svg {
+    fill: #2f355e;
+}

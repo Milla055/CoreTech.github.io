@@ -1,109 +1,76 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-export interface User {
-  id?: number;
-  vezetekNev: string;
-  keresztNev: string;
-  email: string;
-  role: string;
-  cim?: {
-    orszag: string;
-    iranyitoszam: string;
-    varos: string;
-    utcaHazszam: string;
-  };
+export interface UserProfileData {
+  vezetekNev?: string;
+  keresztNev?: string;
+  email?: string;
   telefonszam?: string;
+  cim?: {
+    orszag?: string;
+    iranyitoszam?: string;
+    varos?: string;
+    utcaHazszam?: string;
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
-  private apiUrl = 'http://localhost:4200'; // Replace with your API URL
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-
-  constructor(private http: HttpClient) {
-    // Load user from localStorage on service initialization
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
-    }
-  }
+export class ProfileService {
+  private apiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources';
+  private http = inject(HttpClient);
 
   /**
-   * Get the currently logged-in user
+   * Update user profile data
+   * Sends updated profile information to backend
    */
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/me`).pipe(
-      tap(user => {
-        this.currentUserSubject.next(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
-      })
-    );
-  }
+  updateUserProfile(profileData: UserProfileData): Observable<any> {
+    const token = localStorage.getItem('JWT');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
 
-  /**
-   * Update user profile
-   */
-  updateUser(userData: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/user/profile`, userData).pipe(
-      tap(updatedUser => {
-        this.currentUserSubject.next(updatedUser);
+    console.log('📤 Updating user profile:', profileData);
+
+    // Adjust the endpoint based on your backend API
+    return this.http.put(`${this.apiUrl}/Users/updateProfile`, profileData, { headers }).pipe(
+      tap((response) => {
+        console.log('✅ Profile updated successfully:', response);
+        
+        // Update localStorage with new data
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = {
+          ...currentUser,
+          ...profileData,
+          // Preserve username and role
+          username: currentUser.username,
+          role: currentUser.role
+        };
+        
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       })
     );
   }
 
   /**
-   * Change user password
+   * Get current user's full profile data from backend
    */
-  changePassword(oldPassword: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/user/change-password`, {
-      oldPassword,
-      newPassword
+  getUserProfile(): Observable<any> {
+    const token = localStorage.getItem('JWT');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     });
-  }
 
-  /**
-   * Register a new user
-   */
-  register(userData: User & { password: string }): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/auth/register`, userData).pipe(
-      tap(user => {
-        this.currentUserSubject.next(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+    return this.http.get(`${this.apiUrl}/Users/profile`, { headers }).pipe(
+      tap((response: any) => {
+        console.log('📥 User profile loaded:', response);
       })
     );
-  }
-
-  /**
-   * Login user
-   */
-  login(email: string, password: string): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
-      tap(user => {
-        this.currentUserSubject.next(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
-      })
-    );
-  }
-
-  /**
-   * Logout user
-   */
-  logout(): void {
-    this.currentUserSubject.next(null);
-    localStorage.removeItem('currentUser');
-  }
-
-  /**
-   * Get current user value synchronously
-   */
-  getCurrentUserValue(): User | null {
-    return this.currentUserSubject.value;
   }
 }

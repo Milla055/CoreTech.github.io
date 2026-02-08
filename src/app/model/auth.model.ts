@@ -9,6 +9,7 @@ export interface loginResponse{
     statusCode: number,
     accessToken: string,
     refreshToken: string,
+    username: string
 }
 
 export interface registerRequest{

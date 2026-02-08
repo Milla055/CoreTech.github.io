@@ -15,21 +15,22 @@
       </div>
 
       <div class="searchContainer" (click)="$event.stopPropagation()">
-        <div class="searchbar">
-          <button class="searchBtn">
-            <i class="fa-solid fa-magnifying-glass" style="color: #3d4474;"></i>
+        <form class="searchbar" (submit)="onSearchSubmit($event)">
+          <button type="submit" class="searchBtn">
+            <img class="searchIcon" src="assets/icons8-magnifying-glass-24.png" alt="search">
           </button>
           <input
             type="text"
             placeholder="Keresés..."
             class="searchInput"
             [value]="searchQuery"
-            (input)="onSearch($event.target.value)"
+            (input)="onSearch($any($event.target).value)"
             (focus)="openSearch()"
+            (keyup.enter)="onSearchSubmit()"
             aria-autocomplete="list"
             aria-controls="search-results"
           >
-        </div>
+        </form>
 
         <div id="search-results" class="search-results" [hidden]="!showSuggestions">
           <div class="result-list" [innerHTML]="suggestionsHtml" (click)="onSuggestionClick($event)"></div>
@@ -51,7 +52,7 @@
       </button>
 
       <button class="cartBtn">
-        <img src="assets/carticon-32x32.png" alt="cart" class="cartIcon">
+        <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
       </button>
     </div>
   </div>

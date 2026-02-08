@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ShopmenuComponent } from "../shopmenu/shopmenu.component";
 import { Router, RouterLink } from "@angular/router";
-import { AuthService } from "../services/auth.service"; // adjust your path
+import { AuthService } from "../services/auth.service";
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -31,10 +31,27 @@ export class HeaderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Subscribe to user changes
+    console.log('🔍 Header component initialized');
+    
+    // Subscribe to user changes from AuthService
     this.authService.currentUser$.subscribe(user => {
+      console.log('👤 Current user updated:', user);
       this.username = user?.username || null;
+      
+      if (this.username) {
+        console.log('✅ Username set in header:', this.username);
+      } else {
+        console.log('⚠️ No username available');
+      }
     });
+
+    // Also check localStorage directly as a fallback
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && !this.username) {
+      const user = JSON.parse(savedUser);
+      this.username = user.username;
+      console.log('📦 Username loaded from localStorage:', this.username);
+    }
   }
 
   navigateToProfile() {
@@ -43,6 +60,7 @@ export class HeaderComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+    this.username = null;
     this.router.navigate(['/mainpage']);
   }
 
@@ -85,6 +103,42 @@ export class HeaderComponent implements OnInit {
     this.showSuggestions = false;
     this.filteredSuggestions = [];
     this.suggestionsHtml = '';
+    
+    // Navigate to product page with search query
+    this.navigateToProductPage(s);
+  }
+
+  onSearchSubmit(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    if (this.searchQuery.trim()) {
+      this.navigateToProductPage(this.searchQuery);
+      this.showSuggestions = false;
+    }
+  }
+
+  navigateToProductPage(query: string) {
+    // Determine category based on search query
+    let categoryId = 1; // Default to Graphics Cards
+    
+    const queryLower = query.toLowerCase();
+    if (queryLower.includes('videókártya') || queryLower.includes('grafikus') || 
+        queryLower.includes('rtx') || queryLower.includes('gtx') || 
+        queryLower.includes('radeon') || queryLower.includes('nvidia') || 
+        queryLower.includes('amd')) {
+      categoryId = 1; // Graphics Cards
+    }
+    // Add more category mappings here as needed
+    
+    // Navigate to product page with search query and category
+    this.router.navigate(['/products'], {
+      queryParams: {
+        search: query,
+        category: categoryId
+      }
+    });
   }
 
   @HostListener('document:click')

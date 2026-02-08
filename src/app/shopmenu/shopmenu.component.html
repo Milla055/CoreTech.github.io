@@ -1,34 +1,87 @@
 <div class="backdrop" >
-  <div class="menu-dialog">
+  <div class="menu-dialog" (click)="$event.stopPropagation()">
     <nav class="categories">
-      <button (click)="closeShopMenu()" class="closeMenu"><img src="assets/favicon-32x32.png" class="closeIcon"></button>
+      
+      
       <div class="category">
-        <button class="cat-btn">Számítógép alkatrész</button>
+        <button class="cat-btn">
+          <span class="cat-icon">🖥️</span>
+          Számítógép alkatrész
+          <span class="arrow">›</span>
+        </button>
         <div class="submenu">
-          <a class="item">Videókártya</a>
-          <a class="item">Processzor</a>
-          <a class="item">Memória (RAM)</a>
-          <a class="item">Alaplap</a>
-          <a class="item">SSD</a>
-          <a class="item">HDD</a>
-          <a class="item">Hűtés</a>
-          <a class="item">Tápegység</a>
-          <a class="item">Gépház</a>
+          <a class="item" (click)="onVideokartya()">
+            <span class="item-icon">🎮</span>
+            Videókártya
+          </a>
+          <a class="item" (click)="onProcesszor()">
+            <span class="item-icon">⚡</span>
+            Processzor
+          </a>
+          <a class="item" (click)="onMemoria()">
+            <span class="item-icon">💾</span>
+            Memória (RAM)
+          </a>
+          <a class="item" (click)="onAlaplap()">
+            <span class="item-icon">🔧</span>
+            Alaplap
+          </a>
+          <a class="item" (click)="onSSD()">
+            <span class="item-icon">💿</span>
+            SSD
+          </a>
+          <a class="item" (click)="onHDD()">
+            <span class="item-icon">💽</span>
+            HDD
+          </a>
+          <a class="item" (click)="onHutes()">
+            <span class="item-icon">❄️</span>
+            Hűtés
+          </a>
+          <a class="item" (click)="onTapegyseg()">
+            <span class="item-icon">🔌</span>
+            Tápegység
+          </a>
+          <a class="item" (click)="onGephaz()">
+            <span class="item-icon">📦</span>
+            Gépház
+          </a>
         </div>
       </div>
 
       <div class="category">
-        <button class="cat-btn">Számítógép perifériák</button>
+        <button class="cat-btn">
+          <span class="cat-icon">⌨️</span>
+          Számítógép perifériák
+          <span class="arrow">›</span>
+        </button>
         <div class="submenu">
-            <a class="item">Egér</a>
-            <a class="item">Billentyűzet</a>
-            <a class="item">Egérpad</a>
-            <a class="item">Monitor</a>
-            <a class="item">Mikrofon</a>
-            <a class="item">Fejhallgató</a>
+          <a class="item" (click)="onEger()">
+            <span class="item-icon">🖱️</span>
+            Egér
+          </a>
+          <a class="item" (click)="onBillentyuzet()">
+            <span class="item-icon">⌨️</span>
+            Billentyűzet
+          </a>
+          <a class="item" (click)="onEgerpad()">
+            <span class="item-icon">🎯</span>
+            Egérpad
+          </a>
+          <a class="item" (click)="onMonitor()">
+            <span class="item-icon">🖥️</span>
+            Monitor
+          </a>
+          <a class="item" (click)="onMikrofon()">
+            <span class="item-icon">🎤</span>
+            Mikrofon
+          </a>
+          <a class="item" (click)="onFejhallgato()">
+            <span class="item-icon">🎧</span>
+            Fejhallgató
+          </a>
         </div>
       </div>
     </nav>
   </div>
 </div>
-

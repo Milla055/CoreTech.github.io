@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { User, UserService } from '../services/profile.service';
 import { AuthService } from '../services/auth.service';
+import { ProfileService } from '../services/profile.service';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
 import { CommonModule } from '@angular/common';
@@ -14,21 +14,139 @@ import { CommonModule } from '@angular/common';
   templateUrl: './profilepage.component.html',
   styleUrl: './profilepage.component.css',
 })
-export class ProfilepageComponent {
+export class ProfilepageComponent implements OnInit {
   activeTab: string = 'fiokkezeles';
   
   customerDataForm!: FormGroup;
   passwordForm!: FormGroup;
   deliveryDataForm!: FormGroup;
 
-  // This will hold the current user's data
   userData: any = null;
+  
+  isUpdatingProfile: boolean = false;
+  isChangingPassword: boolean = false;
+
+  showOldPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+
+  // Rendeléseim modal
+  isOrdersModalOpen: boolean = false;
+  
+  // Kedvencek modal
+  isFavoritesModalOpen: boolean = false;
+  
+  // Mock kedvencek
+  mockFavorites = [
+    {
+      id: 1,
+      name: 'Sony WH-1000XM5 Fejhallgató',
+      category: 'Audió & Fejhallgatók',
+      price: 159990,
+      oldPrice: 189990,
+      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop',
+      inStock: true
+    },
+    {
+      id: 2,
+      name: 'Apple MacBook Air M2',
+      category: 'Laptopok',
+      price: 549990,
+      oldPrice: null,
+      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop',
+      inStock: true
+    },
+    {
+      id: 3,
+      name: 'Samsung 4K Smart TV 55"',
+      category: 'TV & Monitor',
+      price: 289990,
+      oldPrice: 349990,
+      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop',
+      inStock: false
+    },
+    {
+      id: 4,
+      name: 'Logitech MX Master 3S Egér',
+      category: 'Perifériák',
+      price: 44990,
+      oldPrice: null,
+      image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=300&fit=crop',
+      inStock: true
+    },
+    {
+      id: 5,
+      name: 'iPhone 15 Pro Max 256GB',
+      category: 'Telefonok',
+      price: 649990,
+      oldPrice: 699990,
+      image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop',
+      inStock: true
+    },
+    {
+      id: 6,
+      name: 'DJI Mini 3 Pro Drón',
+      category: 'Drónok & Kamerák',
+      price: 329990,
+      oldPrice: null,
+      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=300&h=300&fit=crop',
+      inStock: false
+    }
+  ];
+  
+  // Mock rendelések
+  mockOrders = [
+    {
+      id: 'ORD-2024-001',
+      date: '2024.01.15.',
+      status: 'Kiszállítva',
+      statusClass: 'status-delivered',
+      items: [
+        { name: 'Wireless Bluetooth Fejhallgató', quantity: 1, price: 24990 },
+        { name: 'USB-C Töltőkábel 2m', quantity: 2, price: 2990 }
+      ],
+      total: 30970
+    },
+    {
+      id: 'ORD-2024-002',
+      date: '2024.01.28.',
+      status: 'Szállítás alatt',
+      statusClass: 'status-shipping',
+      items: [
+        { name: 'Mechanikus Gaming Billentyűzet', quantity: 1, price: 45990 },
+        { name: 'RGB Egérpad XL', quantity: 1, price: 8990 },
+        { name: 'Gaming Egér 16000 DPI', quantity: 1, price: 19990 }
+      ],
+      total: 74970
+    },
+    {
+      id: 'ORD-2024-003',
+      date: '2024.02.02.',
+      status: 'Feldolgozás alatt',
+      statusClass: 'status-processing',
+      items: [
+        { name: 'Smart Watch Pro', quantity: 1, price: 89990 }
+      ],
+      total: 89990
+    },
+    {
+      id: 'ORD-2023-047',
+      date: '2023.12.20.',
+      status: 'Kiszállítva',
+      statusClass: 'status-delivered',
+      items: [
+        { name: 'Laptop Állvány Alumínium', quantity: 1, price: 12990 },
+        { name: 'Webcam 1080p', quantity: 1, price: 15990 }
+      ],
+      total: 28980
+    }
+  ];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
-    // private userService: UserService  // Inject your user service here
+    private authService: AuthService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
@@ -36,45 +154,45 @@ export class ProfilepageComponent {
   }
 
   loadUserData(): void {
-    // Get the logged-in user's data from AuthService
     const currentUser = this.authService.getCurrentUser();
     
     if (currentUser) {
-      // User is logged in, use their data directly from localStorage
-      this.userData = {
-        email: currentUser.email,
-        username: currentUser.username,
-        role: currentUser.role, // Use exact role from backend (no fallback)
-        telefonszam: '',
-        vezetekNev: '',
-        keresztNev: '',
-        cim: {}
-      };
+      const savedProfile = localStorage.getItem('currentUser');
       
-      localStorage.setItem('currentUser', JSON.stringify(this.userData));
+      if (savedProfile) {
+        this.userData = JSON.parse(savedProfile);
+      } else {
+        this.userData = {
+          email: currentUser.email,
+          username: currentUser.username,
+          role: currentUser.role,
+          telefonszam: '',
+          vezetekNev: '',
+          keresztNev: '',
+          cim: { orszag: '', iranyitoszam: '', varos: '', utcaHazszam: '' }
+        };
+        localStorage.setItem('currentUser', JSON.stringify(this.userData));
+      }
+      
       this.initializeForms();
     } else {
-      // No user logged in, redirect to login
       this.router.navigate(['/login']);
     }
   }
 
   initializeForms(): void {
-    // Vásárlói Adatok Form - populated with current user data (email field empty)
     this.customerDataForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [this.userData?.email || '', [Validators.required, Validators.email]],
       vezetekNev: [this.userData?.vezetekNev || '', Validators.required],
       keresztNev: [this.userData?.keresztNev || '', Validators.required]
     });
 
-    // Jelszó Form with custom validator for password confirmation
     this.passwordForm = this.fb.group({
       regiJelszo: ['', Validators.required],
-      ujJelszo: ['', [Validators.required, Validators.minLength(6)]],
+      ujJelszo: ['', [Validators.required, Validators.minLength(8)]],
       ujJelszoMegerosites: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 
-    // Szállítási Adatok Form - populated with current user address
     this.deliveryDataForm = this.fb.group({
       orszag: [this.userData?.cim?.orszag || '', Validators.required],
       iranyitoszam: [this.userData?.cim?.iranyitoszam || '', Validators.required],
@@ -85,25 +203,33 @@ export class ProfilepageComponent {
     });
   }
 
-  // Custom validator to check if passwords match
   passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
     const newPassword = group.get('ujJelszo')?.value;
     const confirmPassword = group.get('ujJelszoMegerosites')?.value;
-    
-    if (newPassword !== confirmPassword) {
-      return { passwordMismatch: true };
-    }
-    return null;
+    return (newPassword !== confirmPassword) ? { passwordMismatch: true } : null;
+  }
+
+  togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
+    if (field === 'old') this.showOldPassword = !this.showOldPassword;
+    else if (field === 'new') this.showNewPassword = !this.showNewPassword;
+    else this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   getFullName(): string {
-    return `${this.userData?.vezetekNev || ''} ${this.userData?.keresztNev || ''}`.trim() || this.userData?.username || 'User';
+    return `${this.userData?.vezetekNev || ''} ${this.userData?.keresztNev || ''}`.trim() 
+           || this.userData?.username || 'Felhasználó';
   }
 
   getFullAddress(): string {
     if (!this.userData?.cim) return '';
     const { varos, iranyitoszam, utcaHazszam } = this.userData.cim;
-    return `${varos}, ${iranyitoszam}, ${utcaHazszam}`;
+    return `${varos || ''}, ${iranyitoszam || ''}, ${utcaHazszam || ''}`.replace(/(^,\s*|,\s*$)/g, '');
+  }
+
+  hasDeliveryData(): boolean {
+    if (!this.userData?.cim) return false;
+    const { orszag, iranyitoszam, varos, utcaHazszam } = this.userData.cim;
+    return !!(orszag || iranyitoszam || varos || utcaHazszam);
   }
 
   setActiveTab(tab: string): void {
@@ -129,77 +255,144 @@ export class ProfilepageComponent {
         }
       };
 
-       /* TODO: Call your API to update user data
-       this.userService.updateUser(updatedData).subscribe(
-         response => {
-           console.log('User updated successfully');
-           this.userData = { ...this.userData, ...updatedData };
-           localStorage.setItem('currentUser', JSON.stringify(this.userData));
-           alert('Változások sikeresen mentve!');
-         },
-         error => {
-           console.error('Error updating user:', error);
-           alert('Hiba történt a mentés során!');
-         }
-       );
- */
-      console.log('Updated Data:', updatedData);
-      
-      // For now, update localStorage
-      this.userData = { ...this.userData, ...updatedData };
-      localStorage.setItem('currentUser', JSON.stringify(this.userData));
-      
-      alert('Változások sikeresen mentve!');
+      this.isUpdatingProfile = true;
+
+      this.profileService.updateUserProfile(updatedData).subscribe({
+        next: (response) => {
+          this.userData = { ...this.userData, ...updatedData };
+          localStorage.setItem('currentUser', JSON.stringify(this.userData));
+          alert('✅ Változások mentve!');
+          this.isUpdatingProfile = false;
+        },
+        error: (error) => {
+          this.isUpdatingProfile = false;
+          this.userData = { ...this.userData, ...updatedData };
+          localStorage.setItem('currentUser', JSON.stringify(this.userData));
+          
+          if (error.status === 401) {
+            alert('❌ Érvénytelen token!');
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          } else {
+            alert('⚠️ Adatok helyben mentve.');
+          }
+        }
+      });
     } else {
-      alert('Kérlek töltsd ki az összes kötelező mezőt helyesen!');
+      alert('⚠️ Töltsd ki az összes mezőt!');
     }
   }
 
-  // Method to change password
   onPasswordChange(): void {
-    if (this.passwordForm.valid) {
-      const oldPassword = this.passwordForm.value.regiJelszo;
-      const newPassword = this.passwordForm.value.ujJelszo;
-      const confirmPassword = this.passwordForm.value.ujJelszoMegerosites;
-
-      // Check if new passwords match
-      if (newPassword !== confirmPassword) {
-        alert('Az új jelszavak nem egyeznek!');
-        return;
-      }
-
-      // Call the AuthService to change password
-      this.authService.changePassword(oldPassword, newPassword).subscribe(
-        response => {
-          console.log('Password changed successfully', response);
-          alert('Jelszó sikeresen megváltoztatva!');
-          this.passwordForm.reset();
-        },
-        error => {
-          console.error('Error changing password:', error);
-          if (error.status === 401) {
-            alert('A régi jelszó helytelen!');
-          } else if (error.status === 400) {
-            alert('Érvénytelen jelszó formátum!');
-          } else {
-            alert('Hiba történt a jelszó változtatása során!');
-          }
-        }
-      );
-    } else {
-      alert('Kérlek töltsd ki az összes jelszó mezőt helyesen!');
+    if (!this.passwordForm.valid) {
+      alert('⚠️ Töltsd ki az összes jelszó mezőt helyesen!');
+      return;
     }
+
+    const oldPassword = this.passwordForm.value.regiJelszo;
+    const newPassword = this.passwordForm.value.ujJelszo;
+    const confirmPassword = this.passwordForm.value.ujJelszoMegerosites;
+
+    if (newPassword !== confirmPassword) {
+      alert('❌ Az új jelszavak nem egyeznek!');
+      return;
+    }
+
+    // Ellenőrizzük, hogy van-e token mielőtt hívnánk
+    if (!this.authService.isLoggedIn()) {
+      alert('❌ Lejárt a munkamenet, kérlek jelentkezz be újra!');
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.isChangingPassword = true;
+
+    this.authService.changePassword(oldPassword, newPassword).subscribe({
+      next: (response) => {
+        console.log('✅ SUCCESS! Backend response:', response);
+        this.isChangingPassword = false;
+        alert('✅ Jelszó sikeresen megváltoztatva!');
+        this.passwordForm.reset();
+        this.showOldPassword = false;
+        this.showNewPassword = false;
+        this.showConfirmPassword = false;
+      },
+      error: (error) => {
+        console.log('❌ ERROR! Full error:', error);
+        console.log('error.status:', error.status);
+        console.log('error.error:', error.error);
+        
+        this.isChangingPassword = false;
+        
+        let errorMsg = '❌ Hiba történt!';
+        
+        if (error.status === 401) {
+          const errorBody = error.error;
+          const message = (errorBody?.message || '').toLowerCase();
+          
+          console.log('→ 401 error detected');
+          console.log('→ errorBody.message:', errorBody?.message);
+          console.log('→ errorBody.status:', errorBody?.status);
+          
+          // -----------------------------------------------------------
+          // FONTOS: Megkülönböztetjük a két 401-es esetet a MESSAGE alapján!
+          //
+          // JWT filter válasza:       message = "Invalid token or request"
+          // changePassword válasza:   message = "Old password is incorrect"
+          // -----------------------------------------------------------
+          
+          if (message.includes('token') || message.includes('invalid token')) {
+            // JWT filter dobta el → lejárt vagy érvénytelen token
+            console.log('→ TOKEN HIBA - a kérés meg sem jutott a changePassword-höz');
+            errorMsg = '❌ Lejárt a munkamenet, kérlek jelentkezz be újra!';
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          } 
+          else if (message.includes('old password') || message.includes('incorrect')) {
+            // A changePassword service válaszolt → a régi jelszó nem jó
+            console.log('→ Backend says: Wrong old password');
+            errorMsg = '❌ A régi jelszó helytelen!';
+          } 
+          else {
+            // Ismeretlen 401 → biztonsági okokból kijelentkeztetjük
+            console.log('→ Unknown 401, logging out for safety');
+            errorMsg = '❌ Hitelesítési hiba! Kérlek jelentkezz be újra.';
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          }
+        } else if (error.status === 400) {
+          const errorBody = error.error;
+          if (errorBody?.status === 'WeakPassword') {
+            errorMsg = '❌ A jelszó legalább 8 karakter hosszú kell legyen!';
+          } else {
+            errorMsg = '❌ Érvénytelen kérés!';
+          }
+        } else if (error.status === 404) {
+          errorMsg = '❌ Felhasználó nem található!';
+        } else if (error.status === 500) {
+          errorMsg = '❌ Szerver hiba!';
+        } else if (error.status === 0) {
+          errorMsg = '❌ Nincs kapcsolat a szerverrel!';
+        }
+        
+        console.log('→ Final message:', errorMsg);
+        alert(errorMsg);
+      }
+    });
   }
 
   resetChanges(): void {
-    // Reset forms to original user data
     this.customerDataForm.patchValue({
-      email: '',
+      email: this.userData?.email || '',
       vezetekNev: this.userData?.vezetekNev || '',
       keresztNev: this.userData?.keresztNev || ''
     });
 
     this.passwordForm.reset();
+    this.showOldPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
 
     this.deliveryDataForm.patchValue({
       orszag: this.userData?.cim?.orszag || '',
@@ -209,14 +402,38 @@ export class ProfilepageComponent {
       email: this.userData?.email || '',
       telefonszam: this.userData?.telefonszam || ''
     });
+    
+    alert('Visszaállítva');
   }
 
-  // Logout method
+  // Rendeléseim modal kezelés
+  openOrdersModal(): void {
+    this.isOrdersModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeOrdersModal(): void {
+    this.isOrdersModalOpen = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  // Kedvencek modal kezelés
+  openFavoritesModal(): void {
+    this.isFavoritesModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeFavoritesModal(): void {
+    this.isFavoritesModalOpen = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  removeFavorite(id: number): void {
+    this.mockFavorites = this.mockFavorites.filter(item => item.id !== id);
+  }
+
   logout(): void {
-    // Call the logout method from AuthService
     this.authService.logout();
-    
-    // Navigate to the main page (or login page)
     this.router.navigate(['/mainpage']);
   }
 }

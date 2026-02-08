@@ -1,0 +1,56 @@
+<div class="product-image-viewer">
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Main Image Display -->
+  <div class="main-image-container" *ngIf="!isLoading && hasImages">
+    <!-- Previous Button -->
+    <button 
+      *ngIf="displayImages.length > 1"
+      class="nav-button prev-button" 
+      (click)="previousImage()"
+      aria-label="Previous image">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    
+    <!-- Main Image -->
+    <div class="main-image">
+      <img 
+        [src]="currentImage"
+        [alt]="productName || 'Product image'">
+    </div>
+    
+    <!-- Next Button -->
+    <button 
+      *ngIf="displayImages.length > 1"
+      class="nav-button next-button" 
+      (click)="nextImage()"
+      aria-label="Next image">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Thumbnail Strip -->
+  <div class="thumbnail-strip" *ngIf="!isLoading && displayImages.length > 1">
+    <button 
+      *ngFor="let image of displayImages; let i = index"
+      class="thumbnail"
+      [class.active]="i === selectedImageIndex"
+      (click)="selectImage(i)">
+      <img 
+        [src]="image" 
+        [alt]="'Thumbnail ' + (i + 1)">
+    </button>
+  </div>
+
+  <!-- No Images -->
+  <div class="no-images" *ngIf="!isLoading && !hasImages">
+    <p>Nincsenek képek ehhez a termékhez.</p>
+  </div>
+</div>

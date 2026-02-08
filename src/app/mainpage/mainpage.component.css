@@ -90,7 +90,7 @@ hr{
 :root {
   --dark-blue: #2A2E4A;
   --hover-blue: #3c4366;
-  --card-bg: #ffffff;
+  --card-bg: #fafafa;
 }
 
 /* Fade in */
@@ -120,7 +120,7 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
+  
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -133,7 +133,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -146,7 +145,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -159,7 +157,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -172,7 +169,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -185,7 +181,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  border-radius: 6px;
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */
@@ -254,32 +249,32 @@ hr{
 .news-card1 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 .news-card2 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 .news-card3 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 .news-card4 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 .news-card5 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 .news-card6 p {
   margin-left: 15px;
   font-size: 0.95rem;
-  color: #444;
+  color: #333333;
 }
 
 /* === MOBILE: 1 COLUMN === */

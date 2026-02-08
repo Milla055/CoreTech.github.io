@@ -56,6 +56,11 @@ function passwordIsMatching(control: AbstractControl) {
 export class RegistrationComponent {
   @Output() cancel = new EventEmitter<void>();
   private destroyRef = inject(DestroyRef);
+  
+  // Jelszó megjelenítés állapotok
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+  
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
@@ -114,6 +119,15 @@ export class RegistrationComponent {
       this.form.controls.phone.dirty &&
       this.form.controls.phone.invalid
     );
+  }
+
+  // Jelszó megjelenítés/elrejtés váltása
+  togglePasswordVisibility(field: 'password' | 'confirmPassword'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
   }
 
   ngOnInit() {

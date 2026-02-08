@@ -254,3 +254,50 @@ button:hover {
     color: #E9EBF5;
     font-weight: 700;
 }
+
+/* Password Input with Toggle Button */
+.password-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 390px;
+    margin-bottom: 25px;
+}
+
+.password-input {
+    padding-right: 45px !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.toggle-password-btn:hover {
+    background: rgba(61, 68, 116, 0.1);
+}
+
+.toggle-password-btn svg {
+    fill: #3D4474;
+    transition: fill 0.2s;
+}
+
+.toggle-password-btn:hover svg {
+    fill: #2f355e;
+}
+
+/* Confirmpassword wrapper specifikus */
+.control-no-margin:last-of-type .password-input-wrapper {
+    margin-bottom: 10px;
+}
