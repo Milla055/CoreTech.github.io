@@ -6,6 +6,7 @@ import com.mycompany.coretech3.service.UsersService;
 import io.jsonwebtoken.Claims;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
@@ -21,15 +22,13 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
-/**
- *
- * @author kamil
- */
+
 @Path("Users")
 public class UsersController {
 
     @Inject   // ← CDI injektálja a UsersService EJB-t
     private UsersService usersService;
+    @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU") 
     private EntityManager em;
 
     @POST
@@ -226,72 +225,72 @@ public class UsersController {
 
     }
 
-//    @POST
-//@Path("refresh")
-//@Produces(MediaType.APPLICATION_JSON)
-//public Response refresh(@CookieParam("refreshToken") String refreshToken) {
-//    System.out.println("=== REFRESH ENDPOINT CALLED ===");
-//    System.out.println("refreshToken from cookie: " + refreshToken);
-//    
-//    if (refreshToken == null) {
-//        System.out.println("ERROR: refreshToken is NULL!");
-//        JSONObject error = new JSONObject();
-//        error.put("status", "MissingRefreshToken");
-//        error.put("statusCode", 401);
-//        return Response.status(401)
-//                .entity(error.toString())
-//                .type(MediaType.APPLICATION_JSON)
-//                .build();
-//    }
-//    
-//    try {
-//        Claims claims = JwtUtil.validate(refreshToken);
-//        Long userId = claims.get("uid", Long.class);
-//        System.out.println("userId from token: " + userId);
-//        
-//        // Use service - pass userId.intValue() as parameter
-//        Users user = usersService.getUserById(userId.intValue());
-//        
-//        if (user == null || Boolean.TRUE.equals(user.getIsDeleted())) {
-//            System.out.println("ERROR: User not found or deleted");
-//            JSONObject error = new JSONObject();
-//            error.put("status", "UserNotFoundOrDeleted");
-//            error.put("statusCode", 401);
-//            return Response.status(401)
-//                    .entity(error.toString())
-//                    .type(MediaType.APPLICATION_JSON)
-//                    .build();
-//        }
-//        
-//        String newAccessToken = JwtUtil.generateAccessToken(
-//                user.getEmail(),
-//                user.getRole(),
-//                Long.valueOf(user.getId())
-//        );
-//        
-//        JSONObject resp = new JSONObject();
-//        resp.put("status", "TokenRefreshed");
-//        resp.put("statusCode", 200);
-//        resp.put("accessToken", newAccessToken);
-//        
-//        System.out.println("SUCCESS: New access token generated");
-//        return Response.status(200)
-//                .entity(resp.toString())
-//                .type(MediaType.APPLICATION_JSON)
-//                .build();
-//                
-//    } catch (Exception e) {
-//        System.out.println("ERROR: Exception during refresh - " + e.getMessage());
-//        e.printStackTrace();
-//        JSONObject error = new JSONObject();
-//        error.put("status", "InvalidRefreshToken");
-//        error.put("statusCode", 401);
-//        return Response.status(401)
-//                .entity(error.toString())
-//                .type(MediaType.APPLICATION_JSON)
-//                .build();
-//    }
-//}
+    @POST
+@Path("refresh")
+@Produces(MediaType.APPLICATION_JSON)
+public Response refreshToken(@CookieParam("refreshToken") String refreshToken) {
+    System.out.println("=== REFRESH TOKEN CALLED ===");
+    
+    if (refreshToken == null || refreshToken.isEmpty()) {
+        JSONObject error = new JSONObject();
+        error.put("status", "NoRefreshToken");
+        error.put("statusCode", 401);
+        error.put("message", "Refresh token not found");
+        return Response.status(401)
+                .entity(error.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+    
+    try {
+        // Validate refresh token
+        Claims claims = JwtUtil.validate(refreshToken);
+        Long userId = claims.get("userId", Long.class);
+        
+        // Get user from database
+        Users user = em.find(Users.class, userId.intValue());
+        
+        // Check if user exists and is not deleted
+        if (user == null || (user.getIsDeleted() != null && user.getIsDeleted())) {
+            JSONObject error = new JSONObject();
+            error.put("status", "UserNotFound");
+            error.put("statusCode", 401);
+            return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+        
+        // Generate new access token
+        String newAccessToken = JwtUtil.generateAccessToken(
+                user.getEmail(),
+                user.getRole(),
+                Long.valueOf(user.getId())
+        );
+        
+        JSONObject response = new JSONObject();
+        response.put("status", "TokenRefreshed");
+        response.put("statusCode", 200);
+        response.put("accessToken", newAccessToken);
+        
+        return Response.status(200)
+                .entity(response.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+                
+    } catch (Exception e) {
+        e.printStackTrace();
+        JSONObject error = new JSONObject();
+        error.put("status", "InvalidRefreshToken");
+        error.put("statusCode", 401);
+        error.put("message", e.getMessage());
+        return Response.status(401)
+                .entity(error.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+}
+
     @POST
     @Path("logout")
     public Response logout() {

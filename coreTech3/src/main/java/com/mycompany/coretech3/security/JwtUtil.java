@@ -73,7 +73,7 @@ public class JwtUtil {
     public static String generateRefreshToken(Long userId) {
         Date now = new Date();
         return Jwts.builder()
-                .claim("uid", userId)
+                .claim("userId", userId)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + REFRESH_EXP))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
