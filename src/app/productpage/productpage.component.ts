@@ -5,11 +5,12 @@ import { ProductService, Product } from '../services/product.service';
 import { ProductcardComponent } from '../productcard/productcard.component';
 import { FooterComponent } from "../footer/footer.component";
 import { HeaderComponent } from "../header/header.component";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-productpage',
   standalone: true,
-  imports: [CommonModule, ProductcardComponent, FooterComponent, HeaderComponent],
+  imports: [CommonModule, ProductcardComponent, FooterComponent, HeaderComponent, FormsModule],
   templateUrl: './productpage.component.html',
   styleUrl: './productpage.component.css',
 })
@@ -20,45 +21,55 @@ export class ProductpageComponent implements OnInit {
   error: string | null = null;
 
   // Category info
-  categoryId: number = 1; // Graphics Cards default
-  categoryName: string = 'Videókártyák';
+  categoryId: number | null = null;
+  categoryName: string = 'Termékek';
   productCount: number = 0;
 
   // Search and filters
   searchQuery: string = '';
   selectedManufacturer: string = 'all';
   selectedSort: string = 'default';
+  isGlobalSearch: boolean = false; // true if searching across all products
 
-  // Available manufacturers (will be populated from products)
+  // Available manufacturers
   manufacturers: string[] = [];
 
-  // Category name mapping
-  private categoryNames: { [key: string]: string } = {
-    'videókártya': 'Videókártyák',
-    'processzor': 'Processzorok',
-    'cpu': 'Processzorok',
-    'memória': 'Memóriák',
-    'ram': 'Memóriák',
-    'alaplap': 'Alaplapok',
-    'motherboard': 'Alaplapok',
-    'ssd': 'SSD-k',
-    'hdd': 'HDD-k',
-    'merevlemez': 'Merevlemezek',
-    'hűtés': 'Hűtések',
-    'cooler': 'Hűtések',
-    'tápegység': 'Tápegységek',
-    'psu': 'Tápegységek',
-    'gépház': 'Gépházak',
-    'case': 'Gépházak',
-    'egér': 'Egerek',
-    'mouse': 'Egerek',
-    'billentyűzet': 'Billentyűzetek',
-    'keyboard': 'Billentyűzetek',
-    'monitor': 'Monitorok',
-    'fejhallgató': 'Fejhallgatók',
-    'headset': 'Fejhallgatók',
-    'mikrofon': 'Mikrofonok',
-    'microphone': 'Mikrofonok'
+  // Category mapping
+  categoryMap: { [key: number]: string } = {
+    1: 'Videókártyák',
+    2: 'Processzorok',
+    3: 'Alaplapok',
+    4: 'RAM',
+    5: 'Tápegységek',
+    6: 'SSD',
+    7: 'HDD',
+    8: 'Házak',
+    9: 'Hűtők',
+    11: 'Egerek',
+    12: 'Billentyűzetek',
+    13: 'Monitorok',
+    14: 'Fejhallgatók',
+    15: 'Egérpadok',
+    16: 'Mikrofonok'
+  };
+
+  // Search keyword to category ID mapping (only for category keywords)
+  categoryKeywords: { [key: string]: number } = {
+    'videókártya': 1, 'videokartya': 1, 'videókártyák': 1, 'gpu': 1, 'grafikus': 1,
+    'processzor': 2, 'processzorok': 2, 'cpu': 2,
+    'alaplap': 3, 'alaplapok': 3, 'motherboard': 3,
+    'ram': 4, 'memória': 4, 'memoria': 4, 'memória (ram)': 4,
+    'tápegység': 5, 'tapegyseg': 5, 'tápegységek': 5, 'psu': 5,
+    'ssd': 6,
+    'hdd': 7, 'merevlemez': 7,
+    'ház': 8, 'haz': 8, 'házak': 8, 'gépház': 8, 'gephaz': 8,
+    'hűtő': 9, 'huto': 9, 'hűtők': 9, 'cooler': 9, 'hűtés': 9, 'hutes': 9,
+    'egér': 11, 'eger': 11, 'egerek': 11, 'mouse': 11,
+    'billentyűzet': 12, 'billentyuzet': 12, 'billentyűzetek': 12, 'keyboard': 12,
+    'monitor': 13, 'monitorok': 13,
+    'fejhallgató': 14, 'fejhallgato': 14, 'fejhallgatók': 14, 'headset': 14,
+    'egérpad': 15, 'egerpad': 15, 'egérpadok': 15, 'mousepad': 15,
+    'mikrofon': 16, 'mikrofonok': 16, 'microphone': 16, 'mic': 16
   };
 
   constructor(
@@ -68,81 +79,89 @@ export class ProductpageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get query params from URL
     this.route.queryParams.subscribe(params => {
-      this.searchQuery = params['search'] || '';
-      this.categoryId = params['category'] ? +params['category'] : 1;
+      const searchParam = params['search'] || '';
+      const categoryParam = params['category'] ? +params['category'] : null;
       
-      // Set category name based on search query
-      this.updateCategoryName();
+      this.searchQuery = searchParam;
+      
+      // Check if search is a category keyword
+      const categoryFromSearch = this.getCategoryFromKeyword(searchParam);
+      
+      if (categoryParam) {
+        // Category explicitly specified
+        this.categoryId = categoryParam;
+        this.isGlobalSearch = false;
+        this.categoryName = this.categoryMap[this.categoryId] || 'Termékek';
+      } else if (categoryFromSearch) {
+        // Search matches a category keyword
+        this.categoryId = categoryFromSearch;
+        this.isGlobalSearch = false;
+        this.categoryName = this.categoryMap[this.categoryId] || 'Termékek';
+      } else if (searchParam) {
+        // Search for a product name - search all products
+        this.categoryId = null;
+        this.isGlobalSearch = true;
+        this.categoryName = `Keresés: "${searchParam}"`;
+      } else {
+        // Default - show all products or category 1
+        this.categoryId = 1;
+        this.isGlobalSearch = false;
+        this.categoryName = this.categoryMap[1];
+      }
+      
+      // Reset filters when search/category changes
+      this.selectedManufacturer = 'all';
+      this.selectedSort = 'default';
       
       this.loadProducts();
     });
   }
 
-  updateCategoryName(): void {
-    if (this.searchQuery) {
-      const searchLower = this.searchQuery.toLowerCase().trim();
-      // Check if search query matches any category
-      const matchedCategory = this.categoryNames[searchLower];
-      if (matchedCategory) {
-        this.categoryName = matchedCategory;
-      } else {
-        // Try partial match
-        for (const key in this.categoryNames) {
-          if (searchLower.includes(key) || key.includes(searchLower)) {
-            this.categoryName = this.categoryNames[key];
-            break;
-          }
-        }
-      }
-    } else {
-      // Default category names by ID
-      switch (this.categoryId) {
-        case 1:
-          this.categoryName = 'Videókártyák';
-          break;
-        case 2:
-          this.categoryName = 'Processzorok';
-          break;
-        case 3:
-          this.categoryName = 'Memóriák';
-          break;
-        default:
-          this.categoryName = 'Termékek';
-      }
-    }
+  getCategoryFromKeyword(search: string): number | null {
+    if (!search) return null;
+    const searchLower = search.toLowerCase().trim();
+    return this.categoryKeywords[searchLower] || null;
   }
 
   loadProducts(): void {
     this.loading = true;
     this.error = null;
 
-    console.log('🔍 Loading products for category:', this.categoryId);
-    console.log('🔍 Initial search query:', this.searchQuery);
-
-    // Load products by category
-    this.productService.getProductsByCategoryId(this.categoryId).subscribe({
-      next: (data) => {
-        console.log('✅ Products loaded from backend:', data.length, 'products');
-        this.products = data;
-        this.extractManufacturers();
-        
-        // DON'T apply search filter initially - show all products
-        this.showAllProducts();
-        
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('❌ Error loading products:', error);
-        this.error = 'Nem sikerült betölteni a termékeket';
-        this.loading = false;
-      }
-    });
+    if (this.isGlobalSearch) {
+      // Search across all products
+      this.productService.getAllProducts().subscribe({
+        next: (data) => {
+          this.products = data;
+          this.extractManufacturers();
+          this.applyFilters();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading products:', error);
+          this.error = 'Nem sikerült betölteni a termékeket';
+          this.loading = false;
+        }
+      });
+    } else if (this.categoryId) {
+      // Load products by category
+      this.productService.getProductsByCategoryId(this.categoryId).subscribe({
+        next: (data) => {
+          this.products = data;
+          this.extractManufacturers();
+          this.applyFilters();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading products:', error);
+          this.error = 'Nem sikerült betölteni a termékeket';
+          this.loading = false;
+        }
+      });
+    }
   }
 
   extractManufacturers(): void {
-    // Extract unique brand names from products
     const brandSet = new Set<string>();
     this.products.forEach(p => {
       if (p.brandId?.name) {
@@ -150,94 +169,84 @@ export class ProductpageComponent implements OnInit {
       }
     });
     this.manufacturers = Array.from(brandSet).sort();
-    console.log('🏭 Manufacturers found:', this.manufacturers);
-  }
-
-  showAllProducts(): void {
-    // Show ALL products without any filters initially
-    this.filteredProducts = [...this.products];
-    this.productCount = this.filteredProducts.length;
-    console.log('📦 Displaying all products:', this.productCount);
   }
 
   applyFilters(): void {
     let filtered = [...this.products];
-    console.log('🔧 Applying filters to', filtered.length, 'products');
 
-    // Apply search filter ONLY if user manually searches
-    // (not from initial URL parameter)
+    // Apply search filter for product names (when doing global search)
     if (this.searchQuery && this.searchQuery.trim() !== '') {
       const query = this.searchQuery.toLowerCase().trim();
-      console.log('🔍 Search filter:', query);
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        (p.description && p.description.toLowerCase().includes(query)) ||
-        (p.brandId?.name && p.brandId.name.toLowerCase().includes(query))
-      );
-      console.log('   → After search:', filtered.length, 'products');
+      
+      // Only filter by text if it's a global search (not a category keyword)
+      if (this.isGlobalSearch) {
+        filtered = filtered.filter(p => 
+          p.name.toLowerCase().includes(query) ||
+          (p.description && p.description.toLowerCase().includes(query)) ||
+          (p.brandId?.name && p.brandId.name.toLowerCase().includes(query))
+        );
+      }
     }
 
-    // Apply manufacturer filter
+    // Manufacturer filter
     if (this.selectedManufacturer !== 'all') {
-      console.log('🏭 Manufacturer filter:', this.selectedManufacturer);
-      filtered = filtered.filter(p => 
-        p.brandId?.name === this.selectedManufacturer
-      );
-      console.log('   → After manufacturer:', filtered.length, 'products');
+      filtered = filtered.filter(p => p.brandId?.name === this.selectedManufacturer);
     }
 
-    // Apply sorting
+    // Sorting
     switch (this.selectedSort) {
       case 'price-asc':
         filtered.sort((a, b) => a.pPrice - b.pPrice);
-        console.log('💰 Sorted by price ascending');
         break;
       case 'price-desc':
         filtered.sort((a, b) => b.pPrice - a.pPrice);
-        console.log('💰 Sorted by price descending');
         break;
       case 'name-asc':
         filtered.sort((a, b) => a.name.localeCompare(b.name));
-        console.log('🔤 Sorted by name A-Z');
         break;
       case 'name-desc':
         filtered.sort((a, b) => b.name.localeCompare(a.name));
-        console.log('🔤 Sorted by name Z-A');
-        break;
-      default:
-        // Keep original order
         break;
     }
 
     this.filteredProducts = filtered;
     this.productCount = filtered.length;
-    console.log('✅ Final filtered products:', this.productCount);
+  }
+
+  onCategoryChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const newCategoryId = +select.value;
+    
+    // Clear search when manually changing category
+    this.router.navigate(['/products'], { 
+      queryParams: { category: newCategoryId } 
+    });
   }
 
   onManufacturerChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedManufacturer = select.value;
-    console.log('🏭 Manufacturer changed to:', this.selectedManufacturer);
     this.applyFilters();
   }
 
   onSortChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedSort = select.value;
-    console.log('🔄 Sort changed to:', this.selectedSort);
-    this.applyFilters();
-  }
-
-  onSearchFilter(): void {
-    console.log('🔍 Manual search triggered');
     this.applyFilters();
   }
 
   clearFilters(): void {
-    console.log('🗑️ Clearing all filters');
     this.selectedManufacturer = 'all';
     this.selectedSort = 'default';
     this.searchQuery = '';
-    this.showAllProducts(); // Show all products again
+    
+    // If was global search, go back to default category
+    if (this.isGlobalSearch) {
+      this.router.navigate(['/products'], { 
+        queryParams: { category: 1 } 
+      });
+    } else {
+      this.applyFilters();
+    }
   }
 }

@@ -1,1 +1,147 @@
-<p>productsdetailpage.component works!</p>
+<app-header></app-header>
+
+<div class="product-detail-container" *ngIf="!loading && product">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="/mainpage">CoreTech</a>
+    <span class="separator">/</span>
+    <span>Számítógép Alkatrész</span>
+    <span class="separator">/</span>
+    <span>{{ product.categoryId?.name }}</span>
+    <span class="separator">/</span>
+    <span class="current">{{ product.name }}</span>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="product-main">
+    <!-- Left: Image Viewer -->
+    <div class="product-gallery">
+      <div class="main-image-container">
+        <button 
+          class="nav-button prev-button" 
+          (click)="previousImage()"
+          *ngIf="productImages.length > 1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <div class="main-image">
+          <img [src]="currentImage" [alt]="product.name" *ngIf="!imagesLoading">
+          <div class="spinner" *ngIf="imagesLoading"></div>
+        </div>
+
+        <button 
+          class="nav-button next-button" 
+          (click)="nextImage()"
+          *ngIf="productImages.length > 1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="thumbnail-strip" *ngIf="productImages.length > 1">
+        <button 
+          *ngFor="let image of productImages; let i = index"
+          class="thumbnail"
+          [class.active]="i === selectedImageIndex"
+          (click)="selectImage(i)">
+          <img [src]="image" [alt]="'Thumbnail ' + (i + 1)">
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Product Info -->
+    <div class="product-info">
+      <div class="product-header">
+        <h1 class="product-name">{{ product.name }}</h1>
+        <button 
+          class="favorite-btn" 
+          [class.active]="isFavorite"
+          [disabled]="isTogglingFavorite"
+          (click)="toggleFavorite()">
+          {{ isFavorite ? 'Kedvenc' : 'Kedvenc' }} 
+          <span class="heart">{{ isFavorite ? '❤' : '♡' }}</span>
+        </button>
+      </div>
+
+      <div class="product-price">{{ formatPrice(product.pPrice) }}</div>
+      <p class="warranty">Garancia: 36 hónap</p>
+
+      <div class="add-to-cart-section">
+        <button 
+          class="add-to-cart-btn" 
+          [class.disabled]="!isInStock()"
+          [disabled]="!isInStock()"
+          (click)="addToCart()">
+          {{ isInStock() ? 'Hozzáadás a kosárhoz' : 'Nincs raktáron' }}
+          <svg *ngIf="isInStock()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="20px" height="20px">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+          </svg>
+        </button>
+        <div class="quantity-selector" *ngIf="isInStock()">
+          <button class="qty-btn" (click)="decreaseQuantity()">−</button>
+          <span class="qty-value">{{ quantity }}</span>
+          <button class="qty-btn" (click)="increaseQuantity()">+</button>
+        </div>
+      </div>
+
+      <div class="delivery-info">
+        <p class="delivery-title">Mai rendelés esetén</p>
+        <div class="delivery-row">
+          <span>Átvétel boltban:</span>
+          <span class="delivery-date">{{ storePickupDate }}</span>
+        </div>
+        <div class="delivery-row">
+          <span>Házhozszállítás:</span>
+          <span class="delivery-date">{{ homeDeliveryDate }}</span>
+        </div>
+      </div>
+
+      <div class="shipping-options">
+        <p class="shipping-title">🚚 Várható átvétel</p>
+        <div class="shipping-row">
+          <span>FoxPost csomagpont:</span>
+          <span>{{ foxpostDate }}</span>
+        </div>
+        <div class="shipping-row">
+          <span>MPL automata:</span>
+          <span>{{ mplAutomataDate }}</span>
+        </div>
+        <div class="shipping-row">
+          <span>CoreTech átvevőpont:</span>
+          <span>{{ coretechDate }}</span>
+        </div>
+        <div class="shipping-row">
+          <span>MPL futár:</span>
+          <span>{{ mplFutarDate }}</span>
+        </div>
+        <div class="shipping-row">
+          <span>DPD express:</span>
+          <span>{{ dpdDate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Products -->
+  <div class="recommended-section">
+    <h2 class="section-title">Ajánlott termékek</h2>
+    <div class="recommended-grid">
+      <app-productcard 
+        *ngFor="let recProduct of recommendedProducts" 
+        [product]="recProduct">
+      </app-productcard>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Termék betöltése...</p>
+</div>
+
+<app-footer></app-footer>

@@ -1,0 +1,548 @@
+<div class="admin-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Admin.</h1>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="activeMenu === 'dashboard'" (click)="setActiveMenu('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      
+      <a class="nav-item" [class.active]="activeMenu === 'users'" (click)="setActiveMenu('users')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Vásárlók</span>
+      </a>
+      
+      <a class="nav-item" [class.active]="activeMenu === 'orders'" (click)="setActiveMenu('orders')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>Rendelések</span>
+      </a>
+      
+      <a class="nav-item" [class.active]="activeMenu === 'reviews'" (click)="setActiveMenu('reviews')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Vélemények</span>
+      </a>
+      
+      <a class="nav-item" [class.active]="activeMenu === 'products'" (click)="setActiveMenu('products')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <span>Termékek</span>
+      </a>
+      
+      <div class="nav-divider">
+        <span>Beállítások</span>
+      </div>
+      
+      <a class="nav-item" [class.active]="activeMenu === 'settings'" (click)="setActiveMenu('settings')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Beállítások</span>
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="back-btn" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Vissza</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="content-header">
+      <div class="header-left">
+        <h2>{{ activeMenu === 'dashboard' ? 'Dashboard' : 
+               activeMenu === 'users' ? 'Vásárlók' :
+               activeMenu === 'orders' ? 'Rendelések' :
+               activeMenu === 'reviews' ? 'Vélemények' :
+               activeMenu === 'products' ? 'Termékek' : 'Beállítások' }}</h2>
+        <p class="header-subtitle">Üdv újra, Admin!</p>
+      </div>
+      <div class="header-right">
+        <div class="header-date">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>{{ today }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Loading state -->
+    <div class="loading-spinner" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Adatok betöltése...</p>
+    </div>
+
+    <!-- ==================== DASHBOARD TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'dashboard' && !loading">
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon users-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ formatNumber(stats.users) }}</span>
+            <span class="stat-label">Regisztrált felhasználók</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orders-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ formatNumber(stats.orders) }}</span>
+            <span class="stat-label">Vásárlások</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon revenue-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ formatPrice(stats.revenue) }}</span>
+            <span class="stat-label">Össz. bevétel</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon profit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ formatPrice(stats.profit) }}</span>
+            <span class="stat-label">Profit</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts and Admins Row -->
+      <section class="dashboard-row">
+        <!-- Chart -->
+        <div class="chart-card">
+          <div class="card-header">
+            <h3>Értékesítési statisztika</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-dot sales"></span> Eladások (K Ft)</span>
+              <span class="legend-item"><span class="legend-dot orders"></span> Rendelések (db)</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-bars">
+              <div class="chart-bar-group" *ngFor="let data of chartData">
+                <div class="bar-wrapper">
+                  <div class="bar sales-bar" [style.height.%]="getChartBarHeight(data.sales)">
+                    <span class="bar-tooltip">{{ data.sales }}K Ft</span>
+                  </div>
+                  <div class="bar orders-bar" [style.height.%]="getOrdersBarHeight(data.orders)">
+                    <span class="bar-tooltip">{{ data.orders }} db</span>
+                  </div>
+                </div>
+                <span class="bar-label">{{ data.month }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admins List -->
+        <div class="admins-card">
+          <div class="card-header">
+            <h3>Adminok</h3>
+            <span class="admin-count">{{ admins.length }} fő</span>
+          </div>
+          <div class="admins-list">
+            <div class="admin-item" *ngFor="let admin of admins">
+              <div class="admin-avatar">
+                {{ admin.username?.charAt(0)?.toUpperCase() || '?' }}
+              </div>
+              <div class="admin-info">
+                <span class="admin-name">{{ admin.username }}</span>
+                <span class="admin-role">{{ admin.email }}</span>
+              </div>
+              <span class="admin-badge">Admin</span>
+            </div>
+            <div class="no-data" *ngIf="admins.length === 0">
+              Nincsenek adminok
+            </div>
+          </div>
+          
+          <!-- Mini Stats -->
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <span class="mini-value">{{ stats.admins }}</span>
+              <span class="mini-label">Adminok</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-value">{{ stats.subscribers }}</span>
+              <span class="mini-label">Feliratkozók</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Row -->
+      <section class="dashboard-row">
+        <!-- Recent Orders -->
+        <div class="orders-card">
+          <div class="card-header">
+            <h3>Legutóbbi rendelések</h3>
+            <button class="view-all-btn" (click)="setActiveMenu('orders')">Összes</button>
+          </div>
+          <div class="orders-table">
+            <div class="table-header">
+              <span>Rendelés</span>
+              <span>Vásárló</span>
+              <span>Összeg</span>
+              <span>Státusz</span>
+            </div>
+            <div class="table-row" *ngFor="let order of recentOrders.slice(0, 5)">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-customer">{{ order.username }}</span>
+              <span class="order-amount">{{ formatFullPrice(order.totalPrice) }}</span>
+              <span class="order-status" [ngClass]="getStatusClass(order.status)">
+                {{ getStatusText(order.status) }}
+              </span>
+            </div>
+            <div class="no-data" *ngIf="recentOrders.length === 0">
+              Nincsenek rendelések
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="products-card">
+          <div class="card-header">
+            <h3>Top termékek</h3>
+            <button class="view-all-btn" (click)="setActiveMenu('products')">Összes</button>
+          </div>
+          <div class="top-products-list">
+            <div class="product-item" *ngFor="let product of topProducts; let i = index">
+              <span class="product-rank">#{{ i + 1 }}</span>
+              <div class="product-info">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-sales">{{ product.sales }} eladás</span>
+              </div>
+              <span class="product-revenue">{{ formatPrice(product.revenue) }}</span>
+            </div>
+            <div class="no-data" *ngIf="topProducts.length === 0">
+              Nincsenek eladások
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- ==================== USERS TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'users'">
+      <div class="tab-content">
+        <div class="search-bar">
+          <input type="text" 
+                 [(ngModel)]="userSearchQuery" 
+                 (input)="filterUsers()"
+                 placeholder="Keresés név vagy email alapján...">
+        </div>
+        
+        <div class="data-table">
+          <div class="table-header-row">
+            <span>ID</span>
+            <span>Felhasználónév</span>
+            <span>Email</span>
+            <span>Telefon</span>
+            <span>Szerepkör</span>
+            <span>Regisztráció</span>
+          </div>
+          <div class="table-body-row" *ngFor="let user of filteredUsers">
+            <span>{{ user.id }}</span>
+            <span class="bold">{{ user.username }}</span>
+            <span>{{ user.email }}</span>
+            <span>{{ user.phone || '-' }}</span>
+            <span class="role-badge" [ngClass]="getRoleClass(user.role)">{{ getRoleText(user.role) }}</span>
+            <span>{{ formatDate(user.createdAt) }}</span>
+          </div>
+          <div class="no-data" *ngIf="filteredUsers.length === 0">
+            Nincs találat
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ==================== ORDERS TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'orders'">
+      <div class="tab-content">
+        <div class="filters-row">
+          <div class="search-bar">
+            <input type="text" 
+                   [(ngModel)]="orderSearchQuery" 
+                   (input)="filterOrders()"
+                   placeholder="Keresés rendelés ID vagy vásárló alapján...">
+          </div>
+          <select [(ngModel)]="orderStatusFilter" (change)="filterOrders()">
+            <option value="all">Összes státusz</option>
+            <option value="pending">Függőben</option>
+            <option value="processing">Feldolgozás alatt</option>
+            <option value="shipping">Szállítás alatt</option>
+            <option value="shipped">Kiszállítva</option>
+            <option value="completed">Teljesítve</option>
+          </select>
+        </div>
+        
+        <div class="data-table">
+          <div class="table-header-row">
+            <span>Rendelés ID</span>
+            <span>Vásárló</span>
+            <span>Összeg</span>
+            <span>Státusz</span>
+            <span>Dátum</span>
+          </div>
+          <div class="table-body-row" *ngFor="let order of filteredOrders">
+            <span class="bold">#{{ order.id }}</span>
+            <span>{{ order.username }}</span>
+            <span class="bold">{{ formatFullPrice(order.totalPrice) }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ getStatusText(order.status) }}</span>
+            <span>{{ formatDate(order.createdAt) }}</span>
+          </div>
+          <div class="no-data" *ngIf="filteredOrders.length === 0">
+            Nincs találat
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ==================== REVIEWS TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'reviews'">
+      <div class="tab-content">
+        <div class="search-bar">
+          <input type="text" 
+                 [(ngModel)]="reviewSearchQuery" 
+                 (input)="filterReviews()"
+                 placeholder="Keresés termék, felhasználó vagy vélemény alapján...">
+        </div>
+        
+        <div class="reviews-grid">
+          <div class="review-card" *ngFor="let review of filteredReviews">
+            <div class="review-header">
+              <div class="review-user">
+                <div class="user-avatar">{{ review.username?.charAt(0)?.toUpperCase() || '?' }}</div>
+                <div class="user-info">
+                  <span class="username">{{ review.username }}</span>
+                  <span class="date">{{ formatDate(review.createdAt) }}</span>
+                </div>
+              </div>
+              <div class="review-rating" [class.high]="review.rating >= 4" [class.low]="review.rating <= 2">
+                {{ getRatingStars(review.rating) }}
+              </div>
+            </div>
+            <div class="review-product">{{ review.productName }}</div>
+            <p class="review-comment">{{ review.comment }}</p>
+          </div>
+          <div class="no-data" *ngIf="filteredReviews.length === 0">
+            Nincsenek vélemények
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ==================== PRODUCTS TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'products'">
+      <div class="tab-content">
+        <div class="filters-row">
+          <div class="search-bar">
+            <input type="text" 
+                   [(ngModel)]="productSearchQuery" 
+                   (input)="filterProducts()"
+                   placeholder="Keresés terméknév alapján...">
+          </div>
+          <button class="add-product-btn" (click)="openAddProductForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Új termék hozzáadása
+          </button>
+        </div>
+        
+        <div class="products-table-container">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-name">Termék neve</th>
+                <th class="col-price">Eladási ár</th>
+                <th class="col-price">Beszerzési ár</th>
+                <th class="col-price">Profit/db</th>
+                <th class="col-stock">Készlet</th>
+                <th class="col-actions">Műveletek</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProducts" class="product-row">
+                <td class="col-id">{{ product.id }}</td>
+                <td class="col-name">
+                  <span class="product-name">{{ product.name }}</span>
+                </td>
+                <td class="col-price">{{ formatFullPrice(product.price) }}</td>
+                <td class="col-price">{{ formatFullPrice(product.pPrice) }}</td>
+                <td class="col-price profit-cell">{{ formatFullPrice(product.price - product.pPrice) }}</td>
+                <td class="col-stock">
+                  <span class="stock-badge" 
+                        [class.low-stock]="(product.stock ?? 0) < 10" 
+                        [class.out-of-stock]="(product.stock ?? 0) === 0">
+                    {{ product.stock ?? 0 }} db
+                  </span>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="edit-btn" (click)="openEditProductForm(product)" title="Szerkesztés">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button class="delete-btn" (click)="deleteProduct(product.id)" title="Törlés">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                        
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="no-data" *ngIf="filteredProducts.length === 0">
+            Nincs találat
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Product Form Modal -->
+    <div class="modal-overlay" *ngIf="showProductForm" (click)="closeProductForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ editingProduct ? 'Termék szerkesztése' : 'Új termék hozzáadása' }}</h3>
+          <button class="close-btn" (click)="closeProductForm()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Terméknév *</label>
+            <input type="text" [(ngModel)]="productForm.name" placeholder="pl. iPhone 15 Pro">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Kategória ID *</label>
+              <input type="number" [(ngModel)]="productForm.categoryId" min="1">
+            </div>
+            <div class="form-group">
+              <label>Márka ID *</label>
+              <input type="number" [(ngModel)]="productForm.brandId" min="1">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Leírás</label>
+            <textarea [(ngModel)]="productForm.description" rows="3" placeholder="Termék leírása..."></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Eladási ár (Ft) *</label>
+              <input type="number" [(ngModel)]="productForm.price" min="0" step="100">
+            </div>
+            <div class="form-group">
+              <label>Készlet (db) *</label>
+              <input type="number" [(ngModel)]="productForm.stock" min="0">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Kép URL</label>
+            <input type="text" [(ngModel)]="productForm.imageUrl" placeholder="https://...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeProductForm()">Mégse</button>
+          <button class="save-btn" (click)="saveProduct()">
+            {{ editingProduct ? 'Mentés' : 'Hozzáadás' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SETTINGS TAB ==================== -->
+    <ng-container *ngIf="activeMenu === 'settings'">
+      <div class="tab-content settings-tab">
+        <div class="settings-card">
+          <h3>Fiók beállítások</h3>
+          <p>Admin fiók kezelése és beállítások módosítása.</p>
+          <button class="settings-btn" (click)="logout()">Kijelentkezés</button>
+        </div>
+        
+        <div class="settings-card">
+          <h3>Rendszer információ</h3>
+          <div class="info-row">
+            <span>Verzió:</span>
+            <span>1.0.0</span>
+          </div>
+          <div class="info-row">
+            <span>Utolsó frissítés:</span>
+            <span>{{ today }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </main>
+</div>

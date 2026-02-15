@@ -1,0 +1,74 @@
+<!-- Backdrop -->
+<div class="cart-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <!-- Sidebar -->
+  <div class="cart-sidebar" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="cart-header">
+      <h2>Kosár</h2>
+      <button class="close-btn" (click)="closeSidebar()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Not Logged In -->
+    <div class="login-required" *ngIf="!isLoggedIn()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <p>A kosár használatához be kell jelentkezned</p>
+      <button class="login-btn" (click)="goToLogin()">Bejelentkezés</button>
+    </div>
+
+    <!-- Empty Cart -->
+    <div class="empty-cart" *ngIf="isLoggedIn() && cartItems.length === 0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+      <p>A kosarad üres</p>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="cart-items" *ngIf="isLoggedIn() && cartItems.length > 0">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <div class="item-image" (click)="goToProduct(item.product.id)">
+          <img [src]="getImageUrl(item.product.id)" [alt]="item.product.name">
+        </div>
+
+        <div class="item-details">
+          <h3 class="item-name" (click)="goToProduct(item.product.id)">{{ item.product.name }}</h3>
+          <p class="item-price">{{ formatPrice(item.product.pPrice) }}</p>
+          
+          <div class="item-controls">
+            <div class="quantity-controls">
+              <button class="qty-btn" (click)="decreaseQuantity(item)">−</button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button class="qty-btn" (click)="increaseQuantity(item)" [disabled]="item.product.stock && item.quantity >= item.product.stock">+</button>
+            </div>
+            <button class="remove-btn" (click)="removeItem(item.product.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="cart-footer" *ngIf="isLoggedIn() && cartItems.length > 0">
+      <div class="cart-total">
+        <span>Összesen:</span>
+        <span class="total-price">{{ formatPrice(cartTotal) }}</span>
+      </div>
+      <button class="checkout-btn" (click)="checkout()">Fizetés</button>
+      <button class="clear-btn" (click)="clearCart()">Kosár ürítése</button>
+    </div>
+  </div>
+</div>

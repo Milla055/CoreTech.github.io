@@ -8,7 +8,6 @@
 }
 
 .navbar {
-    
     background-color: #3D4474;
     padding: 10px 0;
 }
@@ -92,7 +91,7 @@
     transition: box-shadow 0.2s ease;
 }
 
-.searchbar:focus-within {
+.searchbar:focus {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -169,6 +168,7 @@
 }
 
 .cartBtn {
+    position: relative;
     border: none;
     background-color: transparent;
     cursor: pointer;
@@ -186,6 +186,23 @@
 .cartIcon {
     width: 32px;
     height: 32px;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e53935;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
 }
 
 /* Search Results */

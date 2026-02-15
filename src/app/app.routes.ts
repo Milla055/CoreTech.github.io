@@ -6,7 +6,8 @@ import { AboutuspageComponent } from './aboutuspage/aboutuspage.component';
 import { ProductcardComponent } from './productcard/productcard.component';
 import { ProfilepageComponent } from './profilepage/profilepage.component';
 import { ProductpageComponent } from './productpage/productpage.component';
-import { ProductimageComponent } from './productimage/productimage.component';
+import { ProductsdetailpageComponent } from './productsdetailpage/productsdetailpage.component';
+import { AdminpageComponent } from './adminpage/adminpage.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'productcard', component: ProductcardComponent },
   { path: 'profile', component: ProfilepageComponent },
   { path: 'products', component: ProductpageComponent },
-  { path: 'productimage/:id', component: ProductimageComponent }, // MÓDOSÍTVA: :id paraméterrel
+  { path: 'product/:id', component: ProductsdetailpageComponent }, // Termék részletes oldal
+  { path: 'adminpage', component: AdminpageComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

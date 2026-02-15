@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ProfileService } from '../services/profile.service';
+import { FavoritesService, FavoriteProduct } from '../services/favorites.service';
+import { CartService } from '../services/cart.service';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
 import { CommonModule } from '@angular/common';
@@ -36,63 +38,9 @@ export class ProfilepageComponent implements OnInit {
   // Kedvencek modal
   isFavoritesModalOpen: boolean = false;
   
-  // Mock kedvencek
-  mockFavorites = [
-    {
-      id: 1,
-      name: 'Sony WH-1000XM5 Fejhallgató',
-      category: 'Audió & Fejhallgatók',
-      price: 159990,
-      oldPrice: 189990,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop',
-      inStock: true
-    },
-    {
-      id: 2,
-      name: 'Apple MacBook Air M2',
-      category: 'Laptopok',
-      price: 549990,
-      oldPrice: null,
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop',
-      inStock: true
-    },
-    {
-      id: 3,
-      name: 'Samsung 4K Smart TV 55"',
-      category: 'TV & Monitor',
-      price: 289990,
-      oldPrice: 349990,
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop',
-      inStock: false
-    },
-    {
-      id: 4,
-      name: 'Logitech MX Master 3S Egér',
-      category: 'Perifériák',
-      price: 44990,
-      oldPrice: null,
-      image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=300&fit=crop',
-      inStock: true
-    },
-    {
-      id: 5,
-      name: 'iPhone 15 Pro Max 256GB',
-      category: 'Telefonok',
-      price: 649990,
-      oldPrice: 699990,
-      image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop',
-      inStock: true
-    },
-    {
-      id: 6,
-      name: 'DJI Mini 3 Pro Drón',
-      category: 'Drónok & Kamerák',
-      price: 329990,
-      oldPrice: null,
-      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=300&h=300&fit=crop',
-      inStock: false
-    }
-  ];
+  // Kedvencek
+  favorites: FavoriteProduct[] = [];
+  loadingFavorites: boolean = false;
   
   // Mock rendelések
   mockOrders = [
@@ -146,11 +94,20 @@ export class ProfilepageComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private favoritesService: FavoritesService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
     this.loadUserData();
+    this.loadFavorites();
+    
+    // Feliratkozás a kedvencek változásaira
+    this.favoritesService.favorites$.subscribe(favorites => {
+      this.favorites = favorites;
+      console.log('📋 Kedvencek frissítve:', this.favorites.length, 'db');
+    });
   }
 
   loadUserData(): void {
@@ -178,6 +135,12 @@ export class ProfilepageComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  loadFavorites(): void {
+    this.loadingFavorites = true;
+    this.favorites = this.favoritesService.getFavorites();
+    this.loadingFavorites = false;
   }
 
   initializeForms(): void {
@@ -237,7 +200,14 @@ export class ProfilepageComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.userData?.role === 'Admin';
+    const role = this.userData?.role;
+    if (!role) return false;
+    const roleLower = role.toString().toLowerCase();
+    return roleLower === 'admin' || roleLower === 'administrator';
+  }
+
+  goToAdminPage(): void {
+    this.router.navigate(['/adminpage']);
   }
 
   onSubmit(): void {
@@ -298,7 +268,6 @@ export class ProfilepageComponent implements OnInit {
       return;
     }
 
-    // Ellenőrizzük, hogy van-e token mielőtt hívnánk
     if (!this.authService.isLoggedIn()) {
       alert('❌ Lejárt a munkamenet, kérlek jelentkezz be újra!');
       this.authService.logout();
@@ -310,7 +279,6 @@ export class ProfilepageComponent implements OnInit {
 
     this.authService.changePassword(oldPassword, newPassword).subscribe({
       next: (response) => {
-        console.log('✅ SUCCESS! Backend response:', response);
         this.isChangingPassword = false;
         alert('✅ Jelszó sikeresen megváltoztatva!');
         this.passwordForm.reset();
@@ -319,10 +287,6 @@ export class ProfilepageComponent implements OnInit {
         this.showConfirmPassword = false;
       },
       error: (error) => {
-        console.log('❌ ERROR! Full error:', error);
-        console.log('error.status:', error.status);
-        console.log('error.error:', error.error);
-        
         this.isChangingPassword = false;
         
         let errorMsg = '❌ Hiba történt!';
@@ -331,32 +295,15 @@ export class ProfilepageComponent implements OnInit {
           const errorBody = error.error;
           const message = (errorBody?.message || '').toLowerCase();
           
-          console.log('→ 401 error detected');
-          console.log('→ errorBody.message:', errorBody?.message);
-          console.log('→ errorBody.status:', errorBody?.status);
-          
-          // -----------------------------------------------------------
-          // FONTOS: Megkülönböztetjük a két 401-es esetet a MESSAGE alapján!
-          //
-          // JWT filter válasza:       message = "Invalid token or request"
-          // changePassword válasza:   message = "Old password is incorrect"
-          // -----------------------------------------------------------
-          
           if (message.includes('token') || message.includes('invalid token')) {
-            // JWT filter dobta el → lejárt vagy érvénytelen token
-            console.log('→ TOKEN HIBA - a kérés meg sem jutott a changePassword-höz');
             errorMsg = '❌ Lejárt a munkamenet, kérlek jelentkezz be újra!';
             this.authService.logout();
             this.router.navigate(['/login']);
           } 
           else if (message.includes('old password') || message.includes('incorrect')) {
-            // A changePassword service válaszolt → a régi jelszó nem jó
-            console.log('→ Backend says: Wrong old password');
             errorMsg = '❌ A régi jelszó helytelen!';
           } 
           else {
-            // Ismeretlen 401 → biztonsági okokból kijelentkeztetjük
-            console.log('→ Unknown 401, logging out for safety');
             errorMsg = '❌ Hitelesítési hiba! Kérlek jelentkezz be újra.';
             this.authService.logout();
             this.router.navigate(['/login']);
@@ -376,7 +323,6 @@ export class ProfilepageComponent implements OnInit {
           errorMsg = '❌ Nincs kapcsolat a szerverrel!';
         }
         
-        console.log('→ Final message:', errorMsg);
         alert(errorMsg);
       }
     });
@@ -406,7 +352,7 @@ export class ProfilepageComponent implements OnInit {
     alert('Visszaállítva');
   }
 
-  // Rendeléseim modal kezelés
+  // Rendeléseim modal
   openOrdersModal(): void {
     this.isOrdersModalOpen = true;
     document.body.style.overflow = 'hidden';
@@ -417,8 +363,9 @@ export class ProfilepageComponent implements OnInit {
     document.body.style.overflow = 'auto';
   }
 
-  // Kedvencek modal kezelés
+  // Kedvencek modal
   openFavoritesModal(): void {
+    this.loadFavorites();
     this.isFavoritesModalOpen = true;
     document.body.style.overflow = 'hidden';
   }
@@ -428,12 +375,72 @@ export class ProfilepageComponent implements OnInit {
     document.body.style.overflow = 'auto';
   }
 
-  removeFavorite(id: number): void {
-    this.mockFavorites = this.mockFavorites.filter(item => item.id !== id);
+  // Kedvenc eltávolítása
+  removeFavorite(productId: number): void {
+    this.favoritesService.removeFavorite(productId).subscribe({
+      next: (response) => {
+        console.log('✅ Kedvenc törölve:', productId);
+        this.loadFavorites();
+      },
+      error: (err) => {
+        console.error('❌ Hiba:', err);
+        alert('Hiba történt!');
+      }
+    });
+  }
+
+  // Kosárba helyezés kedvencekből
+  addFavoriteToCart(favorite: FavoriteProduct): void {
+    if (!this.cartService.isLoggedIn()) {
+      alert('A kosár használatához be kell jelentkezned!');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const product: any = {
+      id: favorite.id,
+      name: favorite.name,
+      price: favorite.price,
+      pPrice: favorite.pPrice,
+      stock: favorite.stock,
+      imageUrl: favorite.imageUrl,
+      categoryId: { id: favorite.categoryId, name: favorite.categoryName },
+      brandId: { id: favorite.brandId, name: favorite.brandName },
+      description: favorite.description
+    };
+
+    const success = this.cartService.addToCart(product, 1);
+    if (success) {
+      alert('✅ Termék hozzáadva a kosárhoz!');
+    } else {
+      alert('❌ Nem sikerült hozzáadni a kosárhoz!');
+    }
+  }
+
+  // Termék képének URL-je
+  getProductImageUrl(favorite: FavoriteProduct): string {
+    return `http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/${favorite.id}/images/1`;
+  }
+
+  // Ár formázás
+  formatPrice(price: number): string {
+    return Math.round(price).toLocaleString('hu-HU') + ' Ft';
+  }
+
+  // Készleten van-e
+  isInStock(favorite: FavoriteProduct): boolean {
+    return (favorite.stock ?? 0) > 0;
+  }
+
+  // Termék oldalra navigálás
+  goToProduct(productId: number): void {
+    this.closeFavoritesModal();
+    this.router.navigate(['/product', productId]);
   }
 
   logout(): void {
     this.authService.logout();
+    this.favoritesService.clearFavorites();
     this.router.navigate(['/mainpage']);
   }
 }

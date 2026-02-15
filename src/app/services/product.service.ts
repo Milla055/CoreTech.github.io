@@ -130,4 +130,24 @@ export class ProductService {
 
     return this.http.post(`${this.apiUrl.replace('/products', '/Cart/add')}`, body, { headers });
   }
+
+  // ==================== ADMIN PRODUCT MANAGEMENT ====================
+  
+  // Create new product (admin only)
+  createProduct(productData: any): Observable<any> {
+    const adminUrl = this.apiUrl.replace('/products', '/admin/products');
+    return this.http.post<any>(adminUrl, productData, this.headers);
+  }
+
+  // Update existing product (admin only)
+  updateProduct(productId: number, productData: any): Observable<any> {
+    const adminUrl = this.apiUrl.replace('/products', '/admin/products');
+    return this.http.put<any>(`${adminUrl}/${productId}`, productData, this.headers);
+  }
+
+  // Delete product (admin only)
+  deleteProduct(productId: number): Observable<any> {
+    const adminUrl = this.apiUrl.replace('/products', '/admin/products');
+    return this.http.put<any>(`${adminUrl}/delete/${productId}`, {}, this.headers);
+  }
 }

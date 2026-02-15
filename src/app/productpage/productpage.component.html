@@ -22,7 +22,7 @@
       <select 
         id="manufacturer" 
         class="filter-select"
-        [value]="selectedManufacturer"
+        [(ngModel)]="selectedManufacturer"
         (change)="onManufacturerChange($event)">
         <option value="all">Összes gyártó</option>
         <option *ngFor="let brand of manufacturers" [value]="brand">
@@ -33,21 +33,26 @@
 
     <div class="filter-group">
       <label for="category">Kategóriák</label>
-      <select id="category" class="filter-select">
+      <select 
+        id="category" 
+        class="filter-select"
+        [value]="categoryId"
+        (change)="onCategoryChange($event)">
         <option value="1">Videókártyák</option>
         <option value="2">Processzorok</option>
         <option value="3">Alaplapok</option>
         <option value="4">RAM</option>
         <option value="5">Tápegységek</option>
+        <option value="6">SSD</option>
+        <option value="7">HDD</option>
         <option value="8">Házak</option>
         <option value="9">Hűtők</option>
-        <option value="7">HDD</option>
-        <option value="6">SSD</option>
         <option value="11">Egerek</option>
         <option value="12">Billentyűzetek</option>
         <option value="13">Monitorok</option>
         <option value="14">Fejhallgatók</option>
         <option value="15">Egérpadok</option>
+        <option value="16">Mikrofonok</option>
       </select>
     </div>
 
@@ -56,7 +61,7 @@
       <select 
         id="sort" 
         class="filter-select"
-        [value]="selectedSort"
+        [(ngModel)]="selectedSort"
         (change)="onSortChange($event)">
         <option value="default">Alapértelmezett</option>
         <option value="price-asc">Ár növekvő</option>
@@ -99,11 +104,10 @@
 
   <!-- Newsletter Section -->
   <div class="subscription">
-    <h3>Értesülj a legfrissebb hírekról 
-és újdonságkról!</h3>
-<p>Iratkozz fel a hírlevelünkre</p>
-<input type="email" class="inputt">
-<button class="subscribeBtn">Feliratkozom!</button>
-</div>
+    <h3>Értesülj a legfrissebb hírekről és újdonságokról!</h3>
+    <p>Iratkozz fel a hírlevelünkre</p>
+    <input type="email" class="inputt">
+    <button class="subscribeBtn">Feliratkozom!</button>
+  </div>
 </div>
 <app-footer></app-footer>

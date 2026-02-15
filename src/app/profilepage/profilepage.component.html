@@ -25,8 +25,7 @@
         <button 
           *ngIf="isAdmin()"
           class="tab-button admin-button"
-          [class.active]="activeTab === 'adminbeallitasok'"
-          (click)="setActiveTab('adminbeallitasok')">
+          (click)="goToAdminPage()">
           Adminbeállítások
         </button>
       </div>
@@ -35,51 +34,66 @@
 
   <div class="divider"></div>
 
-  <!-- Admin Settings -->
-  <div class="admin-section" *ngIf="isAdmin() && activeTab === 'adminbeallitasok'">
-    <h2 class="section-title">Adminbeállítások</h2>
-    <div class="admin-panel">
-      <p>Admin funkciók</p>
-    </div>
-  </div>
-
   <!-- Kedvencek -->
   <div class="favorites-section">
-    <button class="favorites-button" (click)="openFavoritesModal()">Kedvencek</button>
+    <button class="favorites-button" (click)="openFavoritesModal()">
+      Kedvencek 
+      <span class="favorites-count" *ngIf="favorites.length > 0">({{ favorites.length }})</span>
+    </button>
   </div>
 
   <!-- Kedvencek Modal -->
   <div class="modal-overlay" *ngIf="isFavoritesModalOpen" (click)="closeFavoritesModal()">
     <div class="modal-content favorites-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Kedvenceim</h2>
+        <h2>Kedvenceim ({{ favorites.length }})</h2>
         <button class="modal-close-btn" (click)="closeFavoritesModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="favorites-list" *ngIf="mockFavorites.length > 0">
-          <div class="favorite-card" *ngFor="let item of mockFavorites">
-            <div class="favorite-image">
-              <img [src]="item.image" [alt]="item.name" />
+        <!-- Loading -->
+        <div class="loading-favorites" *ngIf="loadingFavorites">
+          <p>Kedvencek betöltése...</p>
+        </div>
+        
+        <!-- Kedvencek lista -->
+        <div class="favorites-list" *ngIf="!loadingFavorites && favorites.length > 0">
+          <div class="favorite-card" *ngFor="let item of favorites">
+            <div class="favorite-image" (click)="goToProduct(item.id)">
+              <img [src]="getProductImageUrl(item)" [alt]="item.name" />
             </div>
-            <div class="favorite-info">
+            <div class="favorite-info" (click)="goToProduct(item.id)">
               <h3 class="favorite-name">{{ item.name }}</h3>
-              <p class="favorite-category">{{ item.category }}</p>
+              <p class="favorite-category">{{ item.categoryName }} - {{ item.brandName }}</p>
               <div class="favorite-price-row">
-                <span class="favorite-price">{{ item.price | number:'1.0-0' }} Ft</span>
-                <span class="favorite-old-price" *ngIf="item.oldPrice">{{ item.oldPrice | number:'1.0-0' }} Ft</span>
+                <span class="favorite-price">{{ formatPrice(item.pPrice) }}</span>
+                <span class="favorite-old-price" *ngIf="item.price !== item.pPrice">{{ formatPrice(item.price) }}</span>
               </div>
-              <div class="favorite-stock" [ngClass]="item.inStock ? 'in-stock' : 'out-of-stock'">
-                {{ item.inStock ? '✓ Készleten' : '✗ Nincs készleten' }}
+              <div class="favorite-stock" [ngClass]="isInStock(item) ? 'in-stock' : 'out-of-stock'">
+                {{ isInStock(item) ? '✓ Készleten (' + item.stock + ' db)' : '✗ Nincs készleten' }}
               </div>
             </div>
             <div class="favorite-actions">
-              <button class="add-to-cart-btn" [disabled]="!item.inStock"><img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon"></button>
-              <button class="remove-favorite-btn" (click)="removeFavorite(item.id)"><img src="assets/icons8-delete-trash-32.png" alt="remove" class="removeIcon"></button>
+              <button 
+                class="add-to-cart-btn" 
+                [disabled]="!isInStock(item)"
+                (click)="addFavoriteToCart(item)"
+                title="Kosárba">
+                🛒
+              </button>
+              <button 
+                class="remove-favorite-btn" 
+                (click)="removeFavorite(item.id)"
+                title="Eltávolítás">
+                🗑️
+              </button>
             </div>
           </div>
         </div>
-        <div class="no-favorites" *ngIf="mockFavorites.length === 0">
-          <p>Még nincs kedvenc terméked.</p>
+        
+        <!-- Üres állapot -->
+        <div class="no-favorites" *ngIf="!loadingFavorites && favorites.length === 0">
+          <p>😢 Még nincs kedvenc terméked.</p>
+          <p class="hint">Adj hozzá termékeket a kedvenceidhez a ♡ gombra kattintva!</p>
         </div>
       </div>
     </div>
@@ -108,13 +122,13 @@
             <div class="order-items">
               <div class="order-item" *ngFor="let item of order.items">
                 <span class="item-name">{{ item.name }}</span>
-                <span class="item-qty">{{ item.quantity }} db</span>
-                <span class="item-price">{{ item.price | number:'1.0-0' }} Ft</span>
+                <span class="item-quantity">x{{ item.quantity }}</span>
+                <span class="item-price">{{ formatPrice(item.price) }}</span>
               </div>
             </div>
-            <div class="order-footer">
-              <span class="order-total-label">Összesen:</span>
-              <span class="order-total">{{ order.total | number:'1.0-0' }} Ft</span>
+            <div class="order-total">
+              <span>Összesen:</span>
+              <span class="total-price">{{ formatPrice(order.total) }}</span>
             </div>
           </div>
         </div>
@@ -125,211 +139,154 @@
     </div>
   </div>
 
-  <!-- Adatok -->
-  <div class="info-section">
-    <h2 class="section-title">Adatok</h2>
-    <div class="info-list">
-      <p class="info-item"><span class="info-label">Felhasználónév:</span> {{ userData?.username }}</p>
-      <p class="info-item"><span class="info-label">E-mail:</span> {{ userData?.email }}</p>
-      <p class="info-item" *ngIf="isAdmin()"><span class="info-label">Szerepkör:</span> {{ userData?.role }}</p>
-      <p class="info-item" *ngIf="userData?.vezetekNev && userData?.keresztNev">
-        <span class="info-label">Név:</span> {{ getFullName() }}
-      </p>
-      <p class="info-item" *ngIf="userData?.telefonszam">
-        <span class="info-label">Telefon:</span> {{ userData?.telefonszam }}
-      </p>
-      
-      <!-- Szállítási adatok megjelenítése -->
-      <div class="delivery-info" *ngIf="hasDeliveryData()">
-        <div class="delivery-info-divider"></div>
-        <p class="delivery-info-title">Szállítási adatok</p>
-        <p class="info-item" *ngIf="userData?.cim?.orszag">
-          <span class="info-label">Ország:</span> {{ userData?.cim?.orszag }}
-        </p>
-        <p class="info-item" *ngIf="userData?.cim?.iranyitoszam">
-          <span class="info-label">Irányítószám:</span> {{ userData?.cim?.iranyitoszam }}
-        </p>
-        <p class="info-item" *ngIf="userData?.cim?.varos">
-          <span class="info-label">Város:</span> {{ userData?.cim?.varos }}
-        </p>
-        <p class="info-item" *ngIf="userData?.cim?.utcaHazszam">
-          <span class="info-label">Utca, házszám:</span> {{ userData?.cim?.utcaHazszam }}
-        </p>
-      </div>
+  <div class="divider"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'fiokkezeles'" 
+      (click)="setActiveTab('fiokkezeles')">
+      Fiókkezelés
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="activeTab === 'adatok'" 
+      (click)="setActiveTab('adatok')">
+      Adatok
+    </button>
+  </div>
+
+  <!-- Tab Content: Fiókkezelés -->
+  <div class="tab-content" *ngIf="activeTab === 'fiokkezeles'">
+    <div class="form-section">
+      <h3>Vásárlói adatok</h3>
+      <form [formGroup]="customerDataForm">
+        <div class="form-group">
+          <label>Email cím</label>
+          <input type="email" formControlName="email" placeholder="Email cím">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Vezetéknév</label>
+            <input type="text" formControlName="vezetekNev" placeholder="Vezetéknév">
+          </div>
+          <div class="form-group">
+            <label>Keresztnév</label>
+            <input type="text" formControlName="keresztNev" placeholder="Keresztnév">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-section">
+      <h3>Jelszó módosítása</h3>
+      <form [formGroup]="passwordForm">
+        <div class="form-group password-group">
+          <label>Régi jelszó</label>
+          <div class="password-input-wrapper">
+            <input [type]="showOldPassword ? 'text' : 'password'" formControlName="regiJelszo" placeholder="Régi jelszó">
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('old')">
+              {{ showOldPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+        <div class="form-group password-group">
+          <label>Új jelszó</label>
+          <div class="password-input-wrapper">
+            <input [type]="showNewPassword ? 'text' : 'password'" formControlName="ujJelszo" placeholder="Új jelszó (min. 8 karakter)">
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('new')">
+              {{ showNewPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+        <div class="form-group password-group">
+          <label>Új jelszó megerősítése</label>
+          <div class="password-input-wrapper">
+            <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="ujJelszoMegerosites" placeholder="Jelszó megerősítése">
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('confirm')">
+              {{ showConfirmPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+        <button type="button" class="change-password-btn" (click)="onPasswordChange()" [disabled]="isChangingPassword">
+          {{ isChangingPassword ? 'Mentés...' : 'Jelszó módosítása' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="form-section">
+      <h3>Szállítási adatok</h3>
+      <form [formGroup]="deliveryDataForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ország</label>
+            <input type="text" formControlName="orszag" placeholder="Magyarország">
+          </div>
+          <div class="form-group">
+            <label>Irányítószám</label>
+            <input type="text" formControlName="iranyitoszam" placeholder="1234">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Város</label>
+            <input type="text" formControlName="varos" placeholder="Budapest">
+          </div>
+          <div class="form-group">
+            <label>Utca, házszám</label>
+            <input type="text" formControlName="utcaHazszam" placeholder="Fő utca 1.">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label>Telefonszám</label>
+            <input type="tel" formControlName="telefonszam" placeholder="+36 30 123 4567">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-actions">
+      <button class="save-btn" (click)="onSubmit()" [disabled]="isUpdatingProfile">
+        {{ isUpdatingProfile ? 'Mentés...' : 'Változások mentése' }}
+      </button>
+      <button class="reset-btn" (click)="resetChanges()">Visszaállítás</button>
     </div>
   </div>
 
-  <!-- Vásárlói Adatok -->
-  <div class="data-section">
-    <h2 class="section-title">Vásárlói adatok</h2>
-    <form [formGroup]="customerDataForm" class="data-form">
-      <div class="form-group">
-        <label for="email">E-mail *</label>
-        <input id="email" type="email" formControlName="email" placeholder="E-mail" class="form-input"/>
-        <small class="form-hint">Bejelentkezéshez használt e-mail</small>
+  <!-- Tab Content: Adatok -->
+  <div class="tab-content" *ngIf="activeTab === 'adatok'">
+    <div class="data-section">
+      <div class="data-row">
+        <span class="data-label">Felhasználónév:</span>
+        <span class="data-value">{{ userData?.username || '-' }}</span>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="vezetekNev">Vezetéknév *</label>
-          <input id="vezetekNev" type="text" formControlName="vezetekNev" placeholder="Vezetéknév" class="form-input"/>
-        </div>
-        <div class="form-group">
-          <label for="keresztNev">Keresztnév *</label>
-          <input id="keresztNev" type="text" formControlName="keresztNev" placeholder="Keresztnév" class="form-input"/>
-        </div>
+      <div class="data-row">
+        <span class="data-label">Email:</span>
+        <span class="data-value">{{ userData?.email || '-' }}</span>
       </div>
-    </form>
-  </div>
-
-  <!-- Jelszóváltoztatás -->
-  <div class="password-section">
-    <h2 class="section-title">Jelszóváltoztatás</h2>
-    <form [formGroup]="passwordForm" class="password-form">
-      
-      <!-- Régi jelszó -->
-      <div class="form-group">
-        <label for="regiJelszo">Régi jelszó *</label>
-        <div class="password-input-wrapper">
-          <input
-            id="regiJelszo"
-            [type]="showOldPassword ? 'text' : 'password'"
-            formControlName="regiJelszo"
-            placeholder="Régi jelszó"
-            class="form-input password-input"/>
-          <button 
-            type="button" 
-            class="toggle-password-btn"
-            (click)="togglePasswordVisibility('old')">
-            <!-- Eye icon (show) -->
-            <svg *ngIf="!showOldPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-            </svg>
-            <!-- Eye-off icon (hide) -->
-            <svg *ngIf="showOldPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-              <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-            </svg>
-          </button>
-        </div>
+      <div class="data-row">
+        <span class="data-label">Teljes név:</span>
+        <span class="data-value">{{ getFullName() }}</span>
       </div>
-
-      <!-- Új jelszavak -->
-      <div class="form-row">
-        <div class="form-group">
-          <label for="ujJelszo">Új jelszó *</label>
-          <div class="password-input-wrapper">
-            <input
-              id="ujJelszo"
-              [type]="showNewPassword ? 'text' : 'password'"
-              formControlName="ujJelszo"
-              placeholder="Min. 8 karakter"
-              class="form-input password-input"/>
-            <button 
-              type="button" 
-              class="toggle-password-btn"
-              (click)="togglePasswordVisibility('new')">
-              <svg *ngIf="!showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-              <svg *ngIf="showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="ujJelszoMegerosites">Megerősítés *</label>
-          <div class="password-input-wrapper">
-            <input
-              id="ujJelszoMegerosites"
-              [type]="showConfirmPassword ? 'text' : 'password'"
-              formControlName="ujJelszoMegerosites"
-              placeholder="Jelszó újra"
-              class="form-input password-input"/>
-            <button 
-              type="button" 
-              class="toggle-password-btn"
-              (click)="togglePasswordVisibility('confirm')">
-              <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-              <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+      <div class="data-row">
+        <span class="data-label">Telefonszám:</span>
+        <span class="data-value">{{ userData?.telefonszam || '-' }}</span>
       </div>
-
-      <div class="password-error" *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('ujJelszoMegerosites')?.touched">
-        ❌ A jelszavak nem egyeznek!
+      <div class="data-row">
+        <span class="data-label">Cím:</span>
+        <span class="data-value">{{ getFullAddress() || '-' }}</span>
       </div>
-      
-      <button 
-        type="button" 
-        (click)="onPasswordChange()" 
-        class="submit-button"
-        [disabled]="isChangingPassword || !passwordForm.valid">
-        <span *ngIf="!isChangingPassword">Jelszó módosítása</span>
-        <span *ngIf="isChangingPassword">Mentés...</span>
-      </button>
-    </form>
-  </div>
-
-  <!-- Szállítási Adatok -->
-  <div class="delivery-section">
-    <h2 class="section-title">Szállítási adatok</h2>
-    <form [formGroup]="deliveryDataForm" class="delivery-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="orszag">Ország *</label>
-          <input id="orszag" type="text" formControlName="orszag" placeholder="Ország" class="form-input"/>
-        </div>
-        <div class="form-group">
-          <label for="iranyitoszam">Irányítószám *</label>
-          <input id="iranyitoszam" type="text" formControlName="iranyitoszam" placeholder="Irányítószám" class="form-input"/>
-        </div>
+      <div class="data-row">
+        <span class="data-label">Szerepkör:</span>
+        <span class="data-value">{{ userData?.role || 'Felhasználó' }}</span>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="varos">Város *</label>
-          <input id="varos" type="text" formControlName="varos" placeholder="Város" class="form-input"/>
-        </div>
-        <div class="form-group">
-          <label for="utcaHazszam">Utca, házszám *</label>
-          <input id="utcaHazszam" type="text" formControlName="utcaHazszam" placeholder="Utca, házszám" class="form-input"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="deliveryEmail">E-mail *</label>
-          <input id="deliveryEmail" type="email" formControlName="email" placeholder="E-mail" class="form-input"/>
-        </div>
-        <div class="form-group">
-          <label for="telefonszam">Telefon *</label>
-          <input id="telefonszam" type="tel" formControlName="telefonszam" placeholder="Telefon" class="form-input"/>
-        </div>
-      </div>
-    </form>
-  </div>
-
-  <!-- Action Buttons -->
-  <div class="action-buttons">
-    <button 
-      type="button" 
-      (click)="resetChanges()" 
-      class="reset-button"
-      [disabled]="isUpdatingProfile">
-      Elvetés
-    </button>
-    <button 
-      type="button" 
-      (click)="onSubmit()" 
-      class="save-button"
-      [disabled]="isUpdatingProfile || (!customerDataForm.valid || !deliveryDataForm.valid)">
-      <span *ngIf="!isUpdatingProfile">Mentés</span>
-      <span *ngIf="isUpdatingProfile">Mentés...</span>
-    </button>
+    </div>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
 <app-shopmenu [hidden]="!shopMenu" (close)="closeShopMenu()"></app-shopmenu>
+<app-cart [isOpen]="cartOpen" (close)="closeCart()"></app-cart>
 
 <header class="navbar">
   <div class="header-container">
@@ -51,8 +52,9 @@
         {{ username }}
       </button>
 
-      <button class="cartBtn">
+      <button class="cartBtn" (click)="toggleCart()">
         <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
+        <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
       </button>
     </div>
   </div>

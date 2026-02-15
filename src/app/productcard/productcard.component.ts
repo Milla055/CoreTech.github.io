@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductService, Product } from '../services/product.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-productcard',
@@ -22,6 +23,7 @@ export class ProductcardComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private cartService: CartService,
     private router: Router
   ) {}
 
@@ -38,10 +40,9 @@ export class ProductcardComponent implements OnInit {
     }
   }
 
-  // Navigate to product image page
-  goToProductImage(): void {
+  goToProductDetail(): void {
     if (this.displayProduct) {
-      this.router.navigate(['/productimage', this.displayProduct.id]);
+      this.router.navigate(['/product', this.displayProduct.id]);
     }
   }
 
@@ -86,23 +87,30 @@ export class ProductcardComponent implements OnInit {
   }
 
   addToCart(event: Event): void {
-    event.stopPropagation(); // Ne navigáljon amikor kosárba teszi
-    if (this.displayProduct) {
-      this.productService.addToCart(this.displayProduct.id, 1).subscribe({
-        next: (response) => {
-          console.log('Product added to cart:', response);
-          alert('Termék hozzáadva a kosárhoz!');
-        },
-        error: (error) => {
-          console.error('Error adding to cart:', error);
-          alert('Hiba történt a kosárhoz adás során!');
-        }
-      });
+    event.stopPropagation();
+    
+    if (!this.cartService.isLoggedIn()) {
+      alert('A kosár használatához be kell jelentkezned!');
+      this.router.navigate(['/login']);
+      return;
+    }
+    
+    if (this.displayProduct && this.isInStock()) {
+      const success = this.cartService.addToCart(this.displayProduct, 1);
+      if (success) {
+        alert('Termék hozzáadva a kosárhoz!');
+      } else {
+        alert('Nem sikerült hozzáadni a kosárhoz!');
+      }
     }
   }
 
+  isInStock(): boolean {
+    return this.displayProduct ? (this.displayProduct.stock ?? 0) > 0 : false;
+  }
+
   formatPrice(price: number): string {
-    return Math.round(price).toLocaleString('en-US') + ' Ft';
+    return Math.round(price).toLocaleString('hu-HU') + ' Ft';
   }
 
   hasDiscount(): boolean {
