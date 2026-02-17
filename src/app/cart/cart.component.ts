@@ -81,6 +81,6 @@ export class CartComponent implements OnInit {
 
   checkout(): void {
     this.close.emit();
-    alert('Fizetés funkció hamarosan!');
+    this.router.navigate(['/checkout']);
   }
 }

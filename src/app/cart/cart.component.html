@@ -67,7 +67,7 @@
         <span>Összesen:</span>
         <span class="total-price">{{ formatPrice(cartTotal) }}</span>
       </div>
-      <button class="checkout-btn" (click)="checkout()">Fizetés</button>
+      <button class="checkout-btn" (click)="checkout()" routerLink="/checkout">Fizetés</button>
       <button class="clear-btn" (click)="clearCart()">Kosár ürítése</button>
     </div>
   </div>

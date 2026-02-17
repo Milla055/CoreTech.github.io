@@ -44,7 +44,7 @@
 
   <!-- Kedvencek Modal -->
   <div class="modal-overlay" *ngIf="isFavoritesModalOpen" (click)="closeFavoritesModal()">
-    <div class="modal-content favorites-modal" (click)="$event.stopPropagation()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Kedvenceim ({{ favorites.length }})</h2>
         <button class="modal-close-btn" (click)="closeFavoritesModal()">✕</button>
@@ -58,10 +58,10 @@
         <!-- Kedvencek lista -->
         <div class="favorites-list" *ngIf="!loadingFavorites && favorites.length > 0">
           <div class="favorite-card" *ngFor="let item of favorites">
-            <div class="favorite-image" (click)="goToProduct(item.id)">
+            <div class="favorite-image">
               <img [src]="getProductImageUrl(item)" [alt]="item.name" />
             </div>
-            <div class="favorite-info" (click)="goToProduct(item.id)">
+            <div class="favorite-info">
               <h3 class="favorite-name">{{ item.name }}</h3>
               <p class="favorite-category">{{ item.categoryName }} - {{ item.brandName }}</p>
               <div class="favorite-price-row">
@@ -78,13 +78,13 @@
                 [disabled]="!isInStock(item)"
                 (click)="addFavoriteToCart(item)"
                 title="Kosárba">
-                🛒
+                <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
               </button>
               <button 
                 class="remove-favorite-btn" 
                 (click)="removeFavorite(item.id)"
                 title="Eltávolítás">
-                🗑️
+                <img src="assets/icons8-delete-trash-32.png" alt="remove" class="removeIcon">
               </button>
             </div>
           </div>
@@ -112,13 +112,13 @@
         <button class="modal-close-btn" (click)="closeOrdersModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="orders-list" *ngIf="mockOrders.length > 0">
-          <div class="order-card" *ngFor="let order of mockOrders">
+        <div class="orders-list" *ngIf="orders.length > 0">
+          <div class="order-card" *ngFor="let order of orders">
             <div class="order-header">
               <span class="order-id">#{{ order.id }}</span>
               <span class="order-status" [ngClass]="order.statusClass">{{ order.status }}</span>
             </div>
-            <div class="order-date">{{ order.date }}</div>
+            <div class="order-date">{{ formatOrderDate(order.date) }}</div>
             <div class="order-items">
               <div class="order-item" *ngFor="let item of order.items">
                 <span class="item-name">{{ item.name }}</span>
@@ -132,7 +132,7 @@
             </div>
           </div>
         </div>
-        <div class="no-orders" *ngIf="mockOrders.length === 0">
+        <div class="no-orders" *ngIf="orders.length === 0">
           <p>Még nincs rendelésed.</p>
         </div>
       </div>
@@ -159,8 +159,8 @@
 
   <!-- Tab Content: Fiókkezelés -->
   <div class="tab-content" *ngIf="activeTab === 'fiokkezeles'">
-    <div class="form-section">
-      <h3>Vásárlói adatok</h3>
+    <div class="content-section">
+      <h3 class="section-title">Vásárlói adatok</h3>
       <form [formGroup]="customerDataForm">
         <div class="form-group">
           <label>Email cím</label>
@@ -179,44 +179,46 @@
       </form>
     </div>
 
-    <div class="form-section">
-      <h3>Jelszó módosítása</h3>
+    <div class="content-section">
+      <h3 class="section-title">Jelszó módosítása</h3>
       <form [formGroup]="passwordForm">
-        <div class="form-group password-group">
+        <div class="form-group">
           <label>Régi jelszó</label>
-          <div class="password-input-wrapper">
+          <div class="password-input-group">
             <input [type]="showOldPassword ? 'text' : 'password'" formControlName="regiJelszo" placeholder="Régi jelszó">
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('old')">
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('old')">
               {{ showOldPassword ? '🙈' : '👁️' }}
             </button>
           </div>
         </div>
-        <div class="form-group password-group">
+        <div class="form-group">
           <label>Új jelszó</label>
-          <div class="password-input-wrapper">
+          <div class="password-input-group">
             <input [type]="showNewPassword ? 'text' : 'password'" formControlName="ujJelszo" placeholder="Új jelszó (min. 8 karakter)">
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('new')">
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('new')">
               {{ showNewPassword ? '🙈' : '👁️' }}
             </button>
           </div>
         </div>
-        <div class="form-group password-group">
+        <div class="form-group">
           <label>Új jelszó megerősítése</label>
-          <div class="password-input-wrapper">
+          <div class="password-input-group">
             <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="ujJelszoMegerosites" placeholder="Jelszó megerősítése">
-            <button type="button" class="toggle-password" (click)="togglePasswordVisibility('confirm')">
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirm')">
               {{ showConfirmPassword ? '🙈' : '👁️' }}
             </button>
           </div>
         </div>
-        <button type="button" class="change-password-btn" (click)="onPasswordChange()" [disabled]="isChangingPassword">
-          {{ isChangingPassword ? 'Mentés...' : 'Jelszó módosítása' }}
-        </button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary" (click)="onPasswordChange()" [disabled]="isChangingPassword">
+            {{ isChangingPassword ? 'Mentés...' : 'Jelszó módosítása' }}
+          </button>
+        </div>
       </form>
     </div>
 
-    <div class="form-section">
-      <h3>Szállítási adatok</h3>
+    <div class="content-section">
+      <h3 class="section-title">Szállítási adatok</h3>
       <form [formGroup]="deliveryDataForm">
         <div class="form-row">
           <div class="form-group">
@@ -251,17 +253,17 @@
       </form>
     </div>
 
-    <div class="form-actions">
-      <button class="save-btn" (click)="onSubmit()" [disabled]="isUpdatingProfile">
+    <div class="btn-group">
+      <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isUpdatingProfile">
         {{ isUpdatingProfile ? 'Mentés...' : 'Változások mentése' }}
       </button>
-      <button class="reset-btn" (click)="resetChanges()">Visszaállítás</button>
+      <button class="btn btn-secondary" (click)="resetChanges()">Visszaállítás</button>
     </div>
   </div>
 
   <!-- Tab Content: Adatok -->
   <div class="tab-content" *ngIf="activeTab === 'adatok'">
-    <div class="data-section">
+    <div class="content-section">
       <div class="data-row">
         <span class="data-label">Felhasználónév:</span>
         <span class="data-value">{{ userData?.username || '-' }}</span>

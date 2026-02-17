@@ -8,6 +8,7 @@ import { ProfilepageComponent } from './profilepage/profilepage.component';
 import { ProductpageComponent } from './productpage/productpage.component';
 import { ProductsdetailpageComponent } from './productsdetailpage/productsdetailpage.component';
 import { AdminpageComponent } from './adminpage/adminpage.component';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'products', component: ProductpageComponent },
   { path: 'product/:id', component: ProductsdetailpageComponent }, // Termék részletes oldal
   { path: 'adminpage', component: AdminpageComponent },
+  { path: 'checkout', component: CheckoutComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

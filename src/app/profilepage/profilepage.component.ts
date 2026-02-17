@@ -38,57 +38,12 @@ export class ProfilepageComponent implements OnInit {
   // Kedvencek modal
   isFavoritesModalOpen: boolean = false;
   
-  // Kedvencek
+  // Kedvencek - VALÓDI ADATOK
   favorites: FavoriteProduct[] = [];
   loadingFavorites: boolean = false;
   
-  // Mock rendelések
-  mockOrders = [
-    {
-      id: 'ORD-2024-001',
-      date: '2024.01.15.',
-      status: 'Kiszállítva',
-      statusClass: 'status-delivered',
-      items: [
-        { name: 'Wireless Bluetooth Fejhallgató', quantity: 1, price: 24990 },
-        { name: 'USB-C Töltőkábel 2m', quantity: 2, price: 2990 }
-      ],
-      total: 30970
-    },
-    {
-      id: 'ORD-2024-002',
-      date: '2024.01.28.',
-      status: 'Szállítás alatt',
-      statusClass: 'status-shipping',
-      items: [
-        { name: 'Mechanikus Gaming Billentyűzet', quantity: 1, price: 45990 },
-        { name: 'RGB Egérpad XL', quantity: 1, price: 8990 },
-        { name: 'Gaming Egér 16000 DPI', quantity: 1, price: 19990 }
-      ],
-      total: 74970
-    },
-    {
-      id: 'ORD-2024-003',
-      date: '2024.02.02.',
-      status: 'Feldolgozás alatt',
-      statusClass: 'status-processing',
-      items: [
-        { name: 'Smart Watch Pro', quantity: 1, price: 89990 }
-      ],
-      total: 89990
-    },
-    {
-      id: 'ORD-2023-047',
-      date: '2023.12.20.',
-      status: 'Kiszállítva',
-      statusClass: 'status-delivered',
-      items: [
-        { name: 'Laptop Állvány Alumínium', quantity: 1, price: 12990 },
-        { name: 'Webcam 1080p', quantity: 1, price: 15990 }
-      ],
-      total: 28980
-    }
-  ];
+  // Rendelések - VALÓDI ADATOK (mock adatok törölve!)
+  orders: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -102,12 +57,7 @@ export class ProfilepageComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
     this.loadFavorites();
-    
-    // Feliratkozás a kedvencek változásaira
-    this.favoritesService.favorites$.subscribe(favorites => {
-      this.favorites = favorites;
-      console.log('📋 Kedvencek frissítve:', this.favorites.length, 'db');
-    });
+    this.loadOrders();
   }
 
   loadUserData(): void {
@@ -137,10 +87,22 @@ export class ProfilepageComponent implements OnInit {
     }
   }
 
+  // Kedvencek betöltése - PONTOSAN a service szerint
   loadFavorites(): void {
     this.loadingFavorites = true;
     this.favorites = this.favoritesService.getFavorites();
     this.loadingFavorites = false;
+    console.log('✅ Favorites loaded:', this.favorites.length, 'db');
+  }
+
+  // Rendelések betöltése - localStorage
+  loadOrders(): void {
+    const savedOrders = localStorage.getItem('user_orders');
+    if (savedOrders) {
+      this.orders = JSON.parse(savedOrders);
+    } else {
+      this.orders = [];
+    }
   }
 
   initializeForms(): void {
@@ -269,7 +231,7 @@ export class ProfilepageComponent implements OnInit {
     }
 
     if (!this.authService.isLoggedIn()) {
-      alert('❌ Lejárt a munkamenet, kérlek jelentkezz be újra!');
+      alert('❌ Lejárt a munkamenet!');
       this.authService.logout();
       this.router.navigate(['/login']);
       return;
@@ -292,35 +254,9 @@ export class ProfilepageComponent implements OnInit {
         let errorMsg = '❌ Hiba történt!';
         
         if (error.status === 401) {
-          const errorBody = error.error;
-          const message = (errorBody?.message || '').toLowerCase();
-          
-          if (message.includes('token') || message.includes('invalid token')) {
-            errorMsg = '❌ Lejárt a munkamenet, kérlek jelentkezz be újra!';
-            this.authService.logout();
-            this.router.navigate(['/login']);
-          } 
-          else if (message.includes('old password') || message.includes('incorrect')) {
-            errorMsg = '❌ A régi jelszó helytelen!';
-          } 
-          else {
-            errorMsg = '❌ Hitelesítési hiba! Kérlek jelentkezz be újra.';
-            this.authService.logout();
-            this.router.navigate(['/login']);
-          }
+          errorMsg = '❌ A régi jelszó helytelen!';
         } else if (error.status === 400) {
-          const errorBody = error.error;
-          if (errorBody?.status === 'WeakPassword') {
-            errorMsg = '❌ A jelszó legalább 8 karakter hosszú kell legyen!';
-          } else {
-            errorMsg = '❌ Érvénytelen kérés!';
-          }
-        } else if (error.status === 404) {
-          errorMsg = '❌ Felhasználó nem található!';
-        } else if (error.status === 500) {
-          errorMsg = '❌ Szerver hiba!';
-        } else if (error.status === 0) {
-          errorMsg = '❌ Nincs kapcsolat a szerverrel!';
+          errorMsg = '❌ Gyenge jelszó!';
         }
         
         alert(errorMsg);
@@ -354,6 +290,7 @@ export class ProfilepageComponent implements OnInit {
 
   // Rendeléseim modal
   openOrdersModal(): void {
+    this.loadOrders();
     this.isOrdersModalOpen = true;
     document.body.style.overflow = 'hidden';
   }
@@ -375,24 +312,29 @@ export class ProfilepageComponent implements OnInit {
     document.body.style.overflow = 'auto';
   }
 
-  // Kedvenc eltávolítása
+  // Kedvenc eltávolítása - service.removeFavorite()
   removeFavorite(productId: number): void {
+    if (!confirm('Biztosan törölni szeretnéd?')) {
+      return;
+    }
+
     this.favoritesService.removeFavorite(productId).subscribe({
       next: (response) => {
-        console.log('✅ Kedvenc törölve:', productId);
-        this.loadFavorites();
+        if (response.success) {
+          this.loadFavorites(); // Reload
+          alert('✅ Eltávolítva!');
+        }
       },
       error: (err) => {
-        console.error('❌ Hiba:', err);
-        alert('Hiba történt!');
+        console.error('Error:', err);
       }
     });
   }
 
-  // Kosárba helyezés kedvencekből
+  // Kosárba helyezés
   addFavoriteToCart(favorite: FavoriteProduct): void {
     if (!this.cartService.isLoggedIn()) {
-      alert('A kosár használatához be kell jelentkezned!');
+      alert('Be kell jelentkezned!');
       this.router.navigate(['/login']);
       return;
     }
@@ -404,38 +346,42 @@ export class ProfilepageComponent implements OnInit {
       pPrice: favorite.pPrice,
       stock: favorite.stock,
       imageUrl: favorite.imageUrl,
-      categoryId: { id: favorite.categoryId, name: favorite.categoryName },
-      brandId: { id: favorite.brandId, name: favorite.brandName },
+      categoryId: {
+        id: favorite.categoryId,
+        name: favorite.categoryName
+      },
+      brandId: {
+        id: favorite.brandId,
+        name: favorite.brandName
+      },
       description: favorite.description
     };
 
     const success = this.cartService.addToCart(product, 1);
     if (success) {
-      alert('✅ Termék hozzáadva a kosárhoz!');
-    } else {
-      alert('❌ Nem sikerült hozzáadni a kosárhoz!');
+      alert('✅ Kosárba helyezve!');
     }
   }
 
-  // Termék képének URL-je
+  // Helper methods
   getProductImageUrl(favorite: FavoriteProduct): string {
     return `http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/${favorite.id}/images/1`;
   }
 
-  // Ár formázás
   formatPrice(price: number): string {
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
   }
 
-  // Készleten van-e
-  isInStock(favorite: FavoriteProduct): boolean {
-    return (favorite.stock ?? 0) > 0;
+  formatOrderDate(dateString: string): string {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}.`;
   }
 
-  // Termék oldalra navigálás
-  goToProduct(productId: number): void {
-    this.closeFavoritesModal();
-    this.router.navigate(['/product', productId]);
+  isInStock(favorite: FavoriteProduct): boolean {
+    return favorite.stock > 0;
   }
 
   logout(): void {
