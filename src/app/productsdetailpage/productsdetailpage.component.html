@@ -61,7 +61,7 @@
           [class.active]="isFavorite"
           [disabled]="isTogglingFavorite"
           (click)="toggleFavorite()">
-          {{ isFavorite ? 'Kedvenc' : 'Kedvenc' }} 
+          Kedvenc 
           <span class="heart">{{ isFavorite ? '❤' : '♡' }}</span>
         </button>
       </div>
@@ -101,7 +101,7 @@
       </div>
 
       <div class="shipping-options">
-        <p class="shipping-title">🚚 Várható átvétel</p>
+        <p class="shipping-title">Várható átvétel</p>
         <div class="shipping-row">
           <span>FoxPost csomagpont:</span>
           <span>{{ foxpostDate }}</span>
@@ -121,6 +121,27 @@
         <div class="shipping-row">
           <span>DPD express:</span>
           <span>{{ dpdDate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tulajdonságok szekció - CSAK ha van adat -->
+  <div class="properties-section" *ngIf="productProperties.length > 0">
+    <h2 class="properties-title">Tulajdonságok:</h2>
+    <div class="properties-grid">
+      <!-- Bal oszlop -->
+      <div class="properties-column">
+        <div class="property-row" *ngFor="let prop of propertiesLeftColumn">
+          <span class="property-key">{{ prop.key }}</span>
+          <span class="property-value">{{ prop.value }}</span>
+        </div>
+      </div>
+      <!-- Jobb oszlop -->
+      <div class="properties-column">
+        <div class="property-row" *ngFor="let prop of propertiesRightColumn">
+          <span class="property-key">{{ prop.key }}</span>
+          <span class="property-value">{{ prop.value }}</span>
         </div>
       </div>
     </div>

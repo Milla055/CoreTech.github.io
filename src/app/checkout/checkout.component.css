@@ -1,3 +1,7 @@
+*{
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 /* Checkout Container */
 .checkout-container {
   max-width: 1400px;

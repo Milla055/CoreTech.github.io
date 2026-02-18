@@ -303,6 +303,60 @@
   color: #666;
 }
 
+/* Tulajdonságok szekció */
+.properties-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px 36px;
+  margin-bottom: 40px;
+}
+
+.properties-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.properties-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 60px;
+}
+
+.properties-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.property-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid #e8e8e8;
+  gap: 16px;
+}
+
+.property-row:last-child {
+  border-bottom: none;
+}
+
+.property-key {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.property-value {
+  font-size: 14px;
+  color: #444;
+  text-align: right;
+  word-break: break-word;
+}
+
 /* Recommended Products */
 .recommended-section {
   margin-top: 40px;
@@ -372,6 +426,15 @@
 
   .add-to-cart-btn {
     width: 100%;
+  }
+
+  .properties-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .properties-section {
+    padding: 20px;
   }
 }
 

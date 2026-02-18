@@ -20,7 +20,9 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
+/* Image container - position:relative hogy a szív abszolút legyen */
 .product-image {
+  position: relative;
   width: 100%;
   height: 140px;
   display: flex;
@@ -38,6 +40,49 @@
   object-fit: contain;
 }
 
+/* Szívecske gomb - jobb felső sarok */
+.favorite-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #cbd5e0;
+  z-index: 10;
+  padding: 0;
+}
+
+.favorite-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: all 0.2s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #f56565;
+}
+
+/* Aktív (kedvenc) állapot */
+.favorite-btn.is-favorite {
+  color: #e53e3e;
+}
+
+.favorite-btn.is-favorite:hover {
+  color: #c53030;
+}
+
+/* Product Info */
 .product-info {
   text-align: center;
   width: 100%;
@@ -167,12 +212,6 @@
   100% { transform: rotate(360deg); }
 }
 
-.loading-container p {
-  font-size: 14px;
-  color: #6c757d;
-  margin: 0;
-}
-
 /* Error State */
 .product-card.error {
   height: 370px;
@@ -186,7 +225,7 @@
   text-align: center;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
   .product-card {
     width: 310px;

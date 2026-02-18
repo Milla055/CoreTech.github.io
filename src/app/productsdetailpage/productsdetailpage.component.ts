@@ -36,6 +36,9 @@ export class ProductsdetailpageComponent implements OnInit {
   isFavorite: boolean = false;
   isTogglingFavorite: boolean = false;
 
+  // Properties - parsed JSON key-value pairs
+  productProperties: { key: string; value: string }[] = [];
+
   // Delivery dates
   storePickupDate: string = '';
   homeDeliveryDate: string = '';
@@ -73,7 +76,6 @@ export class ProductsdetailpageComponent implements OnInit {
       }
     });
 
-    // Feliratkozás a kedvencek változásaira
     this.favoritesService.favorites$.subscribe(() => {
       if (this.product) {
         this.isFavorite = this.favoritesService.isFavorite(this.product.id || 0);
@@ -81,13 +83,43 @@ export class ProductsdetailpageComponent implements OnInit {
     });
   }
 
+  // Parse the properties JSON from the product
+  parseProperties(properties: any): void {
+    this.productProperties = [];
+
+    if (!properties) return;
+
+    try {
+      // Ha string, parse-oljuk
+      const parsed = typeof properties === 'string' ? JSON.parse(properties) : properties;
+
+      // Minden key-value párból csinálunk egy sort
+      this.productProperties = Object.entries(parsed).map(([key, value]) => ({
+        key: key,
+        value: String(value)
+      }));
+    } catch (e) {
+      console.error('Error parsing product properties:', e);
+      this.productProperties = [];
+    }
+  }
+
+  // Split properties into two columns for display
+  get propertiesLeftColumn(): { key: string; value: string }[] {
+    const half = Math.ceil(this.productProperties.length / 2);
+    return this.productProperties.slice(0, half);
+  }
+
+  get propertiesRightColumn(): { key: string; value: string }[] {
+    const half = Math.ceil(this.productProperties.length / 2);
+    return this.productProperties.slice(half);
+  }
+
   calculateDeliveryDates(): void {
     const today = new Date();
-    
     const storeDate = new Date(today);
     storeDate.setDate(today.getDate() + 3);
     this.storePickupDate = this.formatDateHu(storeDate);
-    
     const homeDate = new Date(today);
     homeDate.setDate(today.getDate() + 5);
     this.homeDeliveryDate = this.formatDateHu(homeDate);
@@ -128,8 +160,9 @@ export class ProductsdetailpageComponent implements OnInit {
       next: (product) => {
         this.product = product;
         this.loading = false;
-        // Ellenőrzés kedvenc-e
         this.checkIfFavorite(id);
+        // Parse properties when product loads
+        this.parseProperties((product as any).properties);
       },
       error: (err) => {
         console.error('Error loading product:', err);
@@ -170,7 +203,6 @@ export class ProductsdetailpageComponent implements OnInit {
   }
 
   toggleFavorite(): void {
-    // Bejelentkezés ellenőrzés
     if (!this.authService.isLoggedIn()) {
       alert('A kedvencek használatához be kell jelentkezned!');
       this.router.navigate(['/login']);
@@ -181,13 +213,10 @@ export class ProductsdetailpageComponent implements OnInit {
 
     this.isTogglingFavorite = true;
 
-    // Kedvenc váltás - most a TELJES TERMÉK ADATOKAT küldjük
     this.favoritesService.toggleFavorite(this.product).subscribe({
       next: (response) => {
-        console.log('✅ Kedvenc váltva:', response);
         this.isFavorite = response.isFavorite;
         this.isTogglingFavorite = false;
-        
         if (this.isFavorite) {
           alert('❤️ Hozzáadva a kedvencekhez!');
         } else {
@@ -195,7 +224,7 @@ export class ProductsdetailpageComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('❌ Hiba:', err);
+        console.error('Hiba:', err);
         this.isTogglingFavorite = false;
         alert('Hiba történt!');
       }
@@ -240,7 +269,6 @@ export class ProductsdetailpageComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-    
     if (this.product && this.isInStock()) {
       const success = this.cartService.addToCart(this.product, this.quantity);
       if (success) {

@@ -2,13 +2,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .admin-container {
   display: flex;
   min-height: 100vh;
   background: #f0f2f5;
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* ==================== SIDEBAR ==================== */
@@ -1096,7 +1097,7 @@
 /* Ár Oszlopok */
 .col-price {
   font-weight: 500;
-  font-family: 'Courier New', monospace;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Profit Cella */
