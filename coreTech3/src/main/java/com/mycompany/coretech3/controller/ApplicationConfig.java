@@ -28,6 +28,8 @@ public class ApplicationConfig extends Application {
         resources.add(com.mycompany.coretech3.controller.AnalyticsController.class);
         resources.add(com.mycompany.coretech3.controller.BrandsController.class);
         resources.add(com.mycompany.coretech3.controller.CategoriesController.class);
+        resources.add(com.mycompany.coretech3.controller.FavoritesController.class);
+        resources.add(com.mycompany.coretech3.controller.NewsletterController.class);
         resources.add(com.mycompany.coretech3.controller.OrdersController.class);
         resources.add(com.mycompany.coretech3.controller.ProductsController.class);
         resources.add(com.mycompany.coretech3.controller.UsersController.class);

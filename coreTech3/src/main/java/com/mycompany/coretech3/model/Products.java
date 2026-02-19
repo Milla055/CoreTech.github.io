@@ -40,7 +40,6 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Products.findAll", query = "SELECT p FROM Products p"),
     @NamedQuery(name = "Products.findById", query = "SELECT p FROM Products p WHERE p.id = :id"),
     @NamedQuery(name = "Products.findByName", query = "SELECT p FROM Products p WHERE p.name = :name"),
-    @NamedQuery(name = "Products.findByProperties", query = "SELECT p FROM Products p WHERE p.properties = :properties"),
     @NamedQuery(name = "Products.findByPrice", query = "SELECT p FROM Products p WHERE p.price = :price"),
     @NamedQuery(name = "Products.findByPPrice", query = "SELECT p FROM Products p WHERE p.pPrice = :pPrice"),
     @NamedQuery(name = "Products.findByStock", query = "SELECT p FROM Products p WHERE p.stock = :stock"),
@@ -65,7 +64,8 @@ public class Products implements Serializable {
     @Size(max = 65535)
     @Column(name = "description")
     private String description;
-    @Size(max = 500)
+    @Lob
+    @Size(max = 1073741824)
     @Column(name = "properties")
     private String properties;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
@@ -92,6 +92,8 @@ public class Products implements Serializable {
     @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
+    private Collection<Favorites> favoritesCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
     private Collection<Reviews> reviewsCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
@@ -206,6 +208,15 @@ public class Products implements Serializable {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    @XmlTransient
+    public Collection<Favorites> getFavoritesCollection() {
+        return favoritesCollection;
+    }
+
+    public void setFavoritesCollection(Collection<Favorites> favoritesCollection) {
+        this.favoritesCollection = favoritesCollection;
     }
 
     @XmlTransient

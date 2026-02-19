@@ -58,47 +58,50 @@ public class ProductsService {
     }
 
     public JSONObject getProductById(int productId) {
-        JSONObject resp = new JSONObject();
-        try {
-            StoredProcedureQuery spq = em.createStoredProcedureQuery("getProductById");
-            spq.registerStoredProcedureParameter("productIdIN", Integer.class, ParameterMode.IN);
-            spq.setParameter("productIdIN", productId);
-
-            List<Object[]> results = spq.getResultList();
-
-            if (results == null || results.isEmpty()) {
-                resp.put("status", "ProductNotFound");
-                resp.put("statusCode", 404);
-                resp.put("message", "Product with ID " + productId + " not found");
-                return resp;
-            }
-
-            Object[] row = results.get(0);
-            JSONObject product = new JSONObject();
-            product.put("id", row[0]);
-            product.put("name", row[1]);
-            product.put("description", row[2]);
-            product.put("price", row[3]);
-            product.put("stock", row[4]);
-            product.put("image_url", row[5]);
-            product.put("category_id", row[6]);
-            product.put("brand_id", row[7]);
-            product.put("created_at", row[8]);
-            product.put("category_name", row[9]);
-            product.put("brand_name", row[10]);
-
-            resp.put("status", "Success");
-            resp.put("statusCode", 200);
-            resp.put("product", product);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.put("status", "DatabaseError");
-            resp.put("statusCode", 500);
-            resp.put("message", e.getMessage());
+    JSONObject resp = new JSONObject();
+    try {
+        // Step 1: Get basic product info
+        StoredProcedureQuery spq = em.createStoredProcedureQuery("getProductById");
+        spq.registerStoredProcedureParameter("productIdIN", Integer.class, ParameterMode.IN);
+        spq.setParameter("productIdIN", productId);
+        
+        List<Object[]> results = spq.getResultList();
+        
+        if (results == null || results.isEmpty()) {
+            resp.put("status", "ProductNotFound");
+            resp.put("statusCode", 404);
+            resp.put("message", "Product with ID " + productId + " not found");
+            return resp;
         }
-        return resp;
+        
+        Object[] row = results.get(0);
+        JSONObject product = new JSONObject();
+        product.put("id", row[0]);
+        product.put("name", row[1]);
+        product.put("description", row[2]);
+        product.put("properties", row[3]);           
+        product.put("price", row[4]);
+        product.put("p_price", row[5]);              
+        product.put("stock", row[6]);
+        product.put("image_url", row[7]);
+        product.put("category_id", row[8]);
+        product.put("brand_id", row[9]);
+        product.put("created_at", row[10]);
+        product.put("category_name", row[11]);
+        product.put("brand_name", row[12]);
+        
+        resp.put("status", "Success");
+        resp.put("statusCode", 200);
+        resp.put("product", product);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        resp.put("status", "DatabaseError");
+        resp.put("statusCode", 500);
+        resp.put("message", e.getMessage());
     }
+    return resp;
+}
 
     public JSONObject getProductsByBrandId(int brandId) {
         JSONObject resp = new JSONObject();

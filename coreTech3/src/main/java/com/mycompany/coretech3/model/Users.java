@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u"),
     @NamedQuery(name = "Users.findById", query = "SELECT u FROM Users u WHERE u.id = :id"),
     @NamedQuery(name = "Users.findByUsername", query = "SELECT u FROM Users u WHERE u.username = :username"),
+    @NamedQuery(name = "Users.findByTeljesn\u00e9v", query = "SELECT u FROM Users u WHERE u.teljesn\u00e9v = :teljesn\u00e9v"),
     @NamedQuery(name = "Users.findByEmail", query = "SELECT u FROM Users u WHERE u.email = :email"),
     @NamedQuery(name = "Users.findByPhone", query = "SELECT u FROM Users u WHERE u.phone = :phone"),
     @NamedQuery(name = "Users.findByPasswordHash", query = "SELECT u FROM Users u WHERE u.passwordHash = :passwordHash"),
@@ -57,6 +58,11 @@ public class Users implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "username")
     private String username;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
+    @Column(name = "teljesn\u00e9v")
+    private String teljesnév;
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Basic(optional = false)
     @NotNull
@@ -90,6 +96,8 @@ public class Users implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
+    private Collection<Favorites> favoritesCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Addresses> addressesCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Reviews> reviewsCollection;
@@ -103,9 +111,10 @@ public class Users implements Serializable {
         this.id = id;
     }
 
-    public Users(Integer id, String username, String email, String phone, String passwordHash, Date createdAt) {
+    public Users(Integer id, String username, String teljesnév, String email, String phone, String passwordHash, Date createdAt) {
         this.id = id;
         this.username = username;
+        this.teljesnév = teljesnév;
         this.email = email;
         this.phone = phone;
         this.passwordHash = passwordHash;
@@ -126,6 +135,14 @@ public class Users implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getTeljesnév() {
+        return teljesnév;
+    }
+
+    public void setTeljesnév(String teljesnév) {
+        this.teljesnév = teljesnév;
     }
 
     public String getEmail() {
@@ -190,6 +207,15 @@ public class Users implements Serializable {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    @XmlTransient
+    public Collection<Favorites> getFavoritesCollection() {
+        return favoritesCollection;
+    }
+
+    public void setFavoritesCollection(Collection<Favorites> favoritesCollection) {
+        this.favoritesCollection = favoritesCollection;
     }
 
     @XmlTransient
