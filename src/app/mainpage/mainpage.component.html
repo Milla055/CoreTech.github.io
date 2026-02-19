@@ -21,6 +21,7 @@
     <button class="top10Btn">Top 50</button>
     <button class="newsBtn">Újdonságok</button>
 </div>
+
 <hr>
 
 <section class="news-section fade-in">
@@ -58,6 +59,27 @@
 
     </div>
 </section>
+
+<!-- Akciós termékek szekció -->
+<section class="discount-products-section">
+  <div class="section-header">
+    <h2 class="section-title">AKCIÓ</h2>
+    <button class="view-all-btn" (click)="goToDiscounts()" routerLink="/discounts">Összes termék</button>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading">
+    <app-productcard
+      *ngFor="let product of discountProducts"
+      [product]="product">
+    </app-productcard>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+</section>
+
+
 
 <div class="subscription">
     <h3>Értesülj a legfrissebb hírekről és újdonságokról!</h3>

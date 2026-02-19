@@ -32,6 +32,7 @@ export class LoginComponent implements OnInit {
     password: new FormControl('', {
       validators: [Validators.required,],
     }),
+    rememberMe: new FormControl(false),
   });
 
   constructor(private AuthService: AuthService, private router: Router) {}
@@ -63,13 +64,22 @@ export class LoginComponent implements OnInit {
     if(savedForm) {
       const loadedForm = JSON.parse(savedForm);
       this.form.patchValue({
-        email: loadedForm.email
+        email: loadedForm.email,
+        rememberMe: loadedForm.rememberMe || false
       })
     }
 
     const subscription = this.form.valueChanges.pipe(debounceTime(500)).subscribe({
       next: (value) => {
-        window.localStorage.setItem('saved-login-form', JSON.stringify({ email: value.email }));
+        // Only save email if rememberMe is checked
+        if (value.rememberMe) {
+          window.localStorage.setItem('saved-login-form', JSON.stringify({ 
+            email: value.email,
+            rememberMe: true
+          }));
+        } else {
+          window.localStorage.removeItem('saved-login-form');
+        }
       },
     });
 

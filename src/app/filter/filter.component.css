@@ -1,0 +1,139 @@
+.filter-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.filter-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3d4474;
+  margin: 0;
+}
+
+.clear-btn {
+  background: none;
+  border: 1px solid #e53e3e;
+  color: #e53e3e;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+/* Filter sections */
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section-header:hover {
+  background: #f7fafc;
+}
+
+.section-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.toggle-icon {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3d4474;
+}
+
+/* Filter items */
+.section-content {
+  padding: 12px 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.filter-item:hover {
+  background: #f7fafc;
+}
+
+.filter-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #3d4474;
+}
+
+.filter-item span {
+  font-size: 14px;
+  color: #4a5568;
+  user-select: none;
+}
+
+/* Scrollbar styling */
+.section-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.section-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.section-content::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.section-content::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .filter-container {
+    padding: 15px;
+  }
+
+  .filter-title {
+    font-size: 18px;
+  }
+
+  .section-content {
+    max-height: 200px;
+  }
+}

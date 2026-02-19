@@ -5,12 +5,13 @@ import { ProductService, Product } from '../services/product.service';
 import { ProductcardComponent } from '../productcard/productcard.component';
 import { FooterComponent } from "../footer/footer.component";
 import { HeaderComponent } from "../header/header.component";
+import { FilterComponent, FilterData } from '../filter/filter.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-productpage',
   standalone: true,
-  imports: [CommonModule, ProductcardComponent, FooterComponent, HeaderComponent, FormsModule],
+  imports: [CommonModule, ProductcardComponent, FooterComponent, HeaderComponent, FilterComponent, FormsModule],
   templateUrl: './productpage.component.html',
   styleUrl: './productpage.component.css',
 })
@@ -27,12 +28,14 @@ export class ProductpageComponent implements OnInit {
 
   // Search and filters
   searchQuery: string = '';
-  selectedManufacturer: string = 'all';
   selectedSort: string = 'default';
-  isGlobalSearch: boolean = false; // true if searching across all products
+  isGlobalSearch: boolean = false;
 
-  // Available manufacturers
-  manufacturers: string[] = [];
+  // Filter component state
+  activeFilters: FilterData = {
+    categories: [],
+    brands: []
+  };
 
   // Category mapping
   categoryMap: { [key: number]: string } = {
@@ -53,7 +56,7 @@ export class ProductpageComponent implements OnInit {
     16: 'Mikrofonok'
   };
 
-  // Search keyword to category ID mapping (only for category keywords)
+  // Search keyword to category ID mapping
   categoryKeywords: { [key: string]: number } = {
     'videókártya': 1, 'videokartya': 1, 'videókártyák': 1, 'gpu': 1, 'grafikus': 1,
     'processzor': 2, 'processzorok': 2, 'cpu': 2,
@@ -89,30 +92,33 @@ export class ProductpageComponent implements OnInit {
       const categoryFromSearch = this.getCategoryFromKeyword(searchParam);
       
       if (categoryParam) {
-        // Category explicitly specified
+        // Category explicitly specified - pre-select in filter
         this.categoryId = categoryParam;
         this.isGlobalSearch = false;
-        this.categoryName = this.categoryMap[this.categoryId] || 'Termékek';
+        this.activeFilters.categories = [categoryParam];
       } else if (categoryFromSearch) {
-        // Search matches a category keyword
+        // Search matches a category keyword - pre-select in filter
         this.categoryId = categoryFromSearch;
         this.isGlobalSearch = false;
-        this.categoryName = this.categoryMap[this.categoryId] || 'Termékek';
+        this.activeFilters.categories = [categoryFromSearch];
       } else if (searchParam) {
-        // Search for a product name - search all products
+        // Search for a product name
         this.categoryId = null;
         this.isGlobalSearch = true;
-        this.categoryName = `Keresés: "${searchParam}"`;
+        this.activeFilters.categories = [];
       } else {
-        // Default - show all products or category 1
-        this.categoryId = 1;
+        // Default - show all products
+        this.categoryId = null;
         this.isGlobalSearch = false;
-        this.categoryName = this.categoryMap[1];
+        this.activeFilters.categories = [];
       }
       
-      // Reset filters when search/category changes
-      this.selectedManufacturer = 'all';
+      // Reset other filters
+      this.activeFilters.brands = [];
       this.selectedSort = 'default';
+      
+      // Update title based on initial state
+      this.updatePageTitle();
       
       this.loadProducts();
     });
@@ -128,47 +134,79 @@ export class ProductpageComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    if (this.isGlobalSearch) {
-      // Search across all products
-      this.productService.getAllProducts().subscribe({
-        next: (data) => {
-          this.products = data;
-          this.extractManufacturers();
-          this.applyFilters();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading products:', error);
-          this.error = 'Nem sikerült betölteni a termékeket';
-          this.loading = false;
-        }
-      });
-    } else if (this.categoryId) {
-      // Load products by category
-      this.productService.getProductsByCategoryId(this.categoryId).subscribe({
-        next: (data) => {
-          this.products = data;
-          this.extractManufacturers();
-          this.applyFilters();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading products:', error);
-          this.error = 'Nem sikerült betölteni a termékeket';
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  extractManufacturers(): void {
-    const brandSet = new Set<string>();
-    this.products.forEach(p => {
-      if (p.brandId?.name) {
-        brandSet.add(p.brandId.name);
+    // Always load all products for filter component
+    this.productService.getAllProducts().subscribe({
+      next: (data) => {
+        this.products = data;
+        
+        // Filter state was already set in ngOnInit
+        this.applyFilters();
+        this.updatePageTitle();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.error = 'Nem sikerült betölteni a termékeket';
+        this.loading = false;
       }
     });
-    this.manufacturers = Array.from(brandSet).sort();
+  }
+
+  onFilterChange(filterData: FilterData): void {
+    this.activeFilters = filterData;
+    this.applyFilters();
+    this.updatePageTitle();
+  }
+
+  updatePageTitle(): void {
+    const selectedCategories = this.activeFilters.categories;
+    const selectedBrands = this.activeFilters.brands;
+
+    // If search query exists (global search)
+    if (this.isGlobalSearch && this.searchQuery) {
+      this.categoryName = `Keresés: "${this.searchQuery}"`;
+      return;
+    }
+
+    // No filters selected
+    if (selectedCategories.length === 0 && selectedBrands.length === 0) {
+      this.categoryName = 'Összes termék';
+      return;
+    }
+
+    // Only one category selected
+    if (selectedCategories.length === 1 && selectedBrands.length === 0) {
+      this.categoryName = this.categoryMap[selectedCategories[0]] || 'Termékek';
+      return;
+    }
+
+    // Multiple categories selected
+    if (selectedCategories.length > 1 && selectedBrands.length === 0) {
+      this.categoryName = `${selectedCategories.length} kategória kiválasztva`;
+      return;
+    }
+
+    // Only brands selected (no category)
+    if (selectedCategories.length === 0 && selectedBrands.length > 0) {
+      this.categoryName = `Szűrt termékek`;
+      return;
+    }
+
+    // Category + brands
+    if (selectedCategories.length === 1 && selectedBrands.length > 0) {
+      const categoryName = this.categoryMap[selectedCategories[0]] || 'Termékek';
+      this.categoryName = `${categoryName} (${selectedBrands.length} márka)`;
+      return;
+    }
+
+    // Multiple categories + brands
+    if (selectedCategories.length > 1 && selectedBrands.length > 0) {
+      this.categoryName = `${selectedCategories.length} kategória, ${selectedBrands.length} márka`;
+      return;
+    }
+
+    // Fallback
+    this.categoryName = 'Termékek';
   }
 
   applyFilters(): void {
@@ -188,9 +226,18 @@ export class ProductpageComponent implements OnInit {
       }
     }
 
-    // Manufacturer filter
-    if (this.selectedManufacturer !== 'all') {
-      filtered = filtered.filter(p => p.brandId?.name === this.selectedManufacturer);
+    // Category filter from filter component
+    if (this.activeFilters.categories.length > 0) {
+      filtered = filtered.filter(p => 
+        this.activeFilters.categories.includes(p.categoryId?.id || 0)
+      );
+    }
+
+    // Brand filter from filter component
+    if (this.activeFilters.brands.length > 0) {
+      filtered = filtered.filter(p => 
+        this.activeFilters.brands.includes(p.brandId?.id || 0)
+      );
     }
 
     // Sorting
@@ -213,22 +260,6 @@ export class ProductpageComponent implements OnInit {
     this.productCount = filtered.length;
   }
 
-  onCategoryChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const newCategoryId = +select.value;
-    
-    // Clear search when manually changing category
-    this.router.navigate(['/products'], { 
-      queryParams: { category: newCategoryId } 
-    });
-  }
-
-  onManufacturerChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.selectedManufacturer = select.value;
-    this.applyFilters();
-  }
-
   onSortChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedSort = select.value;
@@ -236,17 +267,16 @@ export class ProductpageComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.selectedManufacturer = 'all';
     this.selectedSort = 'default';
     this.searchQuery = '';
+    this.activeFilters = { categories: [], brands: [] };
     
-    // If was global search, go back to default category
+    // If was global search, reload without params
     if (this.isGlobalSearch) {
-      this.router.navigate(['/products'], { 
-        queryParams: { category: 1 } 
-      });
+      this.router.navigate(['/products']);
     } else {
       this.applyFilters();
+      this.updatePageTitle();
     }
   }
 }

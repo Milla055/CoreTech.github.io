@@ -50,21 +50,23 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
-  // JWT token header létrehozása
+  // Helper method to get headers with JWT token
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('JWT');
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
+      'Authorization': `Bearer ${token}`
     });
   }
 
   // ==================== USERS ====================
   
+  // Get user count
   getUserCount(): Observable<number> {
     return this.http.get<any>(`${this.apiUrl}/admin/users/getAllUsers`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         console.log('getUserCount response:', response);
+        // Backend returns { status, statusCode, users, count }
         return response.count || 0;
       }),
       catchError(err => {
@@ -124,17 +126,14 @@ export class AdminService {
   }
 
   updateUserRole(userId: number, newRole: string): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/users/role`, 
-      { userId, newRole }, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/users/role`, {
+      userId: userId,
+      newRole: newRole
+    }, { headers: this.getAuthHeaders() });
   }
 
   deleteUser(userId: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/users/delete/${userId}`, 
-      {}, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/users/delete/${userId}`, {}, { headers: this.getAuthHeaders() });
   }
 
   // ==================== ORDERS ====================
@@ -153,24 +152,22 @@ export class AdminService {
   }
 
   updateOrderStatus(orderId: number, status: string): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/orders/${orderId}/status`, 
-      { status }, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/orders/${orderId}/status`, {
+      status: status
+    }, { headers: this.getAuthHeaders() });
   }
 
   deleteOrder(orderId: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/filter/orders/delete/${orderId}`, 
-      {}, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/orders/delete/${orderId}`, {}, { headers: this.getAuthHeaders() });
   }
 
+  // ==================== PRODUCTS ====================
   
   getAllProducts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/products`).pipe(
       map(response => {
         console.log('getAllProducts response:', response);
+        // Ha tömb, akkor azt adjuk vissza, ha object akkor products mezőt
         if (Array.isArray(response)) {
           return response;
         }
@@ -184,40 +181,25 @@ export class AdminService {
   }
 
   createProduct(product: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/admin/products`, 
-      product, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.post<any>(`${this.apiUrl}/admin/products`, product, { headers: this.getAuthHeaders() });
   }
 
   updateProduct(productId: number, product: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/products/${productId}`, 
-      product, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/products/${productId}`, product, { headers: this.getAuthHeaders() });
   }
 
   deleteProduct(productId: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/products/delete/${productId}`, 
-      {}, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/products/delete/${productId}`, {}, { headers: this.getAuthHeaders() });
   }
 
   // ==================== BRANDS ====================
   
   createBrand(brand: { name: string; description: string; logoUrl: string }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/admin/brands`, 
-      brand, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.post<any>(`${this.apiUrl}/admin/brands`, brand, { headers: this.getAuthHeaders() });
   }
 
   deleteBrand(brandId: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/admin/brands/delete/${brandId}`, 
-      {}, 
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<any>(`${this.apiUrl}/admin/brands/delete/${brandId}`, {}, { headers: this.getAuthHeaders() });
   }
 
   // ==================== REVIEWS ====================
@@ -269,23 +251,31 @@ export class AdminService {
       map(data => {
         console.log('Dashboard data received:', data);
         
+        // Felhasználók számolása - csak aktívak (nem töröltek)
         const activeUsers = data.users.filter((u: any) => 
           u.is_deleted === 0 || u.is_deleted === null || u.is_deleted === false || !u.is_deleted
         );
         const totalUsers = activeUsers.length;
+        
+        // Adminok száma
         const totalAdmins = data.admins.length;
         
+        // Feliratkozók számolása
         const subscribers = activeUsers.filter((u: any) => 
           u.is_subscripted === 1 || u.is_subscripted === true
         );
         const totalSubscribers = subscribers.length;
+        
+        // Rendelések száma
         const totalOrders = data.orders.length;
         
+        // Termék térkép a profit számításához
         const productMap = new Map<number, any>();
         data.products.forEach((p: any) => {
           productMap.set(p.id, p);
         });
 
+        // Bevétel és profit számítása az order_items alapján
         let totalRevenue = 0;
         let totalProfit = 0;
 
@@ -295,9 +285,11 @@ export class AdminService {
           const quantity = item.quantity || 1;
           const itemPrice = item.price || 0;
           
+          // Bevétel = eladási ár * mennyiség
           const itemRevenue = itemPrice * quantity;
           totalRevenue += itemRevenue;
           
+          // Profit = bevétel - beszerzési ár * mennyiség
           if (product) {
             const purchasePrice = product.pPrice || product.p_price || 0;
             const itemCost = purchasePrice * quantity;
@@ -337,6 +329,7 @@ export class AdminService {
     );
   }
 
+  // Recent orders with username
   getRecentOrders(): Observable<Order[]> {
     return forkJoin({
       orders: this.getAllOrders(),
@@ -370,12 +363,14 @@ export class AdminService {
     );
   }
 
+  // Monthly sales for chart
   getMonthlySalesData(): Observable<any[]> {
     return this.getAllOrders().pipe(
       map(orders => {
         const monthlyData = new Map<string, { sales: number, orders: number }>();
         const months = ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'];
         
+        // Initialize all months
         months.forEach(m => monthlyData.set(m, { sales: 0, orders: 0 }));
 
         orders.forEach((order: any) => {
@@ -390,7 +385,7 @@ export class AdminService {
                 const current = monthlyData.get(monthName)!;
                 current.orders++;
                 const price = order.totalPrice || order.total_price || 0;
-                current.sales += price / 1000;
+                current.sales += price / 1000; // K Ft-ban
               }
             } catch (e) {
               console.warn('Invalid date:', dateStr);
@@ -412,6 +407,7 @@ export class AdminService {
     );
   }
 
+  // Top selling products
   getTopProducts(): Observable<any[]> {
     return forkJoin({
       orderItems: this.getAllOrderItems(),
@@ -458,6 +454,7 @@ export class AdminService {
     );
   }
 
+  // Reviews with details
   getReviewsWithDetails(): Observable<Review[]> {
     return forkJoin({
       reviews: this.getAllReviews(),
