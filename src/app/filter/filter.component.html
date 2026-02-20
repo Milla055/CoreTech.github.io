@@ -1,0 +1,54 @@
+<div class="filter-container">
+  
+  <!-- Clear filters button -->
+  <div class="filter-header">
+    <h3 class="filter-title">Szűrők</h3>
+    <button 
+      *ngIf="hasActiveFilters" 
+      class="clear-btn" 
+      (click)="clearFilters()">
+      Törlés
+    </button>
+  </div>
+
+  <!-- Categories -->
+  <div class="filter-section">
+    <div class="section-header" (click)="toggleCategories()">
+      <h4>Összes termék</h4>
+      <span class="toggle-icon">{{ showCategories ? '−' : '+' }}</span>
+    </div>
+    
+    <div class="section-content" *ngIf="showCategories">
+      <label 
+        *ngFor="let category of categories" 
+        class="filter-item">
+        <input 
+          type="checkbox" 
+          [checked]="category.checked"
+          (change)="onCategoryChange(category.id)">
+        <span>{{ category.name }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Brands -->
+  <div class="filter-section">
+    <div class="section-header" (click)="toggleBrands()">
+      <h4>Összes márka</h4>
+      <span class="toggle-icon">{{ showBrands ? '−' : '+' }}</span>
+    </div>
+    
+    <div class="section-content" *ngIf="showBrands">
+      <label 
+        *ngFor="let brand of brands" 
+        class="filter-item">
+        <input 
+          type="checkbox" 
+          [checked]="brand.checked"
+          (change)="onBrandChange(brand.id)">
+        <span>{{ brand.name }}</span>
+      </label>
+    </div>
+  </div>
+
+</div>

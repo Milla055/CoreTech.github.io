@@ -1,0 +1,157 @@
+/* Backdrop overlay */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: transparent;
+  display: block;
+  z-index: 3000;
+  pointer-events: none;
+  margin-top: 13px;
+}
+
+.menu-dialog {
+  pointer-events: all;
+  position: absolute;
+  left: 350px;
+  top: 70px;
+  background: #3D4474;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+  min-width: 750px;
+  max-width: 500px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Categories container */
+.categories {
+  display: flex;
+  flex-direction: row;
+  
+  gap: 0;
+  padding: 40px 16px 16px 16px;
+  position: relative;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.categories::-webkit-scrollbar {
+  width: 6px;
+}
+
+.categories::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.categories::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.categories::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+
+/* Category section */
+.category {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+  margin-left: 70px;
+  margin-right: 5px;
+}
+
+/* Category button - now just a label */
+.cat-btn {
+  background: transparent;
+  border: none;
+  padding: 12px 14px;
+  text-align: left;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: default;
+  color: rgba(233, 235, 245, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.cat-icon {
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.arrow {
+  display: none;
+}
+
+/* Submenu - now always visible */
+.submenu {
+  position: relative;
+  width: 100%;
+  opacity: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Submenu items */
+.submenu .item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  color: #E9EBF5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submenu .item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.item-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Focus states for accessibility */
+.submenu .item:focus {
+  outline: 2px solid rgba(233, 235, 245, 0.4);
+  outline-offset: 2px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .menu-dialog {
+    left: 20px;
+    right: 20px;
+    width: auto;
+    max-width: none;
+  }
+}

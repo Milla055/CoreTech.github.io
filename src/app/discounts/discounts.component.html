@@ -1,0 +1,30 @@
+<app-header></app-header>
+
+<div class="discounts-container">
+
+  <!-- Hero -->
+  <div class="hero-banner">
+    <h1 class="hero-title">Akciós Termékek</h1>
+    <p class="hero-subtitle">Korlátozott ideig érvényes ajánlatok – ne hagyd ki!</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Akciós termékek betöltése...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="products-section" *ngIf="!loading">
+    <h2 class="section-title">{{ discountProducts.length }} akciós termék</h2>
+    <div class="products-grid">
+      <app-productcard
+        *ngFor="let product of discountProducts"
+        [product]="product">
+      </app-productcard>
+    </div>
+  </div>
+
+</div>
+
+<app-footer></app-footer>

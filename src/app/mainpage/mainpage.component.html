@@ -1,0 +1,91 @@
+<app-header></app-header>
+    
+<div class="hero-section">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>Üdv a <span class="brand-name">CoreTech-nél!</span></h1>
+            <p>
+                Friss technológia, verhetetlen<br>
+                ajánlatok, egy helyen - csak<br>
+                neked.
+            </p>
+        </div>
+        <div class="hero-image">
+            <img src="assets/mainpageimage.png" alt="CoreTech">
+        </div>
+    </div>
+</div>
+
+<div class="buttons">
+    <button class="discountBtn" routerLink="/discounts">Akció</button>
+    <button class="top10Btn">Top 50</button>
+    <button class="newsBtn">Újdonságok</button>
+</div>
+
+<hr>
+
+<section class="news-section fade-in">
+    <div class="news-grid">
+
+        <div class="news-card">
+            <img src="assets/image1.png" alt="">
+            <p>Lorem ipsum risus arcu ligula sit urna nunc viverra faucibus id elit.</p>
+        </div>
+
+        <div class="news-card">
+            <img src="assets/image2.png" alt="">
+            <p>Lorem ipsum imperdiet sed amet in mi sit sapien et quis pretium.</p>
+        </div>
+
+        <div class="news-card">
+            <img src="assets/image3.png" alt="">
+            <p>Lorem ipsum tristique tellus tristique lacus volutpat morbi purus dolor venenatis.</p>
+        </div>
+
+        <div class="news-card">
+            <img src="assets/image4.png" alt="">
+            <p>Lorem ipsum proin elementum elementum vulputate diam.</p>
+        </div>
+
+        <div class="news-card">
+            <img src="assets/image5.png" alt="">
+            <p>Lorem ipsum vestibulum ac erat sed ut faucibus duis platea donec tristique feugiat.</p>
+        </div>
+
+        <div class="news-card">
+            <img src="assets/image6.png" alt="">
+            <p>Lorem ipsum neque libero sodales nulla gravida quam cursus at dolor non phasellus.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Akciós termékek szekció -->
+<section class="discount-products-section">
+  <div class="section-header">
+    <h2 class="section-title">AKCIÓ</h2>
+    <button class="view-all-btn" (click)="goToDiscounts()" routerLink="/discounts">Összes termék</button>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading">
+    <app-productcard
+      *ngFor="let product of discountProducts"
+      [product]="product">
+    </app-productcard>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+</section>
+
+
+
+<div class="subscription">
+    <h3>Értesülj a legfrissebb hírekről és újdonságokról!</h3>
+    <p>Iratkozz fel a hírlevelünkre</p>
+    <input type="email" class="inputt">
+    <button class="subscribeBtn">Feliratkozom!</button>
+  </div>
+
+<app-footer></app-footer>

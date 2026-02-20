@@ -1,0 +1,303 @@
+*{
+    font-family: 'Arial', sans-serif;
+}
+.backdrop {
+  background-color: #3D4474;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.control-row {
+    border-radius: 10px;
+    margin: auto;
+    width: 500px;
+    height: 800px;
+    margin-top: 20px;
+    background-color: #E9EBF5;
+    padding-top: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0px 0px 70px #6B88AA;
+}
+.control-no-margin label {
+    float: left;
+    margin-left: 57.5px;
+}
+h1 {
+    color: #3D4474;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+#email {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 25px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
+}
+#phone {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 25px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
+}
+#password {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 25px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
+}
+#username {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 25px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
+}
+#confirmPassword {
+    position: relative;
+    width: 380px;
+    height: 35px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 10px;
+    padding-left: 7px;
+    background-color: #dfe1ec;
+    
+}
+#email:focus, #password:focus, #username:focus, #confirmPassword:focus {
+    outline: none;
+    border-color: #3D4474;
+    box-shadow: 0 0 5px rgba(61, 68, 116, 0.5);
+}
+
+.container {
+    margin-left: 57.5px;
+    width: 300px;
+}
+.button {
+    position:relative;
+    width: 385px;
+    height: 35px;
+    background-color: #3D4474;
+    color: #E9EBF5;
+    font-size: 18px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 2px solid #3D4474;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+button:hover {
+    background-color: transparent;
+    color: #3D4474;
+    transition: 0.3s;
+}
+
+.optional-login span{
+    font-size: 12px;
+    color:#333333;
+}
+
+.optional {
+    margin-left: 60px;
+    margin-top: 10px;
+}
+.optional label { 
+    display:inline-flex; 
+    align-items:center; 
+    gap: 3px; 
+    cursor:pointer; 
+}
+.optional span{
+    font-size: 12px;
+    color:#333333;
+    margin-right: 140px;
+    width: 350px;
+}
+
+.checkbox{
+    -webkit-appearance:none;
+    appearance:none;
+    width:13px; 
+    height:13px;
+    border-radius:4px;
+    border:1px solid #3D4474;
+    background:#fff;
+    cursor:pointer;
+    display:inline-block;
+    vertical-align:middle;
+    position:relative;
+}
+.checkbox:focus{
+    outline:none;
+    box-shadow:0 0 0 1px rgba(61,68,116,0.12);
+}
+.checkbox:hover{ 
+    border-color:#2f355e; 
+}
+.checkbox:checked{
+    background-color: #3D4474;
+    border-color: transparent;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size: 10px 10px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6L9 17l-5-5'/></svg>");
+}
+
+.link{
+    font-size: 13px;
+    text-decoration: none;
+    color: #3D4474;
+}
+.link:hover {
+    text-decoration: underline;
+}
+.backToLogin {
+    font-size: 13px;
+    text-decoration: none;
+    color: #3D4474;
+}
+.backToLogin:hover {
+    text-decoration: underline;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 15px;
+    left: 30px;
+}
+
+.logoContainer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+.logoContainer p {
+    position: absolute;
+    top: 3px;
+    margin-left: 80px;
+    font-size: 24px;
+    color: #E9EBF5;
+    font-weight: 700;
+}
+.control-error p {
+    font-size: 13px;
+}
+.control-error{
+    color: #ff0000;
+    font-size: 13px;
+    margin-top: 15px;
+    display: block;
+    clear: both;
+}
+.control-error1 {
+    color: #ff0000;
+    font-size: 15px;
+}
+.control-error2 {
+    color: #ff0000;
+    font-size: 15px;
+    margin-top: 15px;
+}
+.control-error3 {
+    color: #ff0000;
+    font-size: 15px;
+    margin-top: 15px;
+}
+.control-error4 {
+    color: #ff0000;
+    font-size: 15px;
+    margin-top: 15px;
+}
+.control-error5 {
+    color: #ff0000;
+    font-size: 15px;
+    margin-top: 15px;
+}
+.logoText {
+    position: absolute;
+    top: 3px;
+    margin-left: 80px;
+    margin-top: 24px;
+    font-size: 24px;
+    color: #E9EBF5;
+    font-weight: 700;
+}
+
+/* Password Input with Toggle Button */
+.password-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 390px;
+    margin-bottom: 25px;
+}
+
+.password-input {
+    padding-right: 45px !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.toggle-password-btn:hover {
+    background: rgba(61, 68, 116, 0.1);
+}
+
+.toggle-password-btn svg {
+    fill: #3D4474;
+    transition: fill 0.2s;
+}
+
+.toggle-password-btn:hover svg {
+    fill: #2f355e;
+}
+
+/* Confirmpassword wrapper specifikus */
+.control-no-margin:last-of-type .password-input-wrapper {
+    margin-bottom: 10px;
+}

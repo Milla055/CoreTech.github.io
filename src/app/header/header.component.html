@@ -1,0 +1,61 @@
+<app-shopmenu [hidden]="!shopMenu" (close)="closeShopMenu()"></app-shopmenu>
+<app-cart [isOpen]="cartOpen" (close)="closeCart()"></app-cart>
+
+<header class="navbar">
+  <div class="header-container">
+    <!-- Left Section: Logo -->
+    <div class="logo-section">
+      <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
+      <p class="core" routerLink="/mainpage">CoreTech</p>
+    </div>
+
+    <!-- Center Section: Menu + Search -->
+    <div class="center-section">
+      <div class="menuContainer">
+        <button class="menuBtn" (click)="toggleShopMenu()">Shop menü</button>
+      </div>
+
+      <div class="searchContainer" (click)="$event.stopPropagation()">
+        <form class="searchbar" (submit)="onSearchSubmit($event)">
+          <button type="submit" class="searchBtn">
+            <img class="searchIcon" src="assets/icons8-magnifying-glass-24.png" alt="search">
+          </button>
+          <input
+            type="text"
+            placeholder="Keresés..."
+            class="searchInput"
+            [value]="searchQuery"
+            (input)="onSearch($any($event.target).value)"
+            (focus)="openSearch()"
+            (keyup.enter)="onSearchSubmit()"
+            aria-autocomplete="list"
+            aria-controls="search-results"
+          >
+        </form>
+
+        <div id="search-results" class="search-results" [hidden]="!showSuggestions">
+          <div class="result-list" [innerHTML]="suggestionsHtml" (click)="onSuggestionClick($event)"></div>
+          <div class="no-results" [hidden]="filteredSuggestions.length !== 0">
+            Nincs találat...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Section: Login/User + Cart -->
+    <div class="right-section">
+      <!-- Show login button if NOT logged in -->
+      <button *ngIf="!username" routerLink="/login" class="loginBtn">Bejelentkezés</button>
+
+      <!-- Show username button if logged in -->
+      <button *ngIf="username" routerLink="/profile" class="loginBtn">
+        {{ username }}
+      </button>
+
+      <button class="cartBtn" (click)="toggleCart()">
+        <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
+        <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+      </button>
+    </div>
+  </div>
+</header>

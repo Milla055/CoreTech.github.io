@@ -1,0 +1,99 @@
+<app-header></app-header>
+
+<div class="productpage-container">
+  <!-- Breadcrumb Navigation -->
+  <nav class="breadcrumb">
+    <a href="/mainpage">CoreTech</a>
+    <span class="separator">/</span>
+    <span *ngIf="activeFilters.categories.length === 0 && activeFilters.brands.length === 0">Számítógép Alkatrész</span>
+    <span *ngIf="activeFilters.categories.length > 0 || activeFilters.brands.length > 0">
+      <a href="/products">Számítógép Alkatrész</a>
+    </span>
+    <span class="separator" *ngIf="activeFilters.categories.length > 0 || activeFilters.brands.length > 0">/</span>
+    <span class="current" *ngIf="activeFilters.categories.length > 0 || activeFilters.brands.length > 0">{{ categoryName }}</span>
+  </nav>
+
+  <!-- Page Title -->
+  <div class="page-header">
+    <h1 class="page-title">{{ categoryName }}</h1>
+    <p class="product-count">({{ productCount }} termék)</p>
+  </div>
+
+  <!-- Main Layout: Filter Sidebar + Content -->
+  <div class="page-layout">
+    
+    <!-- LEFT SIDEBAR: Filter Component -->
+    <aside class="filter-sidebar">
+      <app-filter (filterChange)="onFilterChange($event)"></app-filter>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- Top Controls: Sort + Clear -->
+      <div class="top-controls">
+        <div class="filter-group">
+          <label for="sort">Rendezés</label>
+          <select 
+            id="sort" 
+            class="filter-select"
+            [(ngModel)]="selectedSort"
+            (change)="onSortChange($event)">
+            <option value="default">Alapértelmezett</option>
+            <option value="price-asc">Ár növekvő</option>
+            <option value="price-desc">Ár csökkenő</option>
+            <option value="name-asc">Név A-Z</option>
+            <option value="name-desc">Név Z-A</option>
+          </select>
+        </div>
+
+        <button 
+          class="clear-filters-btn" 
+          (click)="clearFilters()"
+          *ngIf="activeFilters.categories.length > 0 || activeFilters.brands.length > 0">
+          ✕ Szűrők törlése
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Termékek betöltése...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-container" *ngIf="error && !loading">
+        <p class="error-message">{{ error }}</p>
+        <button class="retry-btn" (click)="loadProducts()">Újrapróbálás</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" *ngIf="!loading && !error && filteredProducts.length > 0">
+        <app-productcard 
+          *ngFor="let product of filteredProducts" 
+          [product]="product">
+        </app-productcard>
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results" *ngIf="!loading && !error && filteredProducts.length === 0">
+        <div class="no-results-content">
+          <p class="no-results-text">Nincs találat a keresési feltételeknek megfelelően.</p>
+          <button class="retry-btn" (click)="clearFilters()">Szűrők törlése</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Newsletter Section -->
+  <div class="subscription">
+    <h3>Értesülj a legfrissebb hírekről és újdonságokról!</h3>
+    <p>Iratkozz fel a hírlevelünkre</p>
+    <input type="email" class="inputt" placeholder="E-mail címed">
+    <button class="subscribeBtn">Feliratkozom!</button>
+  </div>
+
+</div>
+
+<app-footer></app-footer>
