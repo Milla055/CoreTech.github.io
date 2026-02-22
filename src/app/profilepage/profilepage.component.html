@@ -119,13 +119,23 @@
               <span class="order-status" [ngClass]="order.statusClass">{{ order.status }}</span>
             </div>
             <div class="order-date">{{ formatOrderDate(order.date) }}</div>
-            <div class="order-items">
+            
+            <!-- Order Items -->
+            <div class="order-items" *ngIf="order.items && order.items.length > 0">
               <div class="order-item" *ngFor="let item of order.items">
-                <span class="item-name">{{ item.name }}</span>
+                <span class="item-name">{{ item.name || item.productName }}</span>
                 <span class="item-quantity">x{{ item.quantity }}</span>
-                <span class="item-price">{{ formatPrice(item.price) }}</span>
               </div>
             </div>
+            
+            <!-- Fallback if no items -->
+            <div class="order-items" *ngIf="!order.items || order.items.length === 0">
+              <div class="order-item">
+                <span class="item-name">Termék részletek nem érhetők el</span>
+                <span class="item-quantity">x1</span>
+              </div>
+            </div>
+            
             <div class="order-total">
               <span>Összesen:</span>
               <span class="total-price">{{ formatPrice(order.total) }}</span>

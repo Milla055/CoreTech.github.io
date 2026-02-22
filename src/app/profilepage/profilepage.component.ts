@@ -135,8 +135,10 @@ export class ProfilepageComponent implements OnInit {
           
           // Add item to order
           orderMap.get(orderId).items.push({
+            name: item.product_name,
             productName: item.product_name,
             quantity: item.quantity,
+            price: item.product_price || 0,
             imageUrl: item.image_url
           });
         });
@@ -438,7 +440,10 @@ export class ProfilepageComponent implements OnInit {
     return `http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/${favorite.id}/images/1`;
   }
 
-  formatPrice(price: number): string {
+  formatPrice(price: number | undefined | null): string {
+    if (price === null || price === undefined || isNaN(price)) {
+      return '0 Ft';
+    }
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
   }
 
