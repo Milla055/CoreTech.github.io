@@ -34,13 +34,6 @@
         <span>Rendelések</span>
       </a>
       
-      <a class="nav-item" [class.active]="activeMenu === 'reviews'" (click)="setActiveMenu('reviews')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span>Vélemények</span>
-      </a>
-      
       <a class="nav-item" [class.active]="activeMenu === 'products'" (click)="setActiveMenu('products')">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -81,7 +74,7 @@
         <h2>{{ activeMenu === 'dashboard' ? 'Dashboard' : 
                activeMenu === 'users' ? 'Vásárlók' :
                activeMenu === 'orders' ? 'Rendelések' :
-               activeMenu === 'reviews' ? 'Vélemények' :
+               
                activeMenu === 'products' ? 'Termékek' : 'Beállítások' }}</h2>
         <p class="header-subtitle">Üdv újra, Admin!</p>
       </div>
@@ -201,7 +194,7 @@
           <div class="admins-list">
             <div class="admin-item" *ngFor="let admin of admins">
               <div class="admin-avatar">
-                {{ admin.username?.charAt(0)?.toUpperCase() || '?' }}
+                {{ (admin.username || '?').charAt(0).toUpperCase() }}
               </div>
               <div class="admin-info">
                 <span class="admin-name">{{ admin.username }}</span>
@@ -356,39 +349,7 @@
       </div>
     </ng-container>
 
-    <!-- ==================== REVIEWS TAB ==================== -->
-    <ng-container *ngIf="activeMenu === 'reviews'">
-      <div class="tab-content">
-        <div class="search-bar">
-          <input type="text" 
-                 [(ngModel)]="reviewSearchQuery" 
-                 (input)="filterReviews()"
-                 placeholder="Keresés termék, felhasználó vagy vélemény alapján...">
-        </div>
-        
-        <div class="reviews-grid">
-          <div class="review-card" *ngFor="let review of filteredReviews">
-            <div class="review-header">
-              <div class="review-user">
-                <div class="user-avatar">{{ review.username?.charAt(0)?.toUpperCase() || '?' }}</div>
-                <div class="user-info">
-                  <span class="username">{{ review.username }}</span>
-                  <span class="date">{{ formatDate(review.createdAt) }}</span>
-                </div>
-              </div>
-              <div class="review-rating" [class.high]="review.rating >= 4" [class.low]="review.rating <= 2">
-                {{ getRatingStars(review.rating) }}
-              </div>
-            </div>
-            <div class="review-product">{{ review.productName }}</div>
-            <p class="review-comment">{{ review.comment }}</p>
-          </div>
-          <div class="no-data" *ngIf="filteredReviews.length === 0">
-            Nincsenek vélemények
-          </div>
-        </div>
-      </div>
-    </ng-container>
+    
 
     <!-- ==================== PRODUCTS TAB ==================== -->
     <ng-container *ngIf="activeMenu === 'products'">

@@ -5,6 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { ProfileService } from '../services/profile.service';
 import { FavoritesService, FavoriteProduct } from '../services/favorites.service';
 import { CartService } from '../services/cart.service';
+import { OrderService } from '../services/order.service';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
 import { CommonModule } from '@angular/common';
@@ -51,7 +52,8 @@ export class ProfilepageComponent implements OnInit {
     private authService: AuthService,
     private profileService: ProfileService,
     private favoritesService: FavoritesService,
-    private cartService: CartService
+    private cartService: CartService,
+    private orderService: OrderService
   ) {}
 
   ngOnInit(): void {
@@ -90,19 +92,89 @@ export class ProfilepageComponent implements OnInit {
   // Kedvencek betöltése - PONTOSAN a service szerint
   loadFavorites(): void {
     this.loadingFavorites = true;
-    this.favorites = this.favoritesService.getFavorites();
-    this.loadingFavorites = false;
-    console.log('✅ Favorites loaded:', this.favorites.length, 'db');
+    
+    // Subscribe to favorites observable from service
+    this.favoritesService.favorites$.subscribe({
+      next: (favorites) => {
+        this.favorites = favorites;
+        this.loadingFavorites = false;
+        console.log('✅ Favorites loaded:', this.favorites.length, 'db');
+      },
+      error: (err) => {
+        console.error('❌ Error loading favorites:', err);
+        this.loadingFavorites = false;
+      }
+    });
+    
+    // Trigger refresh from backend
+    this.favoritesService.refresh();
   }
 
-  // Rendelések betöltése - localStorage
+  // Rendelések betöltése - backend
   loadOrders(): void {
-    const savedOrders = localStorage.getItem('user_orders');
-    if (savedOrders) {
-      this.orders = JSON.parse(savedOrders);
-    } else {
-      this.orders = [];
-    }
+    this.orderService.getUserOrders().subscribe({
+      next: (orders) => {
+        console.log('📦 Orders from backend:', orders);
+        
+        // Group orders by order_id
+        const orderMap = new Map();
+        
+        orders.forEach((item: any) => {
+          const orderId = item.order_id;
+          
+          if (!orderMap.has(orderId)) {
+            orderMap.set(orderId, {
+              id: orderId,
+              date: item.created_at,
+              status: this.mapOrderStatus(item.status),
+              statusClass: this.getStatusClass(item.status),
+              total: item.total_price,
+              items: []
+            });
+          }
+          
+          // Add item to order
+          orderMap.get(orderId).items.push({
+            name: item.product_name,
+            productName: item.product_name,
+            quantity: item.quantity,
+            price: item.product_price || 0,
+            imageUrl: item.image_url
+          });
+        });
+        
+        this.orders = Array.from(orderMap.values());
+        console.log('✅ Orders loaded:', this.orders.length, 'db');
+      },
+      error: (err) => {
+        console.error('❌ Error loading orders:', err);
+        this.orders = [];
+      }
+    });
+  }
+  
+  // Map backend status to Hungarian
+  private mapOrderStatus(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'pending': 'Feldolgozás alatt',
+      'processing': 'Feldolgozás alatt',
+      'shipping': 'Szállítás alatt',
+      'delivered': 'Kézbesítve',
+      'cancelled': 'Törölve'
+    };
+    return statusMap[status.toLowerCase()] || status;
+  }
+  
+  // Get CSS class for status
+  private getStatusClass(status: string): string {
+    const classMap: { [key: string]: string } = {
+      'pending': 'status-processing',
+      'processing': 'status-processing',
+      'shipping': 'status-shipping',
+      'delivered': 'status-delivered',
+      'cancelled': 'status-cancelled'
+    };
+    return classMap[status.toLowerCase()] || 'status-processing';
   }
 
   initializeForms(): void {
@@ -368,7 +440,10 @@ export class ProfilepageComponent implements OnInit {
     return `http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/${favorite.id}/images/1`;
   }
 
-  formatPrice(price: number): string {
+  formatPrice(price: number | undefined | null): string {
+    if (price === null || price === undefined || isNaN(price)) {
+      return '0 Ft';
+    }
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
   }
 

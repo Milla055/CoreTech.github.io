@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 
-// Egyszerűsített Favorite interface - a tárolt adatok
 export interface FavoriteProduct {
   id: number;
   name: string;
@@ -21,133 +22,194 @@ export interface FavoriteProduct {
   providedIn: 'root'
 })
 export class FavoritesService {
-  private STORAGE_KEY = 'user_favorites';
+  private apiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources';
   
-  // BehaviorSubject a kedvencek listájához
   private favoritesSubject = new BehaviorSubject<FavoriteProduct[]>([]);
   public favorites$ = this.favoritesSubject.asObservable();
 
-  constructor() {
-    this.loadFromLocalStorage();
+  constructor(private http: HttpClient) {
+    console.log('🚀 FavoritesService initialized');
+    this.loadFavoritesFromBackend();
   }
 
-  // LocalStorage-ból betöltés
-  private loadFromLocalStorage(): void {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        const favorites = JSON.parse(stored) as FavoriteProduct[];
-        this.favoritesSubject.next(favorites);
-        console.log('📦 Kedvencek betöltve:', favorites.length, 'db');
-      }
-    } catch (e) {
-      console.error('Hiba a kedvencek betöltésekor:', e);
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('JWT');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  // Load favorites from backend
+  loadFavoritesFromBackend(): void {
+    const token = localStorage.getItem('JWT');
+    console.log('🔍 Loading favorites... JWT:', token ? 'EXISTS' : 'MISSING');
+    
+    if (!token) {
+      console.log('⚠️ No JWT token - skipping favorites load');
       this.favoritesSubject.next([]);
+      return;
     }
+
+    console.log('📡 Calling backend: GET /favorites');
+    
+    this.http.get<any>(`${this.apiUrl}/favorites`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(response => {
+        console.log('📥 Backend response:', response);
+        
+        if (response.status === 'Success' && response.favorites) {
+          console.log('✅ Found favorites:', response.favorites.length);
+          return response.favorites.map((fav: any) => ({
+            id: fav.product_id,
+            name: fav.product_name || '',
+            description: '',
+            price: fav.product_price || 0,
+            pPrice: fav.product_price || 0,
+            stock: 0,
+            imageUrl: '',
+            categoryId: 0,
+            categoryName: fav.category_name || '',
+            brandId: 0,
+            brandName: fav.brand_name || '',
+            addedAt: fav.created_at || new Date().toISOString()
+          }));
+        }
+        console.log('⚠️ No favorites in response or wrong format');
+        return [];
+      }),
+      catchError(err => {
+        console.error('❌ Error loading favorites:', err);
+        console.error('❌ Error details:', err.error);
+        console.error('❌ Status:', err.status);
+        return of([]);
+      })
+    ).subscribe(favorites => {
+      console.log('💾 Setting favorites in BehaviorSubject:', favorites);
+      this.favoritesSubject.next(favorites);
+      console.log('📦 Kedvencek betöltve backend-ről:', favorites.length, 'db');
+    });
   }
 
-  // LocalStorage-ba mentés
-  private saveToLocalStorage(): void {
-    try {
-      const favorites = this.favoritesSubject.value;
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(favorites));
-      console.log('💾 Kedvencek mentve:', favorites.length, 'db');
-    } catch (e) {
-      console.error('Hiba a kedvencek mentésekor:', e);
-    }
-  }
-
-  // Kedvencek lekérése
+  // Get favorites
   getFavorites(): FavoriteProduct[] {
     return this.favoritesSubject.value;
   }
 
-  // Kedvencek lekérése Observable-ként
   getFavorites$(): Observable<FavoriteProduct[]> {
     return this.favorites$;
   }
 
-  // Kedvenc hozzáadása (teljes termék adatokkal)
+  // Add to favorites
   addFavorite(product: any): Observable<{ success: boolean; message: string }> {
-    const currentFavorites = this.favoritesSubject.value;
-    
-    // Ellenőrzés: már kedvenc-e
-    if (this.isFavorite(product.id)) {
-      console.log('⚠️ Már kedvenc:', product.id);
+    const productId = product.id;
+
+    if (this.isFavorite(productId)) {
       return of({ success: false, message: 'A termék már a kedvencek között van!' });
     }
 
-    // Új kedvenc létrehozása
-    const newFavorite: FavoriteProduct = {
-      id: product.id,
-      name: product.name || '',
-      description: product.description || '',
-      price: product.price || 0,
-      pPrice: product.pPrice || product.p_price || 0,
-      stock: product.stock || 0,
-      imageUrl: product.imageUrl || product.image_url || '',
-      categoryId: product.categoryId?.id || product.category_id || 0,
-      categoryName: product.categoryId?.name || product.category_name || '',
-      brandId: product.brandId?.id || product.brand_id || 0,
-      brandName: product.brandId?.name || product.brand_name || '',
-      addedAt: new Date().toISOString()
-    };
+    return this.http.post<any>(`${this.apiUrl}/favorites/${productId}`, {}, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap(response => {
+        console.log('✅ Backend response:', response);
+        
+        // Add to local state immediately
+        const newFavorite: FavoriteProduct = {
+          id: product.id,
+          name: product.name || '',
+          description: product.description || '',
+          price: product.price || 0,
+          pPrice: product.pPrice || product.p_price || 0,
+          stock: product.stock || 0,
+          imageUrl: product.imageUrl || product.image_url || '',
+          categoryId: product.categoryId?.id || product.category_id || 0,
+          categoryName: product.categoryId?.name || product.category_name || '',
+          brandId: product.brandId?.id || product.brand_id || 0,
+          brandName: product.brandId?.name || product.brand_name || '',
+          addedAt: new Date().toISOString()
+        };
 
-    // Hozzáadás a listához
-    const updatedFavorites = [...currentFavorites, newFavorite];
-    this.favoritesSubject.next(updatedFavorites);
-    this.saveToLocalStorage();
-
-    console.log('❤️ Kedvencekhez adva:', newFavorite.name);
-    return of({ success: true, message: 'Termék hozzáadva a kedvencekhez!' });
+        const currentFavorites = this.favoritesSubject.value;
+        this.favoritesSubject.next([...currentFavorites, newFavorite]);
+        
+        console.log('❤️ Kedvencekhez adva:', newFavorite.name);
+      }),
+      map(response => ({
+        success: response.status === 'FavoriteAdded',
+        message: response.message || 'Termék hozzáadva a kedvencekhez!'
+      })),
+      catchError(err => {
+        console.error('❌ Error adding favorite:', err);
+        return of({ 
+          success: false, 
+          message: 'Hiba történt a kedvenc hozzáadása során!' 
+        });
+      })
+    );
   }
 
-  // Kedvenc eltávolítása
+  // Remove from favorites
   removeFavorite(productId: number): Observable<{ success: boolean; message: string }> {
-    const currentFavorites = this.favoritesSubject.value;
-    const updatedFavorites = currentFavorites.filter(f => f.id !== productId);
-    
-    if (updatedFavorites.length === currentFavorites.length) {
-      return of({ success: false, message: 'A termék nem található a kedvencek között!' });
-    }
-
-    this.favoritesSubject.next(updatedFavorites);
-    this.saveToLocalStorage();
-
-    console.log('💔 Kedvencekből törölve:', productId);
-    return of({ success: true, message: 'Termék eltávolítva a kedvencekből!' });
+    return this.http.put<any>(`${this.apiUrl}/favorites/${productId}`, {}, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap(response => {
+        console.log('✅ Backend response:', response);
+        
+        // Remove from local state immediately
+        const currentFavorites = this.favoritesSubject.value;
+        const updatedFavorites = currentFavorites.filter(f => f.id !== productId);
+        this.favoritesSubject.next(updatedFavorites);
+        
+        console.log('💔 Kedvencekből törölve:', productId);
+      }),
+      map(response => ({
+        success: response.status === 'FavoriteRemoved',
+        message: response.message || 'Termék eltávolítva a kedvencekből!'
+      })),
+      catchError(err => {
+        console.error('❌ Error removing favorite:', err);
+        return of({ 
+          success: false, 
+          message: 'Hiba történt a kedvenc eltávolítása során!' 
+        });
+      })
+    );
   }
 
-  // Kedvenc állapot váltása
+  // Toggle favorite
   toggleFavorite(product: any): Observable<{ success: boolean; message: string; isFavorite: boolean }> {
     if (this.isFavorite(product.id)) {
-      this.removeFavorite(product.id).subscribe();
-      return of({ success: true, message: 'Eltávolítva a kedvencekből!', isFavorite: false });
+      return this.removeFavorite(product.id).pipe(
+        map(result => ({ ...result, isFavorite: false }))
+      );
     } else {
-      this.addFavorite(product).subscribe();
-      return of({ success: true, message: 'Hozzáadva a kedvencekhez!', isFavorite: true });
+      return this.addFavorite(product).pipe(
+        map(result => ({ ...result, isFavorite: true }))
+      );
     }
   }
 
-  // Ellenőrzés: kedvenc-e
+  // Check if favorite
   isFavorite(productId: number): boolean {
     return this.favoritesSubject.value.some(f => f.id === productId);
   }
 
-  // Kedvencek száma
+  // Get favorite count
   getFavoriteCount(): number {
     return this.favoritesSubject.value.length;
   }
 
-  // Kedvencek törlése (kijelentkezéskor)
+  // Clear favorites (on logout)
   clearFavorites(): void {
     this.favoritesSubject.next([]);
-    localStorage.removeItem(this.STORAGE_KEY);
-    console.log('🗑️ Kedvencek törölve');
+    console.log('🗑️ Kedvencek törölve (kijelentkezés)');
   }
 
-  // Frissítés
+  // Refresh from backend
   refresh(): void {
-    this.loadFromLocalStorage();
+    this.loadFavoritesFromBackend();
   }
 }

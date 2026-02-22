@@ -4,7 +4,8 @@ export interface loginRequest{
 }
 
 export interface loginResponse{
-    role: string
+    userId: number,  // User ID from backend
+    role: string,
     status: string,
     statusCode: number,
     accessToken: string,

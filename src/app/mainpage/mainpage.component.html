@@ -18,7 +18,7 @@
 
 <div class="buttons">
     <button class="discountBtn" routerLink="/discounts">Akció</button>
-    <button class="top10Btn">Top 50</button>
+    <button class="top10Btn" routerLink="/top50">Top 50</button>
     <button class="newsBtn">Újdonságok</button>
 </div>
 
@@ -70,6 +70,25 @@
   <div class="products-grid" *ngIf="!loading">
     <app-productcard
       *ngFor="let product of discountProducts"
+      [product]="product">
+    </app-productcard>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+</section>
+
+<!-- Top50 termékek szekció -->
+<section class="discount-products-section">
+  <div class="section-header">
+    <h2 class="section-title">TOP 50</h2>
+    <button class="view-all-btn" (click)="goToTop50()" routerLink="/top50">Összes termék</button>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading">
+    <app-productcard
+      *ngFor="let product of top50Products"
       [product]="product">
     </app-productcard>
   </div>

@@ -39,14 +39,29 @@ export class AuthService {
         localStorage.setItem('JWT', result.accessToken);
         localStorage.setItem('refreshToken', result.refreshToken);
         
-        // IMPORTANT: Use username from login response directly!
+        // Get userId - from response or JWT token
+        let userId = result.userId;
+        
+        if (!userId) {
+          // Fallback: decode JWT to get userId
+          try {
+            const tokenPayload = JSON.parse(atob(result.accessToken.split('.')[1]));
+            userId = tokenPayload.userId;
+            console.log('⚠️ userId not in response, extracted from JWT:', userId);
+          } catch (e) {
+            console.error('❌ Failed to decode JWT:', e);
+          }
+        }
+        
+        // Store user data with ID
         const userData = {
-          username: result.username,  // ← Username from backend!
+          id: userId,
+          username: result.username,
           email: body.email,
           role: result.role || 'User'
         };
         
-        console.log('✅ Storing user data with username:', userData);
+        console.log('✅ Storing user data with ID:', userData);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('currentUser', JSON.stringify(userData));
         this.currentUserSubject.next(userData);

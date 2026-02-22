@@ -138,14 +138,7 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if user is logged in
-    if (!this.authService.isLoggedIn()) {
-      alert('Kérlek jelentkezz be a rendelés leadásához!');
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // Load cart items
+    // Load cart items first
     this.loadCartItems();
     
     // Set default selections
@@ -283,43 +276,11 @@ export class CheckoutComponent implements OnInit {
 
     const userId = user.id;
     
-    // Step 1: Create address first (if needed)
-    const needsAddress = this.selectedDeliveryMethod !== 'store' && this.selectedDeliveryMethod !== 'coretech';
+    // Use addressId: 1 (default address from database)
+    const addressId = 1;
     
-    if (needsAddress) {
-      // Create address
-      const addressData = {
-        userId: userId,
-        street: this.deliveryAddress.street,
-        city: this.deliveryAddress.city,
-        postalCode: this.deliveryAddress.postalCode,
-        country: this.deliveryAddress.country,
-        isDefault: false
-      };
-
-      console.log('📍 Creating address...', addressData);
-
-      this.orderService.createAddress(addressData).subscribe({
-        next: (addressId) => {
-          console.log('✅ Address created with ID:', addressId);
-          this.createOrderWithAddress(userId, addressId);
-        },
-        error: (err) => {
-          console.error('❌ Error creating address:', err);
-          alert('⚠️ Hiba történt a cím mentése során!');
-        }
-      });
-    } else {
-      // Use default address ID (1) for store pickup
-      this.createOrderWithAddress(userId, 1);
-    }
-  }
-
-  // Create order after address is ready
-  private createOrderWithAddress(userId: number, addressId: number): void {
     // Prepare order data
     const orderData = {
-      userId: userId,
       addressId: addressId,
       totalPrice: this.getTotal(),
       status: 'pending',
@@ -337,10 +298,7 @@ export class CheckoutComponent implements OnInit {
       next: (response) => {
         console.log('✅ Order created:', response);
         
-        const orderId = response.orderId || response.id || 'UNKNOWN';
-        
-        // Also save to localStorage for immediate display on profile page
-        this.saveOrderToLocalStorage(orderId);
+        const orderId = response.orderId || 'UNKNOWN';
         
         // Clear cart
         this.cartService.clearCart();
@@ -356,36 +314,6 @@ export class CheckoutComponent implements OnInit {
         alert('⚠️ Hiba történt a rendelés leadása során!\n\n' + (err.error?.message || err.message || 'Ismeretlen hiba'));
       }
     });
-  }
-
-  // Save order to localStorage as backup (for immediate display)
-  private saveOrderToLocalStorage(orderId: any): void {
-    const order = {
-      id: orderId,
-      date: new Date().toISOString(),
-      status: 'Feldolgozás alatt',
-      statusClass: 'status-processing',
-      customerData: { ...this.customerData },
-      deliveryAddress: { ...this.deliveryAddress },
-      deliveryMethod: this.selectedDeliveryMethod,
-      paymentMethod: this.selectedPaymentMethod,
-      items: this.cartItems.map(item => ({
-        productId: item.product.id,
-        name: item.product.name,
-        quantity: item.quantity,
-        price: item.product.pPrice
-      })),
-      subtotal: this.getSubtotal(),
-      deliveryPrice: this.getDeliveryPrice(),
-      total: this.getTotal()
-    };
-    
-    const savedOrders = localStorage.getItem('user_orders');
-    let orders = savedOrders ? JSON.parse(savedOrders) : [];
-    orders.push(order);
-    localStorage.setItem('user_orders', JSON.stringify(orders));
-    
-    console.log('💾 Order also saved to localStorage for immediate display');
   }
 
   // Go back to cart
