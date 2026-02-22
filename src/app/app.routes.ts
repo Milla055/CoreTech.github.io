@@ -10,6 +10,7 @@ import { ProductsdetailpageComponent } from './productsdetailpage/productsdetail
 import { AdminpageComponent } from './adminpage/adminpage.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { DiscountsComponent } from './discounts/discounts.component';
+import { Top50Component } from './top50/top50.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'adminpage', component: AdminpageComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'discounts', component: DiscountsComponent },
+  { path: 'top50', component: Top50Component },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

@@ -4,18 +4,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface OrderData {
-  userId: number;
-  addressId?: number;
+  userId?: number;  // Optional - backend gets it from JWT
+  addressId: number;
   totalPrice: number;
   status: string;
   items: OrderItem[];
-  // Address data (if creating new address)
-  address?: {
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
 }
 
 export interface OrderItem {
@@ -52,22 +45,38 @@ export class OrderService {
 
   // Create new order
   createOrder(orderData: OrderData): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/orders`, orderData, {
+    // Backend expects this exact format
+    const payload = {
+      addressId: orderData.addressId,
+      totalPrice: orderData.totalPrice,
+      status: orderData.status || 'pending',
+      items: orderData.items
+    };
+    
+    console.log('📤 Sending order to backend:', payload);
+    
+    return this.http.post<any>(`${this.apiUrl}/orders`, payload, {
       headers: this.getAuthHeaders()
     });
   }
 
   // Get user's orders
   getUserOrders(): Observable<Order[]> {
-    return this.http.get<any>(`${this.apiUrl}/orders/user`, {
+    console.log('🔍 Loading orders from backend...');
+    
+    return this.http.get<any>(`${this.apiUrl}/orders`, {
       headers: this.getAuthHeaders()
     }).pipe(
       map(response => {
+        console.log('📥 Orders response:', response);
+        
         if (response.status === 'Success' && response.orders) {
+          console.log('✅ Found orders:', response.orders.length);
           return response.orders;
         }
+        console.log('⚠️ No orders in response');
         return [];
-      })
+      }),
     );
   }
 

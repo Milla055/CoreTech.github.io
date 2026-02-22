@@ -120,7 +120,6 @@ hr{
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  
   overflow: hidden;
   padding-right: 20px; /* space so text doesn't touch the bar */
   height: 120px;       /* FIXED HEIGHT → így a csík rövidebb */

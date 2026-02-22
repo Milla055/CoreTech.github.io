@@ -15,6 +15,7 @@ import { ProductService, Product } from '../services/product.service';
 })
 export class MainpageComponent implements OnInit {
   discountProducts: Product[] = [];
+  top50Products: Product[] = [];
   loading: boolean = true;
 
   constructor(
@@ -24,6 +25,7 @@ export class MainpageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDiscountProducts();
+    this.loadTop50Products();
   }
 
   loadDiscountProducts(): void {
@@ -45,7 +47,7 @@ export class MainpageComponent implements OnInit {
         }
 
         // Take first 8 products
-        this.discountProducts = shuffled.slice(0, 8);
+        this.discountProducts = shuffled.slice(0, 4);
         this.loading = false;
       },
       error: (err) => {
@@ -55,7 +57,38 @@ export class MainpageComponent implements OnInit {
     });
   }
 
+  loadTop50Products(): void {
+    this.productService.getAllProducts().subscribe({
+      next: (products) => {
+        // Same seeded random as top50 page - 3 day rotation
+        const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+        let seed = Math.floor(daysSinceEpoch / 3);
+
+        const rng = () => {
+          seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+          return (seed >>> 0) / 0xffffffff;
+        };
+
+        const shuffled = [...products];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // Take first 8 products (from the same pool as Top50 page)
+        this.top50Products = shuffled.slice(0, 4);
+      },
+      error: (err) => {
+        console.error('Error loading top50 products:', err);
+      }
+    });
+  }
+
   goToDiscounts(): void {
     this.router.navigate(['/discounts']);
+  }
+
+  goToTop50(): void {
+    this.router.navigate(['/top50']);
   }
 }

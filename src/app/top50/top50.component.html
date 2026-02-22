@@ -1,0 +1,45 @@
+<app-header></app-header>
+
+<div class="top50-container">
+
+  <!-- Hero -->
+  <div class="hero-banner">
+    <h1 class="hero-title">Top 50 Termék</h1>
+    <p class="hero-subtitle">A legnépszerűbb termékek raktárunkon – válogatás a legjobbakból!</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Top 50 termékek betöltése...</p>
+  </div>
+
+  <!-- Main Content with Filter -->
+  <div class="content-wrapper" *ngIf="!loading">
+    
+    <!-- Sidebar Filter -->
+    <aside class="filter-sidebar">
+      <app-filter (filterChange)="onFilterChange($event)"></app-filter>
+    </aside>
+
+    <!-- Products Section -->
+    <main class="products-section">
+      <h2 class="section-title">{{ filteredProducts.length }} termék</h2>
+      <div class="products-grid">
+        <app-productcard
+          *ngFor="let product of filteredProducts"
+          [product]="product">
+        </app-productcard>
+      </div>
+
+      <!-- No results -->
+      <div class="no-results" *ngIf="filteredProducts.length === 0">
+        <p>Nincs a szűrésnek megfelelő termék.</p>
+      </div>
+    </main>
+
+  </div>
+
+</div>
+
+<app-footer></app-footer>
