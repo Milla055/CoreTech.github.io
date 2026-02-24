@@ -99,11 +99,7 @@ public class NewsletterService {
         return resp;
     }
 
-    /**
-     * Send a newsletter to all subscribed users
-     *
-     * @param type - "welcome", "new_arrivals", "promotion", "vip_exclusive"
-     */
+   
     public JSONObject sendNewsletter(String type) {
         JSONObject resp = new JSONObject();
 
@@ -127,7 +123,7 @@ public class NewsletterService {
 
             String subject = getTemplateSubject(type);
 
-            // 2. Get all subscribed users
+           
             StoredProcedureQuery userQuery = em.createStoredProcedureQuery("getSubscribedUsers");
             userQuery.execute();
             List<Object[]> subscribers = userQuery.getResultList();
@@ -139,7 +135,7 @@ public class NewsletterService {
                 return resp;
             }
 
-            // 3. Save newsletter to database
+            
             StoredProcedureQuery insertQuery = em.createStoredProcedureQuery("createNewsletter");
             insertQuery.registerStoredProcedureParameter("subjectIN", String.class, ParameterMode.IN);
             insertQuery.registerStoredProcedureParameter("contentIN", String.class, ParameterMode.IN);
@@ -149,7 +145,7 @@ public class NewsletterService {
             insertQuery.setParameter("typeIN", type);
             insertQuery.execute();
 
-            // 4. Send email to each subscribed user
+           
             int sentCount = 0;
             int failCount = 0;
 
@@ -170,7 +166,7 @@ public class NewsletterService {
                 }
             }
 
-            // 5. Return result
+          
             resp.put("status", "NewsletterSent");
             resp.put("message", "Hírlevél sikeresen elküldve!");
             resp.put("type", type);

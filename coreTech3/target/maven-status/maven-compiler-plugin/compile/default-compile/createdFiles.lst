@@ -1,6 +1,7 @@
 com\mycompany\coretech3\model\ProductAttributes.class
 com\mycompany\coretech3\controller\ProductsController.class
 com\mycompany\coretech3\filter\CorsFilter.class
+com\mycompany\coretech3\service\CartService.class
 com\mycompany\coretech3\model\Products.class
 com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\controller\CategoriesController.class
@@ -11,10 +12,12 @@ com\mycompany\coretech3\controller\AdminOrdersController.class
 com\mycompany\coretech3\security\JwtUtil.class
 com\mycompany\coretech3\controller\AnalyticsController.class
 com\mycompany\coretech3\service\OrdersService.class
+com\mycompany\coretech3\controller\CartController.class
 com\mycompany\coretech3\security\JwtAuthFilter.class
 com\mycompany\coretech3\service\BrandsService.class
 com\mycompany\coretech3\service\EmailService.class
 com\mycompany\coretech3\util\EmailTemplateLoader.class
+com\mycompany\coretech3\model\Cart.class
 com\mycompany\coretech3\filter\OptionsResource.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Addresses.class
@@ -35,6 +38,7 @@ com\mycompany\coretech3\controller\AdminBrandsController.class
 com\mycompany\coretech3\controller\AdminUsersController.class
 com\mycompany\coretech3\scheduler\OrderStatusScheduler.class
 com\mycompany\coretech3\model\Attributes.class
+com\mycompany\coretech3\model\CartItems.class
 com\mycompany\coretech3\service\FavoritesService.class
 com\mycompany\coretech3\service\EmailService$1.class
 com\mycompany\coretech3\controller\FavoritesController.class

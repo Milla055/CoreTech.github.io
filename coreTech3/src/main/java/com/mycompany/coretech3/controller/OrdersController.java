@@ -138,4 +138,38 @@ public class OrdersController {
                     .build();
         }
     }
+    @POST
+@Path("checkout")
+@Consumes(MediaType.APPLICATION_JSON)
+public Response checkout(@HeaderParam("Authorization") String authHeader, String body) {
+    System.out.println("=== CHECKOUT CALLED ===");
+    try {
+        // Extract userId from JWT
+        String token = authHeader.substring(7);
+        Claims claims = JwtUtil.validate(token);
+        int userId = claims.get("userId", Integer.class);
+        
+        // Parse request body
+        JSONObject obj = new JSONObject(body);
+        int addressId = obj.getInt("addressId");
+        
+        JSONObject result = ordersService.checkout(userId, addressId);
+        
+        return Response.status(result.getInt("statusCode"))
+                .entity(result.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+                
+    } catch (Exception e) {
+        e.printStackTrace();
+        JSONObject error = new JSONObject();
+        error.put("status", "Error");
+        error.put("statusCode", 400);
+        error.put("message", "Invalid request: " + e.getMessage());
+        return Response.status(400)
+                .entity(error.toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+}
 }

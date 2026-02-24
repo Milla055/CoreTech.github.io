@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -99,6 +100,8 @@ public class Users implements Serializable {
     private Collection<Favorites> favoritesCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Addresses> addressesCollection;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "userId")
+    private Cart cart;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Reviews> reviewsCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
@@ -225,6 +228,14 @@ public class Users implements Serializable {
 
     public void setAddressesCollection(Collection<Addresses> addressesCollection) {
         this.addressesCollection = addressesCollection;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     @XmlTransient

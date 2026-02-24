@@ -217,7 +217,6 @@ public class OrdersService {
         }
         return resp;
     }
-    // ========== GET ALL ORDERS (ADMIN) ==========
 
     public JSONObject getAllOrders() {
         JSONObject resp = new JSONObject();
@@ -252,7 +251,6 @@ public class OrdersService {
         return resp;
     }
 
-// ========== UPDATE ORDER STATUS (ADMIN) ==========
     public JSONObject updateOrderStatus(int orderId, String newStatus) {
         JSONObject resp = new JSONObject();
         try {
@@ -303,7 +301,6 @@ public class OrdersService {
         return resp;
     }
 
-// ========== DELETE ORDER (ADMIN - NO RESTRICTIONS) ==========
     public JSONObject deleteOrderAdmin(int orderId) {
         JSONObject resp = new JSONObject();
         try {
@@ -332,6 +329,35 @@ public class OrdersService {
             resp.put("status", "OrderDeleted");
             resp.put("statusCode", 200);
             resp.put("message", "Order deleted successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
+        }
+        return resp;
+    }
+
+    public JSONObject checkout(int userId, int addressId) {
+        JSONObject resp = new JSONObject();
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("checkout");
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("addressIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("newOrderId", Integer.class, ParameterMode.OUT);
+
+            spq.setParameter("userIdIN", userId);
+            spq.setParameter("addressIdIN", addressId);
+            spq.execute();
+
+            // Get the new order ID
+            Integer orderId = (Integer) spq.getOutputParameterValue("newOrderId");
+
+            resp.put("status", "OrderCreated");
+            resp.put("statusCode", 201);
+            resp.put("message", "Order created successfully");
+            resp.put("orderId", orderId);
 
         } catch (Exception e) {
             e.printStackTrace();
