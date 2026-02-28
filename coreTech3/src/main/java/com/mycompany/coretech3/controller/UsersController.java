@@ -308,5 +308,66 @@ public Response refreshToken(@CookieParam("refreshToken") String refreshToken) {
                 .cookie(deleteCookie)
                 .build();
     }
+    @PUT
+    @Path("updateUserProfile")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateUserProfile(@HeaderParam("Authorization") String authHeader, String body) {
+        try {
+            // Token validálása és userId kinyerése
+            String token = authHeader.substring(7); // "Bearer " eltávolítása
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
+
+            // Request body feldolgozása
+            JSONObject obj = new JSONObject(body);
+            String username = obj.getString("username");
+            String fullName = obj.optString("fullName", null); // Opcionális
+            String email = obj.getString("email");
+            String phone = obj.optString("phone", null); // Opcionális
+
+            // Kötelező mezők validálása
+            if (username == null || username.trim().isEmpty()) {
+                JSONObject error = new JSONObject();
+                error.put("status", "Error");
+                error.put("statusCode", 400);
+                error.put("message", "A felhasználónév kötelező");
+                return Response.status(400)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            if (email == null || email.trim().isEmpty()) {
+                JSONObject error = new JSONObject();
+                error.put("status", "Error");
+                error.put("statusCode", 400);
+                error.put("message", "Az email cím kötelező");
+                return Response.status(400)
+                        .entity(error.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            // Service hívása
+            JSONObject result = usersService.updateUserProfile(userId, username, fullName, email, phone);
+
+            return Response.status(result.getInt("statusCode"))
+                    .entity(result.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Error");
+            error.put("statusCode", 401);
+            error.put("message", "Érvénytelen token vagy kérés");
+            return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
 
 }

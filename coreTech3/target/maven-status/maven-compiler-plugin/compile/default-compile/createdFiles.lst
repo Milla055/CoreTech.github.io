@@ -18,6 +18,7 @@ com\mycompany\coretech3\service\BrandsService.class
 com\mycompany\coretech3\service\EmailService.class
 com\mycompany\coretech3\util\EmailTemplateLoader.class
 com\mycompany\coretech3\model\Cart.class
+com\mycompany\coretech3\controller\AddressController.class
 com\mycompany\coretech3\filter\OptionsResource.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Addresses.class
@@ -45,3 +46,4 @@ com\mycompany\coretech3\controller\FavoritesController.class
 com\mycompany\coretech3\controller\AdminProductsController.class
 com\mycompany\coretech3\model\OrderItems.class
 com\mycompany\coretech3\service\AnalyticsService.class
+com\mycompany\coretech3\service\AddressService.class

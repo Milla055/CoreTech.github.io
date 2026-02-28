@@ -331,5 +331,61 @@ public class UsersService {
     }
     return resp;
 }
+    public JSONObject updateUserProfile(int userId, String username, String fullName, String email, String phone) {
+        JSONObject resp = new JSONObject();
+
+        try {
+            // 1) Felhasználó betöltése az adatbázisból - ellenőrizzük, hogy létezik-e
+            Users user = em.find(Users.class, userId);
+            if (user == null) {
+                resp.put("status", "UserNotFound");
+                resp.put("statusCode", 404);
+                resp.put("message", "A felhasználó nem található");
+                return resp;
+            }
+
+            // 2) Stored procedure hívása a profil frissítéséhez
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updateUserProfile");
+
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("usernameIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("teljesnevIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("phoneIN", String.class, ParameterMode.IN);
+
+            spq.setParameter("userIdIN", userId);
+            spq.setParameter("usernameIN", username);
+            spq.setParameter("teljesnevIN", fullName);
+            spq.setParameter("emailIN", email);
+            spq.setParameter("phoneIN", phone);
+
+            spq.execute();
+
+            // 3) Megerősítő email küldése (opcionális)
+            String template = EmailTemplateLoader.loadTemplate("fiokmod.html");
+            if (template != null) {
+                template = template.replace("{{username}}", username);
+
+                EmailService.sendEmailWithImage(
+                        email,
+                        "Profil Sikeresen Frissítve!",
+                        template,
+                        "checkmark.png"
+                );
+            }
+
+            resp.put("status", "ProfileUpdated");
+            resp.put("statusCode", 200);
+            resp.put("message", "A profil sikeresen frissítve");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", "Hiba történt a profil frissítése során: " + e.getMessage());
+        }
+
+        return resp;
+    }
 
 }

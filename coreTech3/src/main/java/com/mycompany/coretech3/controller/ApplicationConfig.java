@@ -21,6 +21,7 @@ public class ApplicationConfig extends Application {
         return resources;
     }
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(com.mycompany.coretech3.controller.AddressController.class);
         resources.add(com.mycompany.coretech3.controller.AdminBrandsController.class);
         resources.add(com.mycompany.coretech3.controller.AdminOrdersController.class);
         resources.add(com.mycompany.coretech3.controller.AdminProductsController.class);
