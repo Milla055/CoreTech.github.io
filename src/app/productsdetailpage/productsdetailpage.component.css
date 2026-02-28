@@ -3,7 +3,7 @@
 }
 
 .product-detail-container {
-  max-width: 1200px;
+  max-width: 1374px;
   margin: 0 auto;
   padding: 20px;
   background-color: #E8EAF3;
@@ -373,6 +373,8 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  max-width: 1374px;
+  margin: 0 auto;
 }
 
 /* Loading */

@@ -4,6 +4,7 @@ import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ProductcardComponent } from '../productcard/productcard.component';
 import { ProductService, Product } from '../services/product.service';
+import { DiscountService } from '../services/discount.service';
 
 @Component({
   selector: 'app-discounts',
@@ -16,12 +17,20 @@ export class DiscountsComponent implements OnInit {
   discountProducts: Product[] = [];
   loading: boolean = true;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private discountService: DiscountService
+  ) {}
 
   ngOnInit(): void {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
         this.discountProducts = this.selectDiscountProducts(products);
+        
+        // Register these products as discounted
+        const discountIds = this.discountProducts.map(p => p.id);
+        this.discountService.setDiscountProducts(discountIds);
+        
         this.loading = false;
       },
       error: (err) => {

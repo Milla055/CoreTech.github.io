@@ -38,12 +38,13 @@ export class Top50Component implements OnInit {
   }
 
   // Seeded random - 3 naponként ugyanazok a termékek mindenkinél (TOP 50)
+  // DIFFERENT SEED than discounts page!
   private selectTop50Products(products: Product[]): Product[] {
     if (products.length === 0) return [];
 
-    // Seed = hányadik 3 napos periódusban vagyunk
+    // Seed = hányadik 3 napos periódusban vagyunk + 999 offset (ELTÉRŐ a discount-tól!)
     const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    let seed = Math.floor(daysSinceEpoch / 3);
+    let seed = Math.floor(daysSinceEpoch / 3) + 999; // <-- +999 OFFSET!
 
     // LCG pseudo-random
     const rng = () => {

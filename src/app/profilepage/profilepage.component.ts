@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { ProfileService } from '../services/profile.service';
+import { ProfileService, Address } from '../services/profile.service';
 import { FavoritesService, FavoriteProduct } from '../services/favorites.service';
 import { CartService } from '../services/cart.service';
 import { OrderService } from '../services/order.service';
@@ -25,6 +25,11 @@ export class ProfilepageComponent implements OnInit {
   deliveryDataForm!: FormGroup;
 
   userData: any = null;
+  
+  // Addresses from backend
+  addresses: Address[] = [];
+  selectedAddressId: number | null = null;
+  isAddingNewAddress: boolean = false;
   
   isUpdatingProfile: boolean = false;
   isChangingPassword: boolean = false;
@@ -58,11 +63,54 @@ export class ProfilepageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserData();
+    this.loadAddresses();
     this.loadFavorites();
     this.loadOrders();
   }
 
   loadUserData(): void {
+    console.log('👤 Loading user data...');
+    
+    const token = localStorage.getItem('JWT');
+    if (!token) {
+      console.error('❌ No JWT token - redirecting to login');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Try to load from backend
+    this.profileService.getUserProfile().subscribe({
+      next: (profile) => {
+        if (profile) {
+          console.log('✅ Profile loaded from backend:', profile);
+          
+          this.userData = {
+            id: profile.id,
+            username: profile.username,
+            email: profile.email,
+            role: profile.role,
+            telefonszam: profile.phone || '',
+            teljesnev: profile.teljesnev || '',
+            vezetekNev: profile.teljesnev ? profile.teljesnev.split(' ')[0] : '',
+            keresztNev: profile.teljesnev ? profile.teljesnev.split(' ').slice(1).join(' ') : '',
+            cim: { orszag: '', iranyitoszam: '', varos: '', utcaHazszam: '' }
+          };
+          
+          this.initializeForms();
+        } else {
+          console.warn('⚠️ Backend returned null - using fallback');
+          this.loadUserDataFallback();
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error loading profile:', err);
+        console.warn('⚠️ Using fallback user data');
+        this.loadUserDataFallback();
+      }
+    });
+  }
+
+  loadUserDataFallback(): void {
     const currentUser = this.authService.getCurrentUser();
     
     if (currentUser) {
@@ -80,7 +128,6 @@ export class ProfilepageComponent implements OnInit {
           keresztNev: '',
           cim: { orszag: '', iranyitoszam: '', varos: '', utcaHazszam: '' }
         };
-        localStorage.setItem('currentUser', JSON.stringify(this.userData));
       }
       
       this.initializeForms();
@@ -245,45 +292,63 @@ export class ProfilepageComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.customerDataForm.valid && this.deliveryDataForm.valid) {
+    if (this.customerDataForm.valid) {
+      const vezetekNev = this.customerDataForm.value.vezetekNev || '';
+      const keresztNev = this.customerDataForm.value.keresztNev || '';
+      const teljesnev = `${vezetekNev} ${keresztNev}`.trim();
+      
       const updatedData = {
+        username: this.userData.username,
+        teljesnev: teljesnev,
         email: this.customerDataForm.value.email,
-        vezetekNev: this.customerDataForm.value.vezetekNev,
-        keresztNev: this.customerDataForm.value.keresztNev,
-        telefonszam: this.deliveryDataForm.value.telefonszam,
-        cim: {
-          orszag: this.deliveryDataForm.value.orszag,
-          iranyitoszam: this.deliveryDataForm.value.iranyitoszam,
-          varos: this.deliveryDataForm.value.varos,
-          utcaHazszam: this.deliveryDataForm.value.utcaHazszam
-        }
+        phone: this.deliveryDataForm.value.telefonszam || ''
       };
 
+      console.log('💾 Saving profile data:', updatedData);
       this.isUpdatingProfile = true;
 
       this.profileService.updateUserProfile(updatedData).subscribe({
-        next: (response) => {
-          this.userData = { ...this.userData, ...updatedData };
-          localStorage.setItem('currentUser', JSON.stringify(this.userData));
-          alert('✅ Változások mentve!');
+        next: (success) => {
+          if (success) {
+            this.userData.email = updatedData.email;
+            this.userData.teljesnev = updatedData.teljesnev;
+            this.userData.telefonszam = updatedData.phone;
+            this.userData.vezetekNev = vezetekNev;
+            this.userData.keresztNev = keresztNev;
+            
+            // After profile saved, save address too
+            console.log('💾 Now saving address...');
+            this.saveDeliveryAddress();
+            
+            alert('✅ Változások mentve!');
+          } else {
+            alert('❌ Nem sikerült menteni a változásokat!');
+          }
           this.isUpdatingProfile = false;
         },
         error: (error) => {
+          console.error('❌ Update error:', error);
           this.isUpdatingProfile = false;
-          this.userData = { ...this.userData, ...updatedData };
-          localStorage.setItem('currentUser', JSON.stringify(this.userData));
           
-          if (error.status === 401) {
+          if (error.status === 0 || error.name === 'HttpErrorResponse') {
+            console.warn('⚠️ CORS error or backend not ready - saving locally');
+            this.userData.email = updatedData.email;
+            this.userData.teljesnev = updatedData.teljesnev;
+            this.userData.telefonszam = updatedData.phone;
+            this.userData.vezetekNev = vezetekNev;
+            this.userData.keresztNev = keresztNev;
+            alert('⚠️ Backend nem elérhető - adatok ideiglenesen mentve.');
+          } else if (error.status === 401) {
             alert('❌ Érvénytelen token!');
             this.authService.logout();
             this.router.navigate(['/login']);
           } else {
-            alert('⚠️ Adatok helyben mentve.');
+            alert('❌ Hiba történt a mentés során!');
           }
         }
       });
     } else {
-      alert('⚠️ Töltsd ki az összes mezőt!');
+      alert('⚠️ Töltsd ki az összes kötelező mezőt!');
     }
   }
 
@@ -457,6 +522,161 @@ export class ProfilepageComponent implements OnInit {
 
   isInStock(favorite: FavoriteProduct): boolean {
     return favorite.stock > 0;
+  }
+
+  // ==================== ADDRESS MANAGEMENT ====================
+
+  loadAddresses(): void {
+    console.log('🏠 Loading addresses from backend...');
+    this.profileService.getAddresses().subscribe({
+      next: (addresses) => {
+        this.addresses = addresses;
+        console.log('✅ Addresses loaded:', addresses.length);
+        
+        const defaultAddress = addresses.find(addr => addr.isDefault);
+        if (defaultAddress) {
+          this.selectedAddressId = defaultAddress.id;
+          this.populateDeliveryForm(defaultAddress);
+        } else if (addresses.length > 0) {
+          this.selectedAddressId = addresses[0].id;
+          this.populateDeliveryForm(addresses[0]);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error loading addresses:', err);
+      }
+    });
+  }
+
+  populateDeliveryForm(address: Address): void {
+    this.deliveryDataForm.patchValue({
+      orszag: address.country,
+      iranyitoszam: address.postalCode,
+      varos: address.city,
+      utcaHazszam: address.street,
+      telefonszam: this.userData?.telefonszam || ''
+    });
+  }
+
+  onAddressSelect(addressId: number): void {
+    this.selectedAddressId = addressId;
+    const address = this.addresses.find(addr => addr.id === addressId);
+    if (address) {
+      this.populateDeliveryForm(address);
+    }
+  }
+
+  saveDeliveryAddress(): void {
+    // Check if address fields are filled
+    const hasAddressData = 
+      this.deliveryDataForm.value.orszag || 
+      this.deliveryDataForm.value.iranyitoszam ||
+      this.deliveryDataForm.value.varos ||
+      this.deliveryDataForm.value.utcaHazszam;
+
+    if (!hasAddressData) {
+      console.log('⚠️ No address data to save - skipping');
+      return;
+    }
+
+    const addressData = {
+      street: this.deliveryDataForm.value.utcaHazszam || '',
+      city: this.deliveryDataForm.value.varos || '',
+      postalCode: this.deliveryDataForm.value.iranyitoszam || '',
+      country: this.deliveryDataForm.value.orszag || 'Magyarország',
+      isDefault: this.addresses.length === 0
+    };
+
+    console.log('💾 Saving address:', addressData);
+
+    if (this.isAddingNewAddress || this.selectedAddressId === null) {
+      this.profileService.addAddress(addressData).subscribe({
+        next: (success) => {
+          if (success) {
+            console.log('✅ Cím hozzáadva!');
+            this.loadAddresses();
+            this.isAddingNewAddress = false;
+          } else {
+            console.error('❌ Nem sikerült hozzáadni a címet!');
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error adding address:', err);
+        }
+      });
+    } else {
+      this.profileService.updateAddress(this.selectedAddressId, addressData).subscribe({
+        next: (success) => {
+          if (success) {
+            console.log('✅ Cím frissítve!');
+            this.loadAddresses();
+          } else {
+            console.error('❌ Nem sikerült frissíteni a címet!');
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error updating address:', err);
+        }
+      });
+    }
+  }
+
+  deleteAddress(addressId: number): void {
+    if (!confirm('Biztosan törölni szeretnéd ezt a címet?')) {
+      return;
+    }
+
+    this.profileService.deleteAddress(addressId).subscribe({
+      next: (success) => {
+        if (success) {
+          alert('✅ Cím törölve!');
+          this.loadAddresses();
+          if (this.selectedAddressId === addressId) {
+            this.selectedAddressId = null;
+          }
+        } else {
+          alert('❌ Nem sikerült törölni a címet!');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error deleting address:', err);
+        alert('❌ Hiba történt!');
+      }
+    });
+  }
+
+  setAsDefaultAddress(addressId: number): void {
+    this.profileService.setDefaultAddress(addressId).subscribe({
+      next: (success) => {
+        if (success) {
+          alert('✅ Alapértelmezett cím beállítva!');
+          this.loadAddresses();
+        } else {
+          alert('❌ Nem sikerült beállítani!');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error setting default:', err);
+        alert('❌ Hiba történt!');
+      }
+    });
+  }
+
+  addNewAddress(): void {
+    this.isAddingNewAddress = true;
+    this.selectedAddressId = null;
+    this.deliveryDataForm.reset({
+      telefonszam: this.userData?.telefonszam || ''
+    });
+  }
+
+  cancelNewAddress(): void {
+    this.isAddingNewAddress = false;
+    if (this.addresses.length > 0) {
+      const defaultAddr = this.addresses.find(a => a.isDefault) || this.addresses[0];
+      this.selectedAddressId = defaultAddr.id;
+      this.populateDeliveryForm(defaultAddr);
+    }
   }
 
   logout(): void {

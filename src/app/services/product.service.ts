@@ -7,6 +7,7 @@ export interface Product {
   id: number;
   name: string;
   description?: string;
+  properties?: any; // JSON properties from database
   price: number;
   pPrice: number; // p_price from database (promotional/discounted price)
   stock?: number;
@@ -50,6 +51,17 @@ export class ProductService {
       'Content-Type': 'application/json',
     })
   };
+
+  // Get auth headers with JWT token for admin operations
+  private getAuthHeaders() {
+    const token = localStorage.getItem('JWT');
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
+    };
+  }
 
   // Get all products
   getAllProducts(): Observable<Product[]> {
@@ -99,8 +111,9 @@ export class ProductService {
       id: backendProduct.id,
       name: backendProduct.name,
       description: backendProduct.description,
+      properties: backendProduct.properties, // PROPERTIES ADDED!
       price: backendProduct.price,
-      pPrice: backendProduct.price, // Use same as price if no p_price in backend
+      pPrice: backendProduct.p_price || backendProduct.pPrice || backendProduct.price, // Try all variants
       stock: backendProduct.stock,
       imageUrl: backendProduct.image_url || placeholderImage,
       categoryId: {
@@ -136,18 +149,18 @@ export class ProductService {
   // Create new product (admin only)
   createProduct(productData: any): Observable<any> {
     const adminUrl = this.apiUrl.replace('/products', '/admin/products');
-    return this.http.post<any>(adminUrl, productData, this.headers);
+    return this.http.post<any>(adminUrl, productData, this.getAuthHeaders());
   }
 
   // Update existing product (admin only)
   updateProduct(productId: number, productData: any): Observable<any> {
     const adminUrl = this.apiUrl.replace('/products', '/admin/products');
-    return this.http.put<any>(`${adminUrl}/${productId}`, productData, this.headers);
+    return this.http.put<any>(`${adminUrl}/${productId}`, productData, this.getAuthHeaders());
   }
 
   // Delete product (admin only)
   deleteProduct(productId: number): Observable<any> {
     const adminUrl = this.apiUrl.replace('/products', '/admin/products');
-    return this.http.put<any>(`${adminUrl}/delete/${productId}`, {}, this.headers);
+    return this.http.put<any>(`${adminUrl}/delete/${productId}`, {}, this.getAuthHeaders());
   }
 }

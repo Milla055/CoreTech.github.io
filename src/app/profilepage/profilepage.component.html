@@ -250,6 +250,7 @@
 
     <div class="content-section">
       <h3 class="section-title">Szállítási adatok</h3>
+      
       <form [formGroup]="deliveryDataForm">
         <div class="form-row">
           <div class="form-group">
@@ -311,10 +312,29 @@
         <span class="data-label">Telefonszám:</span>
         <span class="data-value">{{ userData?.telefonszam || '-' }}</span>
       </div>
-      <div class="data-row">
-        <span class="data-label">Cím:</span>
-        <span class="data-value">{{ getFullAddress() || '-' }}</span>
+      
+      <!-- Mentett címek -->
+      <div class="data-row" style="align-items: flex-start;">
+        <span class="data-label">Mentett címek:</span>
+        <div class="data-value saved-addresses-container">
+          <div *ngIf="addresses.length === 0" class="no-addresses">
+            Nincs mentett cím
+          </div>
+          <div *ngFor="let address of addresses" class="address-card">
+            <div>
+              <div class="address-header">
+                {{ address.city }}, {{ address.postalCode }}
+                <span *ngIf="address.isDefault" class="address-badge">
+                  ✓ Alapértelmezett
+                </span>
+              </div>
+              <div class="address-street">{{ address.street }}</div>
+              <div class="address-country">{{ address.country }}</div>
+            </div>
+          </div>
+        </div>
       </div>
+      
       <div class="data-row">
         <span class="data-label">Szerepkör:</span>
         <span class="data-value">{{ userData?.role || 'Felhasználó' }}</span>

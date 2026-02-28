@@ -66,7 +66,7 @@
         </button>
       </div>
 
-      <div class="product-price">{{ formatPrice(product.pPrice) }}</div>
+      <div class="product-price">{{ formatPrice(product['pPrice'] || product.price) }}</div>
       <p class="warranty">Garancia: 36 hónap</p>
 
       <div class="add-to-cart-section">

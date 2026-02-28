@@ -29,32 +29,32 @@
 
         <div class="news-card">
             <img src="assets/image1.png" alt="">
-            <p>Lorem ipsum risus arcu ligula sit urna nunc viverra faucibus id elit.</p>
+            <p>Új technológiai innovációk: okos eszközök, amelyek megváltoztatják a mindennapjainkat és a munkavégzést.</p>
         </div>
 
         <div class="news-card">
             <img src="assets/image2.png" alt="">
-            <p>Lorem ipsum imperdiet sed amet in mi sit sapien et quis pretium.</p>
+            <p>A legújabb laptopok és táblagépek: vékony design, erőteljes teljesítmény a modern felhasználóknak.</p>
         </div>
 
         <div class="news-card">
             <img src="assets/image3.png" alt="">
-            <p>Lorem ipsum tristique tellus tristique lacus volutpat morbi purus dolor venenatis.</p>
+            <p>Gaming felszerelések 2026-ban: profi perifériák és kiegészítők a legjobb játékélményért.</p>
         </div>
 
         <div class="news-card">
             <img src="assets/image4.png" alt="">
-            <p>Lorem ipsum proin elementum elementum vulputate diam.</p>
+            <p>Mesterséges intelligencia a mindennapokban: AI technológiák, amelyek már ma is segítenek nekünk.</p>
         </div>
 
         <div class="news-card">
             <img src="assets/image5.png" alt="">
-            <p>Lorem ipsum vestibulum ac erat sed ut faucibus duis platea donec tristique feugiat.</p>
+            <p>Processzor fejlesztések: az új generációs chipek minden eddiginél gyorsabb számítási teljesítményt nyújtanak.</p>
         </div>
 
         <div class="news-card">
             <img src="assets/image6.png" alt="">
-            <p>Lorem ipsum neque libero sodales nulla gravida quam cursus at dolor non phasellus.</p>
+            <p>Robotika és automatizáció: okos robotok, amelyek forradalmasítják az ipart és a háztartásokat.</p>
         </div>
 
     </div>
@@ -79,25 +79,20 @@
   </div>
 </section>
 
-<!-- Top50 termékek szekció -->
+<!-- Top 50 termékek szekció -->
 <section class="discount-products-section">
   <div class="section-header">
     <h2 class="section-title">TOP 50</h2>
     <button class="view-all-btn" (click)="goToTop50()" routerLink="/top50">Összes termék</button>
   </div>
 
-  <div class="products-grid" *ngIf="!loading">
+  <div class="products-grid">
     <app-productcard
       *ngFor="let product of top50Products"
       [product]="product">
     </app-productcard>
   </div>
-
-  <div class="loading-container" *ngIf="loading">
-    <div class="spinner"></div>
-  </div>
 </section>
-
 
 
 <div class="subscription">

@@ -1,10 +1,9 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductService, Product } from '../services/product.service';
 import { CartService } from '../services/cart.service';
-import { FavoritesService } from '../services/favorites.service';
-import { Subscription } from 'rxjs';
+import { DiscountService } from '../services/discount.service';
 
 @Component({
   selector: 'app-productcard',
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './productcard.component.html',
   styleUrl: './productcard.component.css'
 })
-export class ProductcardComponent implements OnInit, OnDestroy {
+export class ProductcardComponent implements OnInit {
   @Input() productId?: number;
   @Input() product?: Product | null;
   
@@ -21,17 +20,13 @@ export class ProductcardComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   error: string | null = null;
 
-  // Favorites
-  isFavorite: boolean = false;
-  private favoriteSub?: Subscription;
-
   private imageApiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products';
 
   constructor(
     private productService: ProductService,
     private cartService: CartService,
     private router: Router,
-    private favoritesService: FavoritesService
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -45,17 +40,6 @@ export class ProductcardComponent implements OnInit, OnDestroy {
     else {
       this.loadDefaultProduct();
     }
-
-    // Subscribe to favorites changes so heart updates live
-    this.favoriteSub = this.favoritesService.favorites$.subscribe(() => {
-      if (this.displayProduct) {
-        this.isFavorite = this.favoritesService.isFavorite(this.displayProduct.id);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.favoriteSub?.unsubscribe();
   }
 
   goToProductDetail(): void {
@@ -74,7 +58,6 @@ export class ProductcardComponent implements OnInit, OnDestroy {
     this.productService.getProductById(id).subscribe({
       next: (data) => {
         this.displayProduct = data;
-        this.isFavorite = this.favoritesService.isFavorite(data.id);
         this.loading = false;
       },
       error: (error) => {
@@ -92,7 +75,6 @@ export class ProductcardComponent implements OnInit, OnDestroy {
       next: (products) => {
         if (products && products.length > 0) {
           this.displayProduct = products[0];
-          this.isFavorite = this.favoritesService.isFavorite(products[0].id);
         } else {
           this.error = 'No products available';
         }
@@ -102,19 +84,6 @@ export class ProductcardComponent implements OnInit, OnDestroy {
         console.error('Error loading products:', error);
         this.error = 'Failed to load products';
         this.loading = false;
-      }
-    });
-  }
-
-  toggleFavorite(event: Event): void {
-    event.stopPropagation(); // Ne navigáljon a termékre
-
-    if (!this.displayProduct) return;
-
-    this.favoritesService.toggleFavorite(this.displayProduct).subscribe({
-      next: (result) => {
-        this.isFavorite = result.isFavorite;
-        console.log(result.message);
       }
     });
   }
@@ -129,12 +98,19 @@ export class ProductcardComponent implements OnInit, OnDestroy {
     }
     
     if (this.displayProduct && this.isInStock()) {
-      const success = this.cartService.addToCart(this.displayProduct, 1);
-      if (success) {
-        alert('Termék hozzáadva a kosárhoz!');
-      } else {
-        alert('Nem sikerült hozzáadni a kosárhoz!');
-      }
+      this.cartService.addToCart(this.displayProduct, 1).subscribe({
+        next: (success) => {
+          if (success) {
+            alert('Termék hozzáadva a kosárhoz!');
+          } else {
+            alert('Nem sikerült hozzáadni a kosárhoz!');
+          }
+        },
+        error: (err) => {
+          console.error('Error adding to cart:', err);
+          alert('Hiba történt!');
+        }
+      });
     }
   }
 
@@ -146,8 +122,20 @@ export class ProductcardComponent implements OnInit, OnDestroy {
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
   }
 
+  // Get display price (p_price if on discount page, else price)
+  getDisplayPrice(): number {
+    if (!this.displayProduct) return 0;
+    const isDiscounted = this.discountService.isProductOnDiscount(this.displayProduct.id);
+    console.log(`💰 Product ${this.displayProduct.id}: isDiscounted=${isDiscounted}, price=${this.displayProduct.price}, pPrice=${this.displayProduct.pPrice}`);
+    return this.discountService.getDisplayPrice(this.displayProduct);
+  }
+
+  // Check if product has discount (is on discount page AND p_price < price)
   hasDiscount(): boolean {
-    return this.displayProduct ? this.displayProduct.pPrice < this.displayProduct.price : false;
+    if (!this.displayProduct) return false;
+    const hasDisc = this.discountService.hasDiscount(this.displayProduct);
+    console.log(`🏷️ Product ${this.displayProduct.id}: hasDiscount=${hasDisc}`);
+    return hasDisc;
   }
 
   onImageError(event: any): void {

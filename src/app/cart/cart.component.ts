@@ -25,9 +25,26 @@ export class CartComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('🎨 Cart Component ngOnInit called');
+    console.log('🔐 isLoggedIn:', this.isLoggedIn());
+    
+    // Load cart from backend on init
+    if (this.isLoggedIn()) {
+      console.log('✅ Loading cart in component...');
+      this.cartService.loadCart().subscribe({
+        next: (items) => console.log('✅ Cart loaded in component:', items.length, 'items'),
+        error: (err) => console.error('❌ Error loading cart in component:', err)
+      });
+    } else {
+      console.log('❌ Not logged in, skipping cart load');
+    }
+    
+    // Subscribe to cart changes
     this.cartService.cart$.subscribe(items => {
+      console.log('📦 Cart items updated:', items.length, 'items');
       this.cartItems = items;
       this.cartTotal = this.cartService.getCartTotal();
+      console.log('💰 Cart total:', this.cartTotal);
     });
   }
 
@@ -40,19 +57,33 @@ export class CartComponent implements OnInit {
   }
 
   increaseQuantity(item: CartItem): void {
-    this.cartService.updateQuantity(item.product.id, item.quantity + 1);
+    this.cartService.increaseQuantity(item.item_id).subscribe({
+      next: () => console.log('✅ Quantity increased'),
+      error: (err) => console.error('❌ Error increasing quantity:', err)
+    });
   }
 
   decreaseQuantity(item: CartItem): void {
-    this.cartService.updateQuantity(item.product.id, item.quantity - 1);
+    this.cartService.decreaseQuantity(item.item_id).subscribe({
+      next: () => console.log('✅ Quantity decreased'),
+      error: (err) => console.error('❌ Error decreasing quantity:', err)
+    });
   }
 
-  removeItem(productId: number): void {
-    this.cartService.removeFromCart(productId);
+  removeItem(item: CartItem): void {
+    this.cartService.removeItem(item.item_id).subscribe({
+      next: () => console.log('✅ Item removed'),
+      error: (err) => console.error('❌ Error removing item:', err)
+    });
   }
 
   clearCart(): void {
-    this.cartService.clearCart();
+    if (confirm('Biztosan törölni szeretnéd az egész kosarat?')) {
+      this.cartService.clearCart().subscribe({
+        next: () => console.log('✅ Cart cleared'),
+        error: (err) => console.error('❌ Error clearing cart:', err)
+      });
+    }
   }
 
   formatPrice(price: number): string {

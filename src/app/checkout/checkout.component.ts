@@ -1,22 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { CartService, CartItem } from '../services/cart.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
-import { CartService } from '../services/cart.service';
-import { AuthService } from '../services/auth.service';
-import { OrderService } from '../services/order.service';
-
-interface CartItem {
-  product: any;
-  quantity: number;
-}
+import { HeaderComponent } from "../header/header.component";
+import { FooterComponent } from "../footer/footer.component";
 
 interface DeliveryOption {
   id: string;
   name: string;
-  icon: string;
+  iconPath: string;  // ← Changed from 'icon' to 'iconPath'
   price: number;
   estimatedDays: string;
 }
@@ -24,7 +17,7 @@ interface DeliveryOption {
 interface PaymentMethod {
   id: string;
   name: string;
-  icon: string;
+  iconPath: string;  // ← Changed from 'icon' to 'iconPath'
 }
 
 @Component({
@@ -32,12 +25,13 @@ interface PaymentMethod {
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent],
   templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.css',
+  styleUrl: './checkout.component.css'
 })
 export class CheckoutComponent implements OnInit {
-  // Cart items
   cartItems: CartItem[] = [];
-  
+  selectedDeliveryMethod: string = 'store';
+  selectedPaymentMethod: string = 'card';
+
   // Customer data
   customerData = {
     lastName: '',
@@ -45,7 +39,7 @@ export class CheckoutComponent implements OnInit {
     email: '',
     phone: ''
   };
-  
+
   // Delivery address
   deliveryAddress = {
     country: '',
@@ -53,159 +47,96 @@ export class CheckoutComponent implements OnInit {
     city: '',
     street: ''
   };
-  
-  // Selected options
-  selectedDeliveryMethod: string = '';
-  selectedPaymentMethod: string = '';
-  
-  // Delivery options
+
   deliveryOptions: DeliveryOption[] = [
     {
       id: 'store',
       name: 'Átvétel boltban',
-      icon: '🏪',
+      iconPath: 'assets/icons8-store-64.png',
       price: 0,
       estimatedDays: '3 munkanap'
     },
     {
       id: 'home',
       name: 'Házhozszállítás',
-      icon: '🚚',
+      iconPath: 'assets/icons8-house-64.png',
       price: 1990,
       estimatedDays: '3-5 munkanap'
     },
     {
       id: 'foxpost',
       name: 'FoxPost csomagpont',
-      icon: '📦',
+      iconPath: 'assets/foxpostimg.png',
       price: 990,
       estimatedDays: '2-4 munkanap'
     },
     {
       id: 'mpl-auto',
       name: 'MPL automata',
-      icon: '🤖',
+      iconPath: 'assets/mpl_logo.png',  // ← Ugyanaz mint FoxPost
       price: 890,
       estimatedDays: '2-3 munkanap'
     },
     {
       id: 'coretech',
       name: 'CoreTech átvevőpont',
-      icon: '🏢',
+      iconPath: 'assets/CoreTechLogoKek.png',  // ← Ugyanaz mint bolt
       price: 0,
       estimatedDays: '2-3 munkanap'
     },
     {
       id: 'mpl-courier',
       name: 'MPL futár',
-      icon: '🚴',
+      iconPath: 'assets/mpl_logo.png',  // ← Ugyanaz mint házhozszállítás
       price: 1490,
       estimatedDays: '1-2 munkanap'
     },
     {
       id: 'dpd',
       name: 'DPD express',
-      icon: '⚡',
+      iconPath: 'assets/dpdlogo.png',  // ← Ugyanaz mint házhozszállítás
       price: 2490,
       estimatedDays: '1 munkanap'
     }
   ];
-  
-  // Payment methods
+
   paymentMethods: PaymentMethod[] = [
     {
       id: 'card',
       name: 'Bankkártyával online',
-      icon: '💳'
+      iconPath: 'assets/MasterCard_Logo.svg.png'  // ← PNG icon path
     },
     {
       id: 'applepay',
       name: 'Apple Pay',
-      icon: ''
+      iconPath: 'assets/applepaylogo.png'  // ← PNG icon path
     },
     {
       id: 'paypal',
       name: 'PayPal',
-      icon: ''
+      iconPath: 'assets/paypallogo.png'  // ← PNG icon path
     }
   ];
 
   constructor(
     private router: Router,
-    private cartService: CartService,
-    private authService: AuthService,
-    private orderService: OrderService
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
-    // Load cart items first
-    this.loadCartItems();
-    
-    // Set default selections
-    this.selectedDeliveryMethod = 'store';
-    this.selectedPaymentMethod = 'card';
+    this.cartService.cart$.subscribe(items => {
+      this.cartItems = items;
+    });
   }
 
-  loadCartItems(): void {
-    this.cartItems = this.cartService.getCartItems();
-    
-    if (this.cartItems.length === 0) {
-      alert('A kosarad üres!');
-      this.router.navigate(['/cart']);
-    }
+  selectDeliveryMethod(id: string): void {
+    this.selectedDeliveryMethod = id;
   }
 
-  // Load saved customer data from localStorage (from profile page)
-  useSavedCustomerData(): void {
-    const savedProfile = localStorage.getItem('currentUser');
-    
-    if (savedProfile) {
-      const profile = JSON.parse(savedProfile);
-      
-      this.customerData.lastName = profile.vezetekNev || '';
-      this.customerData.firstName = profile.keresztNev || '';
-      this.customerData.email = profile.email || '';
-      this.customerData.phone = profile.telefonszam || '';
-      
-      alert('✅ Mentett adatok betöltve!');
-    } else {
-      alert('⚠️ Nincs mentett adat!');
-    }
+  selectPaymentMethod(id: string): void {
+    this.selectedPaymentMethod = id;
   }
 
-  // Load saved delivery address from localStorage (from profile page)
-  useSavedAddress(): void {
-    const savedProfile = localStorage.getItem('currentUser');
-    
-    if (savedProfile) {
-      const profile = JSON.parse(savedProfile);
-      
-      if (profile.cim) {
-        this.deliveryAddress.country = profile.cim.orszag || '';
-        this.deliveryAddress.postalCode = profile.cim.iranyitoszam || '';
-        this.deliveryAddress.city = profile.cim.varos || '';
-        this.deliveryAddress.street = profile.cim.utcaHazszam || '';
-        
-        alert('✅ Mentett cím betöltve!');
-      } else {
-        alert('⚠️ Nincs mentett cím!');
-      }
-    } else {
-      alert('⚠️ Nincs mentett adat!');
-    }
-  }
-
-  // Select delivery method
-  selectDeliveryMethod(methodId: string): void {
-    this.selectedDeliveryMethod = methodId;
-  }
-
-  // Select payment method
-  selectPaymentMethod(methodId: string): void {
-    this.selectedPaymentMethod = methodId;
-  }
-
-  // Get selected delivery option
   getSelectedDeliveryOption(): DeliveryOption | undefined {
     return this.deliveryOptions.find(opt => opt.id === this.selectedDeliveryMethod);
   }
@@ -213,7 +144,7 @@ export class CheckoutComponent implements OnInit {
   // Calculate subtotal (products only)
   getSubtotal(): number {
     return this.cartItems.reduce((sum, item) => {
-      return sum + (item.product.pPrice * item.quantity);
+      return sum + (item.product_p_price * item.quantity);
     }, 0);
   }
 
@@ -228,101 +159,77 @@ export class CheckoutComponent implements OnInit {
     return this.getSubtotal() + this.getDeliveryPrice();
   }
 
-  // Format price
   formatPrice(price: number): string {
-    return Math.round(price).toLocaleString('hu-HU') + ' Ft';
+    return new Intl.NumberFormat('hu-HU', {
+      style: 'currency',
+      currency: 'HUF',
+      minimumFractionDigits: 0
+    }).format(price);
   }
 
-  // Validate form
-  isFormValid(): boolean {
-    // Check customer data
-    if (!this.customerData.lastName || !this.customerData.firstName || 
-        !this.customerData.email || !this.customerData.phone) {
-      return false;
-    }
-    
-    // Check delivery address (except for store pickup)
-    if (this.selectedDeliveryMethod !== 'store' && this.selectedDeliveryMethod !== 'coretech') {
-      if (!this.deliveryAddress.country || !this.deliveryAddress.postalCode || 
-          !this.deliveryAddress.city || !this.deliveryAddress.street) {
-        return false;
-      }
-    }
-    
-    // Check selections
-    if (!this.selectedDeliveryMethod || !this.selectedPaymentMethod) {
-      return false;
-    }
-    
-    return true;
-  }
-
-  // Place order
   placeOrder(): void {
-    console.log('🛒 Placing order...');
-    
-    if (!this.isFormValid()) {
-      alert('⚠️ Kérlek töltsd ki az összes kötelező mezőt!');
-      return;
-    }
-    
-    // Get current user
-    const user = this.authService.getCurrentUser();
-    if (!user || !user.id) {
-      alert('⚠️ Nem található bejelentkezett felhasználó!');
-      this.router.navigate(['/login']);
+    if (this.cartItems.length === 0) {
+      alert('A kosár üres!');
       return;
     }
 
-    const userId = user.id;
-    
-    // Use addressId: 1 (default address from database)
-    const addressId = 1;
-    
-    // Prepare order data
     const orderData = {
-      addressId: addressId,
-      totalPrice: this.getTotal(),
-      status: 'pending',
       items: this.cartItems.map(item => ({
-        productId: item.product.id,
+        productId: item.product_id,
+        productName: item.product_name,
         quantity: item.quantity,
-        price: item.product.pPrice
-      }))
+        price: item.product_p_price
+      })),
+      deliveryMethod: this.selectedDeliveryMethod,
+      paymentMethod: this.selectedPaymentMethod,
+      subtotal: this.getSubtotal(),
+      deliveryFee: this.getDeliveryPrice(),
+      total: this.getTotal()
     };
 
-    console.log('📦 Creating order...', orderData);
-
-    // Send to backend
-    this.orderService.createOrder(orderData).subscribe({
-      next: (response) => {
-        console.log('✅ Order created:', response);
-        
-        const orderId = response.orderId || 'UNKNOWN';
-        
-        // Clear cart
-        this.cartService.clearCart();
-        
-        // Show success message
-        alert('✅ Rendelés sikeresen leadva!\n\nRendelésszám: ' + orderId + '\n\nKöszönjük a vásárlást!');
-        
-        // Redirect to profile page
-        this.router.navigate(['/profile']);
-      },
-      error: (err) => {
-        console.error('❌ Error creating order:', err);
-        alert('⚠️ Hiba történt a rendelés leadása során!\n\n' + (err.error?.message || err.message || 'Ismeretlen hiba'));
-      }
-    });
+    console.log('Order placed:', orderData);
+    alert('Rendelés leadva! (Demo mode)');
+    this.router.navigate(['/mainpage']);
   }
 
-  // Go back to cart
+  continueShopping(): void {
+    this.router.navigate(['/products']);
+  }
+
   goBackToCart(): void {
-    this.router.navigate(['/cart']);
+    this.router.navigate(['/mainpage']);
   }
 
-  // Get product image
-  getProductImage(product: any): string {
-    return `http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/${product.id}/images/1`;
+  useSavedCustomerData(): void {
+    console.log('Loading saved customer data...');
+    // TODO: Load saved data from profile service
+    alert('Mentett adatok betöltése (Fejlesztés alatt)');
+  }
+
+  useSavedAddress(): void {
+    console.log('Loading saved address...');
+    // TODO: Load saved address from profile service
+    alert('Mentett cím betöltése (Fejlesztés alatt)');
+  }
+
+  isFormValid(): boolean {
+    // Check if customer data is filled
+    const hasCustomerData = 
+      this.customerData.lastName.trim() !== '' &&
+      this.customerData.firstName.trim() !== '' &&
+      this.customerData.email.trim() !== '' &&
+      this.customerData.phone.trim() !== '';
+
+    // Check if delivery address is filled
+    const hasDeliveryAddress = 
+      this.deliveryAddress.country.trim() !== '' &&
+      this.deliveryAddress.postalCode.trim() !== '' &&
+      this.deliveryAddress.city.trim() !== '' &&
+      this.deliveryAddress.street.trim() !== '';
+
+    // Check if cart has items
+    const hasCartItems = this.cartItems.length > 0;
+
+    return hasCustomerData && hasDeliveryAddress && hasCartItems;
   }
 }

@@ -87,19 +87,31 @@ export class ProductsdetailpageComponent implements OnInit {
   parseProperties(properties: any): void {
     this.productProperties = [];
 
-    if (!properties) return;
+    if (!properties) {
+      console.log('⚠️ No properties provided');
+      return;
+    }
 
     try {
-      // Ha string, parse-oljuk
-      const parsed = typeof properties === 'string' ? JSON.parse(properties) : properties;
+      // Ha string, parse-oljuk (backend escaped JSON string-et küld)
+      let parsed = properties;
+      if (typeof properties === 'string') {
+        console.log('🔄 Properties is string, parsing...');
+        parsed = JSON.parse(properties);
+      }
+
+      console.log('📋 Parsed properties object:', parsed);
 
       // Minden key-value párból csinálunk egy sort
       this.productProperties = Object.entries(parsed).map(([key, value]) => ({
         key: key,
         value: String(value)
       }));
+      
+      console.log('✅ Property rows created:', this.productProperties.length);
     } catch (e) {
-      console.error('Error parsing product properties:', e);
+      console.error('❌ Error parsing product properties:', e);
+      console.error('❌ Properties value was:', properties);
       this.productProperties = [];
     }
   }
@@ -158,11 +170,15 @@ export class ProductsdetailpageComponent implements OnInit {
     this.loading = true;
     this.productService.getProductById(id).subscribe({
       next: (product) => {
+        console.log('📦 Product loaded:', product);
         this.product = product;
         this.loading = false;
         this.checkIfFavorite(id);
-        // Parse properties when product loads
-        this.parseProperties((product as any).properties);
+        // Parse properties when product loads - try both property names
+        const props = (product as any).properties || (product as any)['properties'];
+        console.log('🔍 Properties from backend:', props);
+        this.parseProperties(props);
+        console.log('✅ Parsed properties:', this.productProperties);
       },
       error: (err) => {
         console.error('Error loading product:', err);
@@ -270,12 +286,19 @@ export class ProductsdetailpageComponent implements OnInit {
       return;
     }
     if (this.product && this.isInStock()) {
-      const success = this.cartService.addToCart(this.product, this.quantity);
-      if (success) {
-        alert('✅ Termék hozzáadva a kosárhoz!');
-      } else {
-        alert('❌ Nem sikerült hozzáadni a kosárhoz!');
-      }
+      this.cartService.addToCart(this.product, this.quantity).subscribe({
+        next: (success) => {
+          if (success) {
+            alert('✅ Termék hozzáadva a kosárhoz!');
+          } else {
+            alert('❌ Nem sikerült hozzáadni a kosárhoz!');
+          }
+        },
+        error: (err) => {
+          console.error('Error adding to cart:', err);
+          alert('❌ Hiba történt: ' + (err.error?.message || err.message));
+        }
+      });
     }
   }
 

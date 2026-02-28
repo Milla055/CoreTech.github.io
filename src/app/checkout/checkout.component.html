@@ -22,15 +22,15 @@
         <div class="cart-items">
           <div class="cart-item" *ngFor="let item of cartItems">
             <div class="item-image">
-              <img [src]="getProductImage(item.product)" [alt]="item.product.name" />
+              <img [src]="'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products/' + item.product_id + '/images/1'" [alt]="item.product_name" />
             </div>
             <div class="item-details">
-              <h3 class="item-name">{{ item.product.name }}</h3>
+              <h3 class="item-name">{{ item.product_name }}</h3>
               <p class="item-quantity">Mennyiség: {{ item.quantity }} db</p>
-              <p class="item-price">{{ formatPrice(item.product.pPrice) }}</p>
+              <p class="item-price">{{ formatPrice(item.product_p_price) }}</p>
             </div>
             <div class="item-total">
-              {{ formatPrice(item.product.pPrice * item.quantity) }}
+              {{ formatPrice(item.product_p_price * item.quantity) }}
             </div>
           </div>
         </div>
@@ -117,7 +117,9 @@
             class="delivery-option"
             [class.selected]="selectedDeliveryMethod === option.id"
             (click)="selectDeliveryMethod(option.id)">
-            <div class="option-icon">{{ option.icon }}</div>
+            <div class="option-icon">
+              <img [src]="option.iconPath" [alt]="option.name" class="delivery-icon-img">
+            </div>
             <div class="option-info">
               <h3 class="option-name">{{ option.name }}</h3>
               <p class="option-estimate">{{ option.estimatedDays }}</p>
@@ -141,7 +143,9 @@
             class="payment-option"
             [class.selected]="selectedPaymentMethod === method.id"
             (click)="selectPaymentMethod(method.id)">
-            <div class="payment-icon">{{ method.icon }}</div>
+            <div class="payment-icon">
+              <img [src]="method.iconPath" [alt]="method.name" class="payment-icon-img">
+            </div>
             <div class="payment-name">{{ method.name }}</div>
             <div class="payment-radio">
               <span class="radio" [class.checked]="selectedPaymentMethod === method.id"></span>

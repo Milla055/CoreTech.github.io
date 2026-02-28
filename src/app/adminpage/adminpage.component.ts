@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { AdminService, AdminUser, Order } from '../services/admin.service';
+import { AdminService, AdminUser, Order, Review } from '../services/admin.service';
 import { ProductService, Product } from '../services/product.service';
 
 @Component({
@@ -51,6 +51,10 @@ export class AdminpageComponent implements OnInit {
   orderSearchQuery: string = '';
   orderStatusFilter: string = 'all';
 
+  // Reviews for reviews tab
+  reviews: Review[] = [];
+  filteredReviews: Review[] = [];
+  reviewSearchQuery: string = '';
 
   // Products for products tab
   products: Product[] = [];
@@ -207,6 +211,8 @@ export class AdminpageComponent implements OnInit {
       this.loadAllUsers();
     } else if (menu === 'orders' && this.allOrders.length === 0) {
       this.loadAllOrders();
+    } else if (menu === 'reviews' && this.reviews.length === 0) {
+      this.loadAllReviews();
     } else if (menu === 'products' && this.products.length === 0) {
       this.loadAllProducts();
     }
@@ -232,6 +238,15 @@ export class AdminpageComponent implements OnInit {
     });
   }
 
+  loadAllReviews(): void {
+    this.adminService.getReviewsWithDetails().subscribe({
+      next: (reviews) => {
+        this.reviews = reviews;
+        this.filteredReviews = [...this.reviews];
+      },
+      error: (err) => console.error('Error loading reviews:', err)
+    });
+  }
 
   loadAllProducts(): void {
     console.log('📦 Loading all products...');
@@ -276,6 +291,18 @@ export class AdminpageComponent implements OnInit {
     this.filteredOrders = filtered;
   }
 
+  filterReviews(): void {
+    const query = this.reviewSearchQuery.toLowerCase().trim();
+    if (!query) {
+      this.filteredReviews = [...this.reviews];
+    } else {
+      this.filteredReviews = this.reviews.filter(r =>
+        r.productName?.toLowerCase().includes(query) ||
+        r.username?.toLowerCase().includes(query) ||
+        r.comment?.toLowerCase().includes(query)
+      );
+    }
+  }
 
   filterProducts(): void {
     const query = this.productSearchQuery.toLowerCase().trim();
@@ -374,7 +401,9 @@ export class AdminpageComponent implements OnInit {
         },
         error: (err) => {
           console.error('❌ Error creating product:', err);
-          alert('Hiba történt a termék létrehozása során: ' + (err.error?.message || err.message));
+          console.error('❌ Full error object:', JSON.stringify(err, null, 2));
+          const errorMsg = err.error?.message || err.message || 'Ismeretlen hiba';
+          alert('Hiba történt a termék létrehozása során:\n\n' + errorMsg);
         }
       });
     }

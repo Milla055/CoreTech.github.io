@@ -36,21 +36,21 @@
     <!-- Cart Items -->
     <div class="cart-items" *ngIf="isLoggedIn() && cartItems.length > 0">
       <div class="cart-item" *ngFor="let item of cartItems">
-        <div class="item-image" (click)="goToProduct(item.product.id)">
-          <img [src]="getImageUrl(item.product.id)" [alt]="item.product.name">
+        <div class="item-image" (click)="goToProduct(item.product_id)">
+          <img [src]="getImageUrl(item.product_id)" [alt]="item.product_name">
         </div>
 
         <div class="item-details">
-          <h3 class="item-name" (click)="goToProduct(item.product.id)">{{ item.product.name }}</h3>
-          <p class="item-price">{{ formatPrice(item.product.pPrice) }}</p>
+          <h3 class="item-name" (click)="goToProduct(item.product_id)">{{ item.product_name }}</h3>
+          <p class="item-price">{{ formatPrice(item.product_p_price) }}</p>
           
           <div class="item-controls">
             <div class="quantity-controls">
               <button class="qty-btn" (click)="decreaseQuantity(item)">−</button>
               <span class="qty-value">{{ item.quantity }}</span>
-              <button class="qty-btn" (click)="increaseQuantity(item)" [disabled]="item.product.stock && item.quantity >= item.product.stock">+</button>
+              <button class="qty-btn" (click)="increaseQuantity(item)" [disabled]="item.product_stock && item.quantity >= item.product_stock">+</button>
             </div>
-            <button class="remove-btn" (click)="removeItem(item.product.id)">
+            <button class="remove-btn" (click)="removeItem(item)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
