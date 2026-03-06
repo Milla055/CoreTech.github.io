@@ -1,5 +1,23 @@
 <app-header></app-header>
 
+<!-- Success Notification -->
+<div class="success-notification" *ngIf="showSuccessMessage">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>{{ successMessage }}</span>
+</div>
+
+<!-- Error Notification -->
+<div class="error-notification" *ngIf="showErrorMessage">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage }}</span>
+</div>
+
 <div class="product-detail-container" *ngIf="!loading && product">
   <!-- Breadcrumb -->
   <nav class="breadcrumb">
@@ -62,11 +80,19 @@
           [disabled]="isTogglingFavorite"
           (click)="toggleFavorite()">
           Kedvenc 
-          <span class="heart">{{ isFavorite ? '❤' : '♡' }}</span>
+          <span class="heart">♥</span>
         </button>
       </div>
 
-      <div class="product-price">{{ formatPrice(product['pPrice'] || product.price) }}</div>
+      <!-- Price Display -->
+      <div class="price-container">
+        <!-- Show original price strikethrough if discounted -->
+        <div class="original-price" *ngIf="hasDiscount()">
+          {{ formatPrice(product.price) }}
+        </div>
+        <!-- Display price (pPrice if discounted, else price) -->
+        <div class="product-price">{{ formatPrice(getDisplayPrice()) }}</div>
+      </div>
       <p class="warranty">Garancia: 36 hónap</p>
 
       <div class="add-to-cart-section">

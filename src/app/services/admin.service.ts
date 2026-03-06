@@ -492,4 +492,17 @@ export class AdminService {
       })
     );
   }
+
+  // Analytics endpoints
+  getTotalRevenue(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/analytics/revenue`, { headers: this.getAuthHeaders() });
+  }
+
+  getTotalProfit(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/analytics/profit`, { headers: this.getAuthHeaders() });
+  }
+
+  getOrdersCount(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/analytics/orders/count`, { headers: this.getAuthHeaders() });
+  }
 }

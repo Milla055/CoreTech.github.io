@@ -1,5 +1,14 @@
 <div class="backdrop">
     <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p>CoreTech</p></header></div>
+    
+    <!-- Success Notification -->
+    <div class="success-notification" *ngIf="showSuccessMessage">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Sikeres bejelentkezés! Átirányítás...</span>
+    </div>
+    
     <div class="control-row">
         <img src="assets/CoreTechLogoKek.png" alt="logo" class="logoSmall">
         <span class="welcomeText">Üdv újra!<br><br>

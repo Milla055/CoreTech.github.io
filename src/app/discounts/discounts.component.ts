@@ -65,4 +65,5 @@ export class DiscountsComponent implements OnInit {
     const count = Math.min(30 + Math.floor(rng() * 11), shuffled.length);
     return shuffled.slice(0, count);
   }
+  
 }

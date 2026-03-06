@@ -9,6 +9,7 @@ import { OrderService } from '../services/order.service';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
 import { CommonModule } from '@angular/common';
+import { PhoneValidator } from '../phone-validator';
 
 @Component({
   selector: 'app-profilepage',
@@ -47,6 +48,13 @@ export class ProfilepageComponent implements OnInit {
   // Kedvencek - VALÓDI ADATOK
   favorites: FavoriteProduct[] = [];
   loadingFavorites: boolean = false;
+  
+  // Notification states
+  showSuccessMessage: boolean = false;
+  successMessage: string = '';
+  showErrorMessage: boolean = false;
+  errorMessage: string = '';
+
   
   // Rendelések - VALÓDI ADATOK (mock adatok törölve!)
   orders: any[] = [];
@@ -260,8 +268,7 @@ export class ProfilepageComponent implements OnInit {
   }
 
   getFullName(): string {
-    return `${this.userData?.vezetekNev || ''} ${this.userData?.keresztNev || ''}`.trim() 
-           || this.userData?.username || 'Felhasználó';
+    return `${this.userData?.vezetekNev || ''} ${this.userData?.keresztNev || ''}`.trim();
   }
 
   getFullAddress(): string {
@@ -291,17 +298,37 @@ export class ProfilepageComponent implements OnInit {
     this.router.navigate(['/adminpage']);
   }
 
+  // Phone number input handler - auto-format as user types
+  onPhoneInput(event: any): void {
+    const input = event.target.value;
+    this.deliveryDataForm.patchValue({
+      telefonszam: PhoneValidator.formatAsTyping(input)
+    });
+  }
+
   onSubmit(): void {
     if (this.customerDataForm.valid) {
       const vezetekNev = this.customerDataForm.value.vezetekNev || '';
       const keresztNev = this.customerDataForm.value.keresztNev || '';
       const teljesnev = `${vezetekNev} ${keresztNev}`.trim();
       
+      console.log('🔍 DEBUG - vezetekNev:', vezetekNev);
+      console.log('🔍 DEBUG - keresztNev:', keresztNev);
+      console.log('🔍 DEBUG - teljesnev:', teljesnev);
+      
+      const phone = this.deliveryDataForm.value.telefonszam || '';
+      
+      // Validate phone number
+      if (phone && !PhoneValidator.isValid(phone)) {
+        this.showError(PhoneValidator.getErrorMessage(phone));
+        return;
+      }
+      
       const updatedData = {
         username: this.userData.username,
         teljesnev: teljesnev,
         email: this.customerDataForm.value.email,
-        phone: this.deliveryDataForm.value.telefonszam || ''
+        phone: phone
       };
 
       console.log('💾 Saving profile data:', updatedData);
@@ -316,13 +343,23 @@ export class ProfilepageComponent implements OnInit {
             this.userData.vezetekNev = vezetekNev;
             this.userData.keresztNev = keresztNev;
             
+            // Update localStorage user object
+            const currentUser = this.authService.getCurrentUser();
+            if (currentUser) {
+              currentUser.teljesnev = updatedData.teljesnev;
+              currentUser.phone = updatedData.phone;
+              currentUser.email = updatedData.email;
+              localStorage.setItem('user', JSON.stringify(currentUser));
+              console.log('✅ localStorage user updated:', currentUser);
+            }
+            
             // After profile saved, save address too
             console.log('💾 Now saving address...');
             this.saveDeliveryAddress();
             
-            alert('✅ Változások mentve!');
+            this.showSuccess('Változások sikeresen mentve!');
           } else {
-            alert('❌ Nem sikerült menteni a változásokat!');
+            this.showError('Nem sikerült menteni a változásokat!');
           }
           this.isUpdatingProfile = false;
         },
@@ -337,24 +374,24 @@ export class ProfilepageComponent implements OnInit {
             this.userData.telefonszam = updatedData.phone;
             this.userData.vezetekNev = vezetekNev;
             this.userData.keresztNev = keresztNev;
-            alert('⚠️ Backend nem elérhető - adatok ideiglenesen mentve.');
+            this.showError('Backend nem elérhető - adatok ideiglenesen mentve!');
           } else if (error.status === 401) {
-            alert('❌ Érvénytelen token!');
+            this.showError('Érvénytelen token!');
             this.authService.logout();
             this.router.navigate(['/login']);
           } else {
-            alert('❌ Hiba történt a mentés során!');
+            this.showError('Hiba történt a mentés során!');
           }
         }
       });
     } else {
-      alert('⚠️ Töltsd ki az összes kötelező mezőt!');
+      this.showError('Töltsd ki az összes kötelező mezőt!');
     }
   }
 
   onPasswordChange(): void {
     if (!this.passwordForm.valid) {
-      alert('⚠️ Töltsd ki az összes jelszó mezőt helyesen!');
+      this.showError('Töltsd ki az összes jelszó mezőt helyesen!');
       return;
     }
 
@@ -363,12 +400,12 @@ export class ProfilepageComponent implements OnInit {
     const confirmPassword = this.passwordForm.value.ujJelszoMegerosites;
 
     if (newPassword !== confirmPassword) {
-      alert('❌ Az új jelszavak nem egyeznek!');
+      this.showError('Az új jelszavak nem egyeznek!');
       return;
     }
 
     if (!this.authService.isLoggedIn()) {
-      alert('❌ Lejárt a munkamenet!');
+      this.showError('Lejárt a munkamenet!');
       this.authService.logout();
       this.router.navigate(['/login']);
       return;
@@ -379,7 +416,7 @@ export class ProfilepageComponent implements OnInit {
     this.authService.changePassword(oldPassword, newPassword).subscribe({
       next: (response) => {
         this.isChangingPassword = false;
-        alert('✅ Jelszó sikeresen megváltoztatva!');
+        this.showSuccess('Jelszó sikeresen megváltoztatva!');
         this.passwordForm.reset();
         this.showOldPassword = false;
         this.showNewPassword = false;
@@ -396,7 +433,7 @@ export class ProfilepageComponent implements OnInit {
           errorMsg = '❌ Gyenge jelszó!';
         }
         
-        alert(errorMsg);
+        this.showError(errorMsg.replace('❌ ', ''));
       }
     });
   }
@@ -422,7 +459,7 @@ export class ProfilepageComponent implements OnInit {
       telefonszam: this.userData?.telefonszam || ''
     });
     
-    alert('Visszaállítva');
+    this.showSuccess('Változások visszaállítva!');
   }
 
   // Rendeléseim modal
@@ -451,15 +488,12 @@ export class ProfilepageComponent implements OnInit {
 
   // Kedvenc eltávolítása - service.removeFavorite()
   removeFavorite(productId: number): void {
-    if (!confirm('Biztosan törölni szeretnéd?')) {
-      return;
-    }
 
     this.favoritesService.removeFavorite(productId).subscribe({
       next: (response) => {
         if (response.success) {
           this.loadFavorites(); // Reload
-          alert('✅ Eltávolítva!');
+          this.showSuccess('Termék eltávolítva a kedvencekből!');
         }
       },
       error: (err) => {
@@ -471,7 +505,7 @@ export class ProfilepageComponent implements OnInit {
   // Kosárba helyezés
   addFavoriteToCart(favorite: FavoriteProduct): void {
     if (!this.cartService.isLoggedIn()) {
-      alert('Be kell jelentkezned!');
+      this.showError('Be kell jelentkezned!');
       this.router.navigate(['/login']);
       return;
     }
@@ -496,7 +530,7 @@ export class ProfilepageComponent implements OnInit {
 
     const success = this.cartService.addToCart(product, 1);
     if (success) {
-      alert('✅ Kosárba helyezve!');
+      this.showSuccess('Termék hozzáadva a kosárhoz!');
     }
   }
 
@@ -629,18 +663,18 @@ export class ProfilepageComponent implements OnInit {
     this.profileService.deleteAddress(addressId).subscribe({
       next: (success) => {
         if (success) {
-          alert('✅ Cím törölve!');
+          this.showSuccess('Cím sikeresen törölve!');
           this.loadAddresses();
           if (this.selectedAddressId === addressId) {
             this.selectedAddressId = null;
           }
         } else {
-          alert('❌ Nem sikerült törölni a címet!');
+          this.showError('Nem sikerült törölni a címet!');
         }
       },
       error: (err) => {
         console.error('❌ Error deleting address:', err);
-        alert('❌ Hiba történt!');
+        this.showError('Hiba történt a törlés során!');
       }
     });
   }
@@ -649,15 +683,15 @@ export class ProfilepageComponent implements OnInit {
     this.profileService.setDefaultAddress(addressId).subscribe({
       next: (success) => {
         if (success) {
-          alert('✅ Alapértelmezett cím beállítva!');
+          this.showSuccess('Alapértelmezett cím beállítva!');
           this.loadAddresses();
         } else {
-          alert('❌ Nem sikerült beállítani!');
+          this.showError('Nem sikerült beállítani!');
         }
       },
       error: (err) => {
         console.error('❌ Error setting default:', err);
-        alert('❌ Hiba történt!');
+        this.showError('Hiba történt!');
       }
     });
   }
@@ -682,6 +716,24 @@ export class ProfilepageComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.favoritesService.clearFavorites();
+    this.favoritesService.clearFavorites();
     this.router.navigate(['/mainpage']);
+  }
+  
+  // Notification helper methods
+  showSuccess(message: string): void {
+    this.successMessage = message;
+    this.showSuccessMessage = true;
+    setTimeout(() => {
+      this.showSuccessMessage = false;
+    }, 2000);
+  }
+  
+  showError(message: string): void {
+    this.errorMessage = message;
+    this.showErrorMessage = true;
+    setTimeout(() => {
+      this.showErrorMessage = false;
+    }, 3000);
   }
 }

@@ -1,5 +1,14 @@
 <div class="backdrop">
     <div class="logoContainer"><header><img src="assets/CoreTechLogo.png" alt="logo" class="logo"><p class="logoText">CoreTech</p></header></div>
+    
+    <!-- Top Success Notification -->
+    <div class="success-notification" *ngIf="showSuccessMessage">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Sikeres regisztráció! Átirányítás...</span>
+    </div>
+    
     <div class="control-row" [formGroup]="form">
         <h1>Regisztráció</h1>
         <div class="control-no-margin">
@@ -16,7 +25,13 @@
         
         <div class="control-no-margin">
             <label for="phone">Telefonszám: *</label><br>
-            <input type="phone" id="phone" formControlName="phone">
+            <input 
+                type="tel" 
+                id="phone" 
+                formControlName="phone"
+                (input)="onPhoneInput($event)"
+                
+                maxlength="16">
         </div>
 
         <div class="control-no-margin">

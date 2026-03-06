@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../services/cart.service';
+import { ProfileService, Address } from '../services/profile.service';
+import { OrderService } from '../services/order.service';
+import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
+import { PhoneValidator } from '../phone-validator';
 
 interface DeliveryOption {
   id: string;
@@ -31,6 +35,16 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   selectedDeliveryMethod: string = 'store';
   selectedPaymentMethod: string = 'card';
+
+  // Notification state
+  showSuccessNotification: boolean = false;
+  showErrorNotification: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
+
+  // Saved addresses from backend
+  savedAddresses: Address[] = [];
+  selectedAddressId: number = 0;
 
   // Customer data
   customerData = {
@@ -120,7 +134,10 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private cartService: CartService
+    private cartService: CartService,
+    private profileService: ProfileService,
+    private orderService: OrderService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -167,29 +184,67 @@ export class CheckoutComponent implements OnInit {
     }).format(price);
   }
 
+  // Phone number input handler - auto-format as user types
+  onPhoneInput(event: any): void {
+    const input = event.target.value;
+    this.customerData.phone = PhoneValidator.formatAsTyping(input);
+  }
+
   placeOrder(): void {
     if (this.cartItems.length === 0) {
-      alert('A kosár üres!');
+      this.showError('A kosár üres!');
       return;
     }
 
-    const orderData = {
+    if (!this.isFormValid()) {
+      this.showError('Töltsd ki az összes kötelező mezőt!');
+      return;
+    }
+
+    // Validate phone number
+    if (!PhoneValidator.isValid(this.customerData.phone)) {
+      this.showError(PhoneValidator.getErrorMessage(this.customerData.phone));
+      return;
+    }
+
+    if (this.selectedAddressId === 0) {
+      this.showError('Válassz ki egy szállítási címet!');
+      return;
+    }
+
+    console.log('📦 Placing order with addressId:', this.selectedAddressId);
+
+    // Call checkout endpoint
+    this.orderService.createOrder({
+      addressId: this.selectedAddressId,
+      totalPrice: this.getTotal(),
+      status: 'pending',
       items: this.cartItems.map(item => ({
         productId: item.product_id,
-        productName: item.product_name,
         quantity: item.quantity,
         price: item.product_p_price
-      })),
-      deliveryMethod: this.selectedDeliveryMethod,
-      paymentMethod: this.selectedPaymentMethod,
-      subtotal: this.getSubtotal(),
-      deliveryFee: this.getDeliveryPrice(),
-      total: this.getTotal()
-    };
-
-    console.log('Order placed:', orderData);
-    alert('Rendelés leadva! (Demo mode)');
-    this.router.navigate(['/mainpage']);
+      }))
+    }).subscribe({
+      next: (response) => {
+        console.log('✅ Order created:', response);
+        
+        if (response.status === 'OrderCreated' || response.statusCode === 201) {
+          // Clear cart after successful order
+          this.cartService.clearCart().subscribe();
+          
+          this.showSuccess(`Rendelés leadva! Rendelésszám: ${response.orderId}`, 3000);
+          setTimeout(() => {
+            this.router.navigate(['/profile']);
+          }, 3000);
+        } else {
+          this.showError('Hiba történt a rendelés leadása során!');
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error placing order:', err);
+        this.showError('Hiba történt: ' + (err.error?.message || err.message));
+      }
+    });
   }
 
   continueShopping(): void {
@@ -201,15 +256,78 @@ export class CheckoutComponent implements OnInit {
   }
 
   useSavedCustomerData(): void {
-    console.log('Loading saved customer data...');
-    // TODO: Load saved data from profile service
-    alert('Mentett adatok betöltése (Fejlesztés alatt)');
+    console.log('📥 Loading saved customer data...');
+    
+    // Try to load from backend first
+    this.profileService.getUserProfile().subscribe({
+      next: (user) => {
+        if (user) {
+          this.customerData.lastName = user.username || '';
+          this.customerData.firstName = user.teljesnev || '';
+          this.customerData.email = user.email || '';
+          this.customerData.phone = user.phone || '';
+          console.log('✅ Customer data loaded from backend:', this.customerData);
+        } else {
+          // Fallback to localStorage if backend returns null
+          this.loadFromLocalStorage();
+        }
+      },
+      error: (err) => {
+        console.error('❌ Backend error, using localStorage fallback:', err);
+        // Fallback to localStorage on error
+        this.loadFromLocalStorage();
+      }
+    });
+  }
+
+  private loadFromLocalStorage(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.customerData.lastName = user.username || '';
+      this.customerData.firstName = user.teljesnev || '';
+      this.customerData.email = user.email || '';
+      this.customerData.phone = user.phone || '';
+      console.log('✅ Customer data loaded from localStorage:', this.customerData);
+    } else {
+      this.showError('Nem sikerült betölteni a felhasználói adatokat!');
+    }
   }
 
   useSavedAddress(): void {
-    console.log('Loading saved address...');
-    // TODO: Load saved address from profile service
-    alert('Mentett cím betöltése (Fejlesztés alatt)');
+    console.log('📥 Loading saved addresses from backend...');
+    
+    this.profileService.getAddresses().subscribe({
+      next: (addresses) => {
+        this.savedAddresses = addresses;
+        console.log('✅ Addresses loaded:', addresses.length);
+        
+        // Auto-select default address if exists
+        const defaultAddr = addresses.find(a => a.isDefault);
+        if (defaultAddr) {
+          this.selectSavedAddress(defaultAddr.id);
+        } else if (addresses.length > 0) {
+          this.selectSavedAddress(addresses[0].id);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error loading addresses:', err);
+        this.showError('Nem sikerült betölteni a mentett címeket!');
+      }
+    });
+  }
+
+  selectSavedAddress(addressId: number): void {
+    this.selectedAddressId = addressId;
+    const address = this.savedAddresses.find(a => a.id === addressId);
+    
+    if (address) {
+      this.deliveryAddress.country = address.country;
+      this.deliveryAddress.postalCode = address.postalCode;
+      this.deliveryAddress.city = address.city;
+      this.deliveryAddress.street = address.street;
+      
+      console.log('✅ Address selected:', address);
+    }
   }
 
   isFormValid(): boolean {
@@ -231,5 +349,22 @@ export class CheckoutComponent implements OnInit {
     const hasCartItems = this.cartItems.length > 0;
 
     return hasCustomerData && hasDeliveryAddress && hasCartItems;
+  }
+
+  // Notification helpers
+  private showSuccess(message: string, duration: number = 2000): void {
+    this.successMessage = message;
+    this.showSuccessNotification = true;
+    setTimeout(() => {
+      this.showSuccessNotification = false;
+    }, duration);
+  }
+
+  private showError(message: string, duration: number = 3000): void {
+    this.errorMessage = message;
+    this.showErrorNotification = true;
+    setTimeout(() => {
+      this.showErrorNotification = false;
+    }, duration);
   }
 }

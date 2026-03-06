@@ -67,16 +67,24 @@ export class ProfileService {
 
   // ==================== USER PROFILE ====================
 
-  // Get user profile from backend (NOT IMPLEMENTED IN BACKEND YET - uses mock)
+  // Get user profile from backend
   getUserProfile(): Observable<UserProfile | null> {
     console.log('👤 Getting user profile from backend...');
-    console.warn('⚠️ GET user profile endpoint NOT implemented in backend yet!');
     
-    // TODO: When backend implements GET endpoint, use this:
-    // return this.http.get<ProfileResponse>(`${this.usersUrl}/getUserProfile`, this.getAuthHeaders())
-    
-    // For now, return null to trigger mock data
-    return of(null);
+    return this.http.get<ProfileResponse>(`${this.usersUrl}/getUserProfile`, this.getAuthHeaders()).pipe(
+      tap(response => console.log('📦 Profile response:', response)),
+      map(response => {
+        if (response.status === 'Success' && response.user) {
+          console.log('✅ Profile loaded:', response.user);
+          return response.user;
+        }
+        return null;
+      }),
+      catchError(err => {
+        console.error('❌ Error loading profile:', err);
+        return of(null);
+      })
+    );
   }
 
   // Update user profile

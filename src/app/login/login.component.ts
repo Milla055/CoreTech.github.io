@@ -25,6 +25,9 @@ export class LoginComponent implements OnInit {
   // Jelszó megjelenítés állapota
   showPassword: boolean = false;
   
+  // Success message állapot
+  showSuccessMessage: boolean = false;
+  
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
@@ -97,8 +100,14 @@ export class LoginComponent implements OnInit {
   this.AuthService.login(finalData).subscribe({
     next: (result) => {
       console.log(result);
-      // Navigation is now automatic because AuthService handles everything
-      this.router.navigate(['/mainpage']);
+      // Show success notification
+      this.showSuccessMessage = true;
+      
+      // Auto-redirect after 2 seconds
+      setTimeout(() => {
+        this.showSuccessMessage = false;
+        this.router.navigate(['/mainpage']);
+      }, 2000);
     },
     error: (err) => {
       console.error('Hiba történt:', err);

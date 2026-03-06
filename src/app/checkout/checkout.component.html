@@ -1,5 +1,23 @@
 <app-header></app-header>
 
+<!-- Success Notification -->
+<div class="success-notification" *ngIf="showSuccessNotification">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+  <span>{{ successMessage }}</span>
+</div>
+
+<!-- Error Notification -->
+<div class="error-notification" *ngIf="showErrorNotification">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+  <span>{{ errorMessage }}</span>
+</div>
+
 <div class="checkout-container">
   <div class="checkout-header">
     <button class="back-btn" (click)="goBackToCart()">
@@ -51,11 +69,11 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label>Vezetéknév *</label>
+            <label>Felhasználónév *</label>
             <input type="text" [(ngModel)]="customerData.lastName" placeholder="Kovács" required />
           </div>
           <div class="form-group">
-            <label>Keresztnév *</label>
+            <label>Teljesnév *</label>
             <input type="text" [(ngModel)]="customerData.firstName" placeholder="János" required />
           </div>
         </div>
@@ -67,7 +85,13 @@
           </div>
           <div class="form-group">
             <label>Telefonszám *</label>
-            <input type="tel" [(ngModel)]="customerData.phone" placeholder="+36 30 123 4567" required />
+            <input 
+              type="tel" 
+              [(ngModel)]="customerData.phone" 
+              (input)="onPhoneInput($event)"
+              placeholder="+36 XX XXX XXXX" 
+              maxlength="16"
+              required />
           </div>
         </div>
       </div>

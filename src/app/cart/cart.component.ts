@@ -16,6 +16,10 @@ export class CartComponent implements OnInit {
 
   cartItems: CartItem[] = [];
   cartTotal: number = 0;
+  
+  // Notification
+  showSuccessMessage: boolean = false;
+  successMessage: string = '';
 
   private imageApiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products';
 
@@ -72,18 +76,30 @@ export class CartComponent implements OnInit {
 
   removeItem(item: CartItem): void {
     this.cartService.removeItem(item.item_id).subscribe({
-      next: () => console.log('✅ Item removed'),
+      next: () => {
+        console.log('✅ Item removed');
+        this.successMessage = 'Termék eltávolítva a kosárból!';
+        this.showSuccessMessage = true;
+        setTimeout(() => {
+          this.showSuccessMessage = false;
+        }, 2000);
+      },
       error: (err) => console.error('❌ Error removing item:', err)
     });
   }
 
   clearCart(): void {
-    if (confirm('Biztosan törölni szeretnéd az egész kosarat?')) {
-      this.cartService.clearCart().subscribe({
-        next: () => console.log('✅ Cart cleared'),
-        error: (err) => console.error('❌ Error clearing cart:', err)
-      });
-    }
+    this.cartService.clearCart().subscribe({
+      next: () => {
+        console.log('✅ Cart cleared');
+        this.successMessage = 'Kosár sikeresen kiürítve!';
+        this.showSuccessMessage = true;
+        setTimeout(() => {
+          this.showSuccessMessage = false;
+        }, 2000);
+      },
+      error: (err) => console.error('❌ Error clearing cart:', err)
+    });
   }
 
   formatPrice(price: number): string {

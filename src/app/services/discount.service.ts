@@ -5,10 +5,41 @@ import { Injectable } from '@angular/core';
 })
 export class DiscountService {
   private discountProductIds: Set<number> = new Set();
+  private readonly STORAGE_KEY = 'discount_product_ids';
+
+  constructor() {
+    // Load from localStorage on init
+    this.loadFromStorage();
+  }
+
+  // Load discount products from localStorage
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const ids = JSON.parse(stored);
+        this.discountProductIds = new Set(ids);
+        console.log('🏷️ Discount products loaded from cache:', ids.length, 'products');
+      }
+    } catch (e) {
+      console.error('❌ Error loading discount cache:', e);
+    }
+  }
+
+  // Save discount products to localStorage
+  private saveToStorage(): void {
+    try {
+      const ids = Array.from(this.discountProductIds);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(ids));
+    } catch (e) {
+      console.error('❌ Error saving discount cache:', e);
+    }
+  }
 
   // Set which products are currently on discount (called by discounts page)
   setDiscountProducts(productIds: number[]): void {
     this.discountProductIds = new Set(productIds);
+    this.saveToStorage();
     console.log('🏷️ Discount products updated:', productIds.length, 'products');
   }
 
@@ -36,5 +67,12 @@ export class DiscountService {
       return false;
     }
     return product.pPrice < product.price;
+  }
+
+  // Clear discount cache (optional - for logout or cache invalidation)
+  clearCache(): void {
+    this.discountProductIds.clear();
+    localStorage.removeItem(this.STORAGE_KEY);
+    console.log('🏷️ Discount cache cleared');
   }
 }

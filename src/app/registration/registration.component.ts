@@ -10,6 +10,7 @@ import {
 import { of } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { PhoneValidator } from '../phone-validator';
 
 export function mustContainSpecialCharacters(control: AbstractControl) {
   const specialChars = [
@@ -60,6 +61,9 @@ export class RegistrationComponent {
   // Jelszó megjelenítés állapotok
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
+  
+  // Success message állapot
+  showSuccessMessage: boolean = false;
   
   form = new FormGroup({
     email: new FormControl('', {
@@ -130,6 +134,13 @@ export class RegistrationComponent {
     }
   }
 
+  // Phone number input handler - auto-format as user types
+  onPhoneInput(event: any): void {
+    const input = event.target.value;
+    const formatted = PhoneValidator.formatAsTyping(input);
+    this.form.patchValue({ phone: formatted });
+  }
+
   ngOnInit() {
     const savedForm = window.localStorage.getItem('saved-login-form');
 
@@ -148,18 +159,31 @@ export class RegistrationComponent {
   onSubmit() {
     if (this.form.invalid) return;
 
+    // Validate phone number
+    const phone = this.form.value.phone!;
+    if (!PhoneValidator.isValid(phone)) {
+      alert(PhoneValidator.getErrorMessage(phone));
+      return;
+    }
+
     const finalData = {
       email: this.form.value.email!,
       username: this.form.value.username!,
       password: this.form.value.password!,
-      phone: this.form.value.phone!,
+      phone: phone,
     };
 
     this.AuthService.register(finalData).subscribe({
       next: (result) => {
         console.log(result);
-        alert('Sikeres regisztráció! Jelentkezz be.');
-        this.router.navigate(['/login']);
+        // Show success notification
+        this.showSuccessMessage = true;
+        
+        // Auto-redirect after 2 seconds
+        setTimeout(() => {
+          this.showSuccessMessage = false;
+          this.router.navigate(['/login']);
+        }, 2000);
       },
       error: (err) => {
         console.error('Hiba történt:', err);

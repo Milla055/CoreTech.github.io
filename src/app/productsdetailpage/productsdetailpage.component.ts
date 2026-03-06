@@ -6,6 +6,7 @@ import { ProductImageService } from '../services/product-image.service';
 import { CartService } from '../services/cart.service';
 import { FavoritesService } from '../services/favorites.service';
 import { AuthService } from '../services/auth.service';
+import { DiscountService } from '../services/discount.service';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ProductcardComponent } from '../productcard/productcard.component';
@@ -36,6 +37,14 @@ export class ProductsdetailpageComponent implements OnInit {
   isFavorite: boolean = false;
   isTogglingFavorite: boolean = false;
 
+  // Success notification
+  showSuccessMessage: boolean = false;
+  successMessage: string = '';
+  
+  // Error notification
+  showErrorMessage: boolean = false;
+  errorMessage: string = '';
+
   // Properties - parsed JSON key-value pairs
   productProperties: { key: string; value: string }[] = [];
 
@@ -59,7 +68,8 @@ export class ProductsdetailpageComponent implements OnInit {
     private productImageService: ProductImageService,
     private cartService: CartService,
     private favoritesService: FavoritesService,
-    private authService: AuthService
+    private authService: AuthService,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -220,8 +230,12 @@ export class ProductsdetailpageComponent implements OnInit {
 
   toggleFavorite(): void {
     if (!this.authService.isLoggedIn()) {
-      alert('A kedvencek használatához be kell jelentkezned!');
-      this.router.navigate(['/login']);
+      this.errorMessage = 'A kedvencek használatához be kell jelentkezned!';
+      this.showErrorMessage = true;
+      setTimeout(() => {
+        this.showErrorMessage = false;
+        this.router.navigate(['/login']);
+      }, 2000);
       return;
     }
 
@@ -233,16 +247,33 @@ export class ProductsdetailpageComponent implements OnInit {
       next: (response) => {
         this.isFavorite = response.isFavorite;
         this.isTogglingFavorite = false;
+        
         if (this.isFavorite) {
-          alert('❤️ Hozzáadva a kedvencekhez!');
+          // Added to favorites
+          this.successMessage = 'Termék sikeresen hozzáadva a kedvencekhez!';
+          this.showSuccessMessage = true;
+          
+          setTimeout(() => {
+            this.showSuccessMessage = false;
+          }, 2000);
         } else {
-          alert('💔 Eltávolítva a kedvencekből!');
+          // Removed from favorites
+          this.successMessage = 'Termék sikeresen eltávolítva a kedvencekből!';
+          this.showSuccessMessage = true;
+          
+          setTimeout(() => {
+            this.showSuccessMessage = false;
+          }, 2000);
         }
       },
       error: (err) => {
         console.error('Hiba:', err);
         this.isTogglingFavorite = false;
-        alert('Hiba történt!');
+        this.errorMessage = 'Hiba történt!';
+        this.showErrorMessage = true;
+        setTimeout(() => {
+          this.showErrorMessage = false;
+        }, 3000);
       }
     });
   }
@@ -281,22 +312,38 @@ export class ProductsdetailpageComponent implements OnInit {
 
   addToCart(): void {
     if (!this.cartService.isLoggedIn()) {
-      alert('A kosár használatához be kell jelentkezned!');
-      this.router.navigate(['/login']);
+      this.errorMessage = 'A kosár használatához be kell jelentkezned!';
+      this.showErrorMessage = true;
+      setTimeout(() => {
+        this.showErrorMessage = false;
+        this.router.navigate(['/login']);
+      }, 2000);
       return;
     }
     if (this.product && this.isInStock()) {
       this.cartService.addToCart(this.product, this.quantity).subscribe({
         next: (success) => {
           if (success) {
-            alert('✅ Termék hozzáadva a kosárhoz!');
+            this.successMessage = 'Termék sikeresen hozzáadva a kosárhoz!';
+            this.showSuccessMessage = true;
+            setTimeout(() => {
+              this.showSuccessMessage = false;
+            }, 2000);
           } else {
-            alert('❌ Nem sikerült hozzáadni a kosárhoz!');
+            this.errorMessage = 'Nem sikerült hozzáadni a kosárhoz!';
+            this.showErrorMessage = true;
+            setTimeout(() => {
+              this.showErrorMessage = false;
+            }, 3000);
           }
         },
         error: (err) => {
           console.error('Error adding to cart:', err);
-          alert('❌ Hiba történt: ' + (err.error?.message || err.message));
+          this.errorMessage = 'Hiba történt a kosárhoz adásnál!';
+          this.showErrorMessage = true;
+          setTimeout(() => {
+            this.showErrorMessage = false;
+          }, 3000);
         }
       });
     }
@@ -308,5 +355,17 @@ export class ProductsdetailpageComponent implements OnInit {
 
   formatPrice(price: number): string {
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
+  }
+
+  // Get display price using DiscountService
+  getDisplayPrice(): number {
+    if (!this.product) return 0;
+    return this.discountService.getDisplayPrice(this.product);
+  }
+
+  // Check if product has discount badge
+  hasDiscount(): boolean {
+    if (!this.product) return false;
+    return this.discountService.hasDiscount(this.product);
   }
 }

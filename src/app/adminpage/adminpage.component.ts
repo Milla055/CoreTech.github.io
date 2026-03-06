@@ -18,6 +18,12 @@ export class AdminpageComponent implements OnInit {
   today: string = '';
   loading: boolean = true;
   
+  // Notification state
+  showSuccessNotification: boolean = false;
+  showErrorNotification: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
+  
   // Stats data
   stats = {
     users: 0,
@@ -129,25 +135,28 @@ export class AdminpageComponent implements OnInit {
   loadStats(): void {
     console.log('📊 Loading dashboard stats...');
     
-    // Get admin stats from backend
-    this.adminService.getDashboardStats().subscribe({
-      next: (stats) => {
-        console.log('✅ Admin stats loaded:', stats);
-        
-        // Update stats object
-        if (stats.totalOrders !== undefined) {
-          this.stats.orders = stats.totalOrders;
-        }
-        if (stats.totalRevenue !== undefined) {
-          this.stats.revenue = stats.totalRevenue;
-        }
-        if (stats.totalProfit !== undefined) {
-          this.stats.profit = stats.totalProfit;
-        }
+    // Revenue
+    this.adminService.getTotalRevenue().subscribe({
+      next: (response) => {
+        this.stats.revenue = response.totalRevenue || 0;
       },
-      error: (err) => {
-        console.error('❌ Error loading stats:', err);
-      }
+      error: (err) => console.error('❌ Error loading revenue:', err)
+    });
+
+    // Profit
+    this.adminService.getTotalProfit().subscribe({
+      next: (response) => {
+        this.stats.profit = response.totalProfit || 0;
+      },
+      error: (err) => console.error('❌ Error loading profit:', err)
+    });
+
+    // Orders
+    this.adminService.getOrdersCount().subscribe({
+      next: (response) => {
+        this.stats.orders = response.totalOrders || 0;
+      },
+      error: (err) => console.error('❌ Error loading orders:', err)
     });
   }
 
@@ -358,7 +367,7 @@ export class AdminpageComponent implements OnInit {
     console.log('💾 Saving product...', this.productForm);
     
     if (!this.productForm.name || this.productForm.price <= 0) {
-      alert('Kérlek töltsd ki az összes kötelező mezőt!');
+      this.showError('Kérlek töltsd ki az összes kötelező mezőt!');
       return;
     }
 
@@ -380,13 +389,13 @@ export class AdminpageComponent implements OnInit {
       this.productService.updateProduct(this.productForm.id, productData).subscribe({
         next: (response) => {
           console.log('✅ Product updated:', response);
-          alert('Termék sikeresen frissítve!');
+          this.showSuccess('Termék sikeresen frissítve!');
           this.closeProductForm();
           this.loadAllProducts();
         },
         error: (err) => {
           console.error('❌ Error updating product:', err);
-          alert('Hiba történt a termék frissítése során: ' + (err.error?.message || err.message));
+          this.showError('Hiba történt a termék frissítése során: ' + (err.error?.message || err.message));
         }
       });
     } else {
@@ -395,7 +404,7 @@ export class AdminpageComponent implements OnInit {
       this.productService.createProduct(productData).subscribe({
         next: (response) => {
           console.log('✅ Product created:', response);
-          alert('Termék sikeresen létrehozva!');
+          this.showSuccess('Termék sikeresen létrehozva!');
           this.closeProductForm();
           this.loadAllProducts();
         },
@@ -403,7 +412,7 @@ export class AdminpageComponent implements OnInit {
           console.error('❌ Error creating product:', err);
           console.error('❌ Full error object:', JSON.stringify(err, null, 2));
           const errorMsg = err.error?.message || err.message || 'Ismeretlen hiba';
-          alert('Hiba történt a termék létrehozása során:\n\n' + errorMsg);
+          this.showError('Hiba történt a termék létrehozása során: ' + errorMsg);
         }
       });
     }
@@ -421,12 +430,12 @@ export class AdminpageComponent implements OnInit {
     this.productService.deleteProduct(productId).subscribe({
       next: (response) => {
         console.log('✅ Product deleted:', response);
-        alert('Termék sikeresen törölve!');
+        this.showSuccess('Termék sikeresen törölve!');
         this.loadAllProducts();
       },
       error: (err) => {
         console.error('❌ Error deleting product:', err);
-        alert('Hiba történt a termék törlése során: ' + (err.error?.message || err.message));
+        this.showError('Hiba történt a termék törlése során: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -521,5 +530,22 @@ export class AdminpageComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/mainpage']);
+  }
+
+  // Notification helpers
+  private showSuccess(message: string, duration: number = 2000): void {
+    this.successMessage = message;
+    this.showSuccessNotification = true;
+    setTimeout(() => {
+      this.showSuccessNotification = false;
+    }, duration);
+  }
+
+  private showError(message: string, duration: number = 3000): void {
+    this.errorMessage = message;
+    this.showErrorNotification = true;
+    setTimeout(() => {
+      this.showErrorNotification = false;
+    }, duration);
   }
 }

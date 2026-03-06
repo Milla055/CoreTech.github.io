@@ -20,6 +20,12 @@ export class ProductcardComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
 
+  // Notification state
+  showSuccessNotification: boolean = false;
+  showErrorNotification: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
+
   private imageApiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products';
 
   constructor(
@@ -92,8 +98,10 @@ export class ProductcardComponent implements OnInit {
     event.stopPropagation();
     
     if (!this.cartService.isLoggedIn()) {
-      alert('A kosár használatához be kell jelentkezned!');
-      this.router.navigate(['/login']);
+      this.showError('A kosár használatához be kell jelentkezned!', 2000);
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
       return;
     }
     
@@ -101,14 +109,14 @@ export class ProductcardComponent implements OnInit {
       this.cartService.addToCart(this.displayProduct, 1).subscribe({
         next: (success) => {
           if (success) {
-            alert('Termék hozzáadva a kosárhoz!');
+            this.showSuccess('Termék hozzáadva a kosárhoz!');
           } else {
-            alert('Nem sikerült hozzáadni a kosárhoz!');
+            this.showError('Nem sikerült hozzáadni a kosárhoz!');
           }
         },
         error: (err) => {
           console.error('Error adding to cart:', err);
-          alert('Hiba történt!');
+          this.showError('Hiba történt a kosárhoz adásnál!');
         }
       });
     }
@@ -140,5 +148,22 @@ export class ProductcardComponent implements OnInit {
 
   onImageError(event: any): void {
     event.target.src = 'assets/placeholder-product.png';
+  }
+
+  // Notification helpers
+  private showSuccess(message: string, duration: number = 2000): void {
+    this.successMessage = message;
+    this.showSuccessNotification = true;
+    setTimeout(() => {
+      this.showSuccessNotification = false;
+    }, duration);
+  }
+
+  private showError(message: string, duration: number = 3000): void {
+    this.errorMessage = message;
+    this.showErrorNotification = true;
+    setTimeout(() => {
+      this.showErrorNotification = false;
+    }, duration);
   }
 }
