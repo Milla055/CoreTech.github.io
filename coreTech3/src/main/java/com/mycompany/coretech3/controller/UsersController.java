@@ -6,10 +6,13 @@ import com.mycompany.coretech3.service.UsersService;
 import io.jsonwebtoken.Claims;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -364,6 +367,58 @@ public Response refreshToken(@CookieParam("refreshToken") String refreshToken) {
             error.put("statusCode", 401);
             error.put("message", "Érvénytelen token vagy kérés");
             return Response.status(401)
+                    .entity(error.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserProfile(@HeaderParam("Authorization") String authHeader) {
+        System.out.println("=== GET USER PROFILE CALLED ===");
+        try {
+            // Extract userId from JWT
+            String token = authHeader.substring(7);
+            Claims claims = JwtUtil.validate(token);
+            int userId = claims.get("userId", Integer.class);
+            
+            System.out.println("Getting profile for userId: " + userId);
+
+            // Call stored procedure
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("getUserById");
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.setParameter("userIdIN", userId);
+
+            Object[] row = (Object[]) spq.getSingleResult();
+            
+            JSONObject user = new JSONObject();
+            user.put("id", row[0]);
+            user.put("username", row[1]);
+            user.put("teljesnev", row[2]);
+            user.put("email", row[3]);
+            user.put("phone", row[4]);
+            user.put("role", row[6]);
+            user.put("created_at", row[7]);
+            user.put("is_subscripted", row[8]);
+
+            JSONObject response = new JSONObject();
+            response.put("status", "Success");
+            response.put("statusCode", 200);
+            response.put("user", user);
+
+            System.out.println("✅ Profile retrieved successfully");
+            return Response.status(200)
+                    .entity(response.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSONObject error = new JSONObject();
+            error.put("status", "Error");
+            error.put("statusCode", 500);
+            error.put("message", e.getMessage());
+            return Response.status(500)
                     .entity(error.toString())
                     .type(MediaType.APPLICATION_JSON)
                     .build();
