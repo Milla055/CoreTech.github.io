@@ -1,3 +1,4 @@
+com\mycompany\coretech3\model\ConfigurationProducts.class
 com\mycompany\coretech3\model\ProductAttributes.class
 com\mycompany\coretech3\controller\ProductsController.class
 com\mycompany\coretech3\filter\CorsFilter.class
@@ -15,10 +16,12 @@ com\mycompany\coretech3\service\OrdersService.class
 com\mycompany\coretech3\controller\CartController.class
 com\mycompany\coretech3\security\JwtAuthFilter.class
 com\mycompany\coretech3\service\BrandsService.class
+com\mycompany\coretech3\model\ProductNotifications.class
 com\mycompany\coretech3\service\EmailService.class
 com\mycompany\coretech3\util\EmailTemplateLoader.class
 com\mycompany\coretech3\model\Cart.class
 com\mycompany\coretech3\controller\AddressController.class
+com\mycompany\coretech3\controller\QuestionnaireController.class
 com\mycompany\coretech3\filter\OptionsResource.class
 com\mycompany\coretech3\controller\UsersController.class
 com\mycompany\coretech3\model\Addresses.class
@@ -34,9 +37,11 @@ com\mycompany\coretech3\model\Favorites.class
 com\mycompany\coretech3\model\Users.class
 com\mycompany\coretech3\util\ImageConfig.class
 com\mycompany\coretech3\controller\NewsletterController.class
+com\mycompany\coretech3\model\Games.class
 com\mycompany\coretech3\service\AdminUsersService.class
 com\mycompany\coretech3\controller\AdminBrandsController.class
 com\mycompany\coretech3\controller\AdminUsersController.class
+com\mycompany\coretech3\model\PcConfigurations.class
 com\mycompany\coretech3\scheduler\OrderStatusScheduler.class
 com\mycompany\coretech3\model\Attributes.class
 com\mycompany\coretech3\model\CartItems.class
@@ -46,4 +51,5 @@ com\mycompany\coretech3\controller\FavoritesController.class
 com\mycompany\coretech3\controller\AdminProductsController.class
 com\mycompany\coretech3\model\OrderItems.class
 com\mycompany\coretech3\service\AnalyticsService.class
+com\mycompany\coretech3\service\QuestionnaireService.class
 com\mycompany\coretech3\service\AddressService.class

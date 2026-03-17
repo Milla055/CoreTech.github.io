@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.mycompany.coretech3.service;
 
 import javax.ejb.Stateless;
@@ -14,7 +11,7 @@ import org.json.JSONObject;
 @Stateless
 public class CartService {
 
-    @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
+     @PersistenceContext(unitName = "com.mycompany_coreTech3_war_1.0-SNAPSHOTPU")
     private EntityManager em;
 
     public JSONObject addToCart(int userId, int productId, int quantity) {

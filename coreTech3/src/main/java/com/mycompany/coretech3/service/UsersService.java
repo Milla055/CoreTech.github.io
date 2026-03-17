@@ -1,4 +1,3 @@
-
 package com.mycompany.coretech3.service;
 
 import com.mycompany.coretech3.model.Users;
@@ -157,7 +156,6 @@ public class UsersService {
                     "checkmark.png"
             );
 
-
             resp.put("status", "UserUpdated");
             resp.put("statusCode", 200);
 
@@ -171,76 +169,76 @@ public class UsersService {
     }
 
     public JSONObject changePassword(int userId, String oldPassword, String newPassword) {
-    JSONObject resp = new JSONObject();
-    try {
-        // 1) Load user from database
-        Users user = em.find(Users.class, userId);
-        if (user == null) {
-            resp.put("status", "UserNotFound");
-            resp.put("statusCode", 404);
-            resp.put("message", "User not found");
-            return resp;
+        JSONObject resp = new JSONObject();
+        try {
+            // 1) Load user from database
+            Users user = em.find(Users.class, userId);
+            if (user == null) {
+                resp.put("status", "UserNotFound");
+                resp.put("statusCode", 404);
+                resp.put("message", "User not found");
+                return resp;
+            }
+
+            // 2) Verify old password
+            String storedPasswordHash = user.getPasswordHash();
+            boolean isOldPasswordCorrect = BCrypt.checkpw(oldPassword, storedPasswordHash);
+
+            if (!isOldPasswordCorrect) {
+                resp.put("status", "Error");
+                resp.put("statusCode", 401);
+                resp.put("message", "Old password is incorrect");
+                return resp;
+            }
+
+            // 3) Validate new password strength
+            if (newPassword == null || newPassword.length() < 8) {
+                resp.put("status", "WeakPassword");
+                resp.put("statusCode", 400);
+                resp.put("message", "Password must be at least 8 characters");
+                return resp;
+            }
+
+            String email = user.getEmail();
+            String username = user.getUsername();
+
+            // 4) Hash the new password
+            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+
+            // 5) Call stored procedure to update password
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
+            spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
+
+            spq.setParameter("userIdIN", userId);
+            spq.setParameter("passwordIN", hashed);
+
+            spq.execute();
+
+            // 6) Send confirmation email
+            String template = EmailTemplateLoader.loadTemplate("jelszofriss.html");
+            if (template != null) {
+                template = template.replace("{{username}}", username);
+                EmailService.sendEmailWithImage(
+                        email,
+                        "Sikeres Jelszó Módosítás!",
+                        template,
+                        "checkmark.png"
+                );
+            }
+
+            resp.put("status", "PasswordUpdated");
+            resp.put("statusCode", 200);
+            resp.put("message", "Password changed successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", "Error changing password: " + e.getMessage());
         }
-        
-        // 2) Verify old password
-        String storedPasswordHash = user.getPasswordHash();
-        boolean isOldPasswordCorrect = BCrypt.checkpw(oldPassword, storedPasswordHash);
-        
-        if (!isOldPasswordCorrect) {
-            resp.put("status", "Error");
-            resp.put("statusCode", 401);
-            resp.put("message", "Old password is incorrect");
-            return resp;
-        }
-        
-        // 3) Validate new password strength
-        if (newPassword == null || newPassword.length() < 8) {
-            resp.put("status", "WeakPassword");
-            resp.put("statusCode", 400);
-            resp.put("message", "Password must be at least 8 characters");
-            return resp;
-        }
-        
-        String email = user.getEmail();
-        String username = user.getUsername();
-        
-        // 4) Hash the new password
-        String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
-        
-        // 5) Call stored procedure to update password
-        StoredProcedureQuery spq = em.createStoredProcedureQuery("updatePassword");
-        spq.registerStoredProcedureParameter("userIdIN", Integer.class, ParameterMode.IN);
-        spq.registerStoredProcedureParameter("passwordIN", String.class, ParameterMode.IN);
-        
-        spq.setParameter("userIdIN", userId);
-        spq.setParameter("passwordIN", hashed);
-        
-        spq.execute();
-        
-        // 6) Send confirmation email
-        String template = EmailTemplateLoader.loadTemplate("jelszofriss.html");
-        if (template != null) {
-            template = template.replace("{{username}}", username);
-            EmailService.sendEmailWithImage(
-                    email,
-                    "Sikeres Jelszó Módosítás!",
-                    template,
-                    "checkmark.png"
-            );
-        }
-        
-        resp.put("status", "PasswordUpdated");
-        resp.put("statusCode", 200);
-        resp.put("message", "Password changed successfully");
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        resp.put("status", "DatabaseError");
-        resp.put("statusCode", 500);
-        resp.put("message", "Error changing password: " + e.getMessage());
+        return resp;
     }
-    return resp;
-}
 
     public JSONObject getOrdersByUserId(int userId) {
         JSONObject resp = new JSONObject();
@@ -281,56 +279,57 @@ public class UsersService {
     }
 
     public JSONObject login(String email, String password) {
-    JSONObject resp = new JSONObject();
-    try {
-        StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
-        spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
-        spq.setParameter("emailIN", email);
-        
-        Object[] result = (Object[]) spq.getSingleResult();
-        String storedHash = result[0].toString();
-        String username = result[1].toString();
-        String role = result[2].toString(); 
-        
-        if (!BCrypt.checkpw(password, storedHash)) {
+        JSONObject resp = new JSONObject();
+        try {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("login");
+            spq.registerStoredProcedureParameter("emailIN", String.class, ParameterMode.IN);
+            spq.setParameter("emailIN", email);
+
+            Object[] result = (Object[]) spq.getSingleResult();
+            String storedHash = result[0].toString();
+            String username = result[1].toString();
+            String role = result[2].toString();
+
+            if (!BCrypt.checkpw(password, storedHash)) {
+                resp.put("status", "InvalidEmailOrPassword");
+                resp.put("statusCode", 401);
+                return resp;
+            }
+
+            Users user = em.createQuery(
+                    "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = 0",
+                    Users.class
+            )
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            String accessToken = JwtUtil.generateAccessToken(
+                    user.getEmail(),
+                    user.getRole(),
+                    Long.valueOf(user.getId())
+            );
+            String refreshToken = JwtUtil.generateRefreshToken(
+                    Long.valueOf(user.getId())
+            );
+
+            resp.put("status", "LoginSuccess");
+            resp.put("statusCode", 200);
+            resp.put("accessToken", accessToken);
+            resp.put("refreshToken", refreshToken);
+            resp.put("username", username);
+            resp.put("role", role); // ← ADD THIS
+
+        } catch (NoResultException e) {
             resp.put("status", "InvalidEmailOrPassword");
             resp.put("statusCode", 401);
-            return resp;
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
         }
-        
-        Users user = em.createQuery(
-                "SELECT u FROM Users u WHERE u.email = :email AND u.isDeleted = 0",
-                Users.class
-        )
-                .setParameter("email", email)
-                .getSingleResult();
-        
-        String accessToken = JwtUtil.generateAccessToken(
-                user.getEmail(),
-                user.getRole(),
-                Long.valueOf(user.getId())
-        );
-        String refreshToken = JwtUtil.generateRefreshToken(
-                Long.valueOf(user.getId())
-        );
-        
-        resp.put("status", "LoginSuccess");
-        resp.put("statusCode", 200);
-        resp.put("accessToken", accessToken);
-        resp.put("refreshToken", refreshToken);
-        resp.put("username", username);
-        resp.put("role", role); // ← ADD THIS
-        
-    } catch (NoResultException e) {
-        resp.put("status", "InvalidEmailOrPassword");
-        resp.put("statusCode", 401);
-    } catch (Exception e) {
-        e.printStackTrace();
-        resp.put("status", "DatabaseError");
-        resp.put("statusCode", 500);
+        return resp;
     }
-    return resp;
-}
+
     public JSONObject updateUserProfile(int userId, String username, String fullName, String email, String phone) {
         JSONObject resp = new JSONObject();
 
@@ -385,6 +384,39 @@ public class UsersService {
             resp.put("message", "Hiba történt a profil frissítése során: " + e.getMessage());
         }
 
+        return resp;
+    }
+
+    public JSONObject getUserProfile(int userId) {
+        JSONObject resp = new JSONObject();
+        try {
+            Object[] row = (Object[]) em.createNativeQuery(
+                    "SELECT id, username, teljesnev, email, phone, password_hash, role, created_at, is_subscripted "
+                    + "FROM users WHERE id = :userId AND (is_deleted = 0 OR is_deleted IS NULL)"
+            )
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+
+            JSONObject user = new JSONObject();
+            user.put("id", row[0]);
+            user.put("username", row[1]);
+            user.put("teljesnev", row[2]);
+            user.put("email", row[3]);
+            user.put("phone", row[4]);
+            user.put("role", row[6]);
+            user.put("created_at", row[7]);
+            user.put("is_subscripted", row[8]);
+
+            resp.put("status", "Success");
+            resp.put("statusCode", 200);
+            resp.put("user", user);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.put("status", "DatabaseError");
+            resp.put("statusCode", 500);
+            resp.put("message", e.getMessage());
+        }
         return resp;
     }
 
