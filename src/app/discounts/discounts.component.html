@@ -14,15 +14,30 @@
     <p>Akciós termékek betöltése...</p>
   </div>
 
-  <!-- Products Grid -->
-  <div class="products-section" *ngIf="!loading">
-    <h2 class="section-title">{{ discountProducts.length }} akciós termék</h2>
-    <div class="products-grid">
-      <app-productcard
-        *ngFor="let product of discountProducts"
-        [product]="product">
-      </app-productcard>
-    </div>
+  <!-- Content with Filter -->
+  <div class="content-wrapper" *ngIf="!loading">
+    
+    <!-- Filter Sidebar -->
+    <aside class="filter-sidebar">
+      <app-filter (filterChange)="onFilterChange($event)"></app-filter>
+    </aside>
+
+    <!-- Products Section -->
+    <section class="products-section">
+      <h2 class="section-title">{{ filteredProducts.length }} akciós termék</h2>
+      
+      <div class="products-grid" *ngIf="filteredProducts.length > 0">
+        <app-productcard
+          *ngFor="let product of filteredProducts"
+          [product]="product">
+        </app-productcard>
+      </div>
+
+      <div class="no-results" *ngIf="filteredProducts.length === 0">
+        <p>Nincs találat a szűrési feltételeknek megfelelően.</p>
+      </div>
+    </section>
+
   </div>
 
 </div>

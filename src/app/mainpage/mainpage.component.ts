@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from "../header/header.component";
@@ -6,34 +6,35 @@ import { FooterComponent } from "../footer/footer.component";
 import { ProductcardComponent } from "../productcard/productcard.component";
 import { ProductService, Product } from '../services/product.service';
 import { DiscountService } from '../services/discount.service';
+import { NewsletterComponent } from "../newsletter/newsletter.component";
 
 @Component({
   selector: 'app-mainpage',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, RouterLink, ProductcardComponent],
+  imports: [CommonModule, HeaderComponent, FooterComponent, RouterLink, ProductcardComponent, NewsletterComponent],
   templateUrl: './mainpage.component.html',
-  styleUrl: './mainpage.component.css',
+  styleUrls: ['./mainpage.component.css']
 })
 export class MainpageComponent implements OnInit {
+  private productService = inject(ProductService);
+  private router = inject(Router);
+  private discountService = inject(DiscountService);
+
   discountProducts: Product[] = [];
   top50Products: Product[] = [];
+  newProducts: Product[] = [];
   loading: boolean = true;
-
-  constructor(
-    private productService: ProductService,
-    private router: Router,
-    private discountService: DiscountService
-  ) {}
+  loadingNew: boolean = true;
 
   ngOnInit(): void {
     this.loadDiscountProducts();
     this.loadTop50Products();
+    this.loadNewProducts();
   }
 
   loadDiscountProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
-        // Same seeded random as discounts page - 3 day rotation
         const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         let seed = Math.floor(daysSinceEpoch / 3);
 
@@ -48,12 +49,7 @@ export class MainpageComponent implements OnInit {
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 
-        // Take first 4 products for display on mainpage
         this.discountProducts = shuffled.slice(0, 4);
-        
-        // DON'T register here - let discounts page do it!
-        // The mainpage just SHOWS the same products but doesn't control discount logic
-        
         this.loading = false;
       },
       error: (err) => {
@@ -66,7 +62,6 @@ export class MainpageComponent implements OnInit {
   loadTop50Products(): void {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
-        // DIFFERENT seed than discounts (+999 offset)
         const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         let seed = Math.floor(daysSinceEpoch / 3) + 999;
 
@@ -81,7 +76,6 @@ export class MainpageComponent implements OnInit {
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 
-        // Take first 4 products for mainpage Top50 section
         this.top50Products = shuffled.slice(0, 4);
       },
       error: (err) => {
@@ -90,11 +84,23 @@ export class MainpageComponent implements OnInit {
     });
   }
 
-  goToDiscounts(): void {
-    this.router.navigate(['/discounts']);
-  }
+  loadNewProducts(): void {
+    this.productService.getAllProducts().subscribe({
+      next: (products) => {
+        // Rendezés createdAt szerint (legújabb elöl)
+        const sorted = [...products].sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
 
-  goToTop50(): void {
-    this.router.navigate(['/top50']);
+        this.newProducts = sorted.slice(0, 4);
+        this.loadingNew = false;
+      },
+      error: (err) => {
+        console.error('Error loading new products:', err);
+        this.loadingNew = false;
+      }
+    });
   }
 }

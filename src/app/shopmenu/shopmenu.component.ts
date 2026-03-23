@@ -1,18 +1,26 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-shopmenu',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './shopmenu.component.html',
-  styleUrl: './shopmenu.component.css',
+  styleUrls: ['./shopmenu.component.css'],
 })
-export class ShopmenuComponent {
+export class ShopmenuComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
 
   constructor(private router: Router) {}
 
-  
+  ngOnInit() {
+    // Görgetés letiltása amikor a menü megnyílik
+    document.body.style.overflow = 'hidden';
+  }
+
+  ngOnDestroy() {
+    // Görgetés visszaállítása amikor a menü bezárul
+    document.body.style.overflow = '';
+  }
 
   // Navigate to products page with category filter
   navigateToCategory(categoryName: string, categoryId: number) {
@@ -22,7 +30,6 @@ export class ShopmenuComponent {
         search: categoryName
       }
     });
-    
   }
 
   // Category navigation methods

@@ -28,6 +28,10 @@ export class LoginComponent implements OnInit {
   // Success message állapot
   showSuccessMessage: boolean = false;
   
+  // Error message állapot
+  showErrorMessage: boolean = false;
+  errorMessage: string = '';
+  
   form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.email, Validators.required],
@@ -111,7 +115,13 @@ export class LoginComponent implements OnInit {
     },
     error: (err) => {
       console.error('Hiba történt:', err);
-      alert('Hibás email vagy jelszó');
+      this.errorMessage = 'Hibás email vagy jelszó!';
+      this.showErrorMessage = true;
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        this.showErrorMessage = false;
+      }, 3000);
     }
   });
 }

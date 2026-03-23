@@ -1,302 +1,156 @@
 <app-header></app-header>
 
-
 <!-- Success Notification -->
 <div class="success-notification" *ngIf="showSuccessMessage">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-        <polyline points="20 6 9 17 4 12"></polyline>
-    </svg>
-    <span>{{ successMessage }}</span>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+  <span>{{ successMessage }}</span>
 </div>
 
 <!-- Error Notification -->
 <div class="error-notification" *ngIf="showErrorMessage">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-    </svg>
-    <span>{{ errorMessage }}</span>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+  <span>{{ errorMessage }}</span>
 </div>
 
-
-<div class="container">
-  <!-- Profile Header -->
-  <div class="profile-header">
-    <div class="profile-avatar">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-      </svg>
-    </div>
+<div class="profile-container">
+  
+  <!-- Hero Card -->
+  <div class="hero-card">
+    <div class="hero-decoration hero-decoration-1"></div>
+    <div class="hero-decoration hero-decoration-2"></div>
     
-    <div class="profile-info">
-      <div class="profile-name-row">
-        <h1 class="profile-name">{{ userData?.username || 'Felhasználó' }}</h1>
-        <span class="admin-badge" *ngIf="isAdmin()">Admin</span>
+    <div class="hero-content">
+      <!-- Avatar -->
+      <div class="hero-avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
       </div>
-      <p class="profile-email">{{ userData?.email }}</p>
       
-      <div class="profile-tabs">
-        <button 
-          class="tab-button" 
-          (click)="logout()">
+      <!-- User Info -->
+      <div class="hero-info">
+        <div class="hero-name-row">
+          <h1 class="hero-name">{{ getFullName() || userData?.username || 'Felhasználó' }}</h1>
+          <span class="hero-badge" *ngIf="isAdmin()">Admin</span>
+        </div>
+        <p class="hero-email">{{ userData?.email }}</p>
+        <p class="hero-phone">{{ userData?.telefonszam || '' }}</p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="hero-actions">
+        <button class="hero-btn hero-btn-ghost" (click)="openFavoritesModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Kedvencek
+          <span class="hero-btn-count" *ngIf="favorites.length > 0">{{ favorites.length }}</span>
+        </button>
+        <button class="hero-btn hero-btn-ghost" (click)="openOrdersModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"/>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+          Rendelések
+        </button>
+        <button class="hero-btn hero-btn-white" *ngIf="isAdmin()" (click)="goToAdminPage()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Admin
+        </button>
+        <button class="hero-btn hero-btn-danger" (click)="logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
           Kijelentkezés
         </button>
-        <button 
-          *ngIf="isAdmin()"
-          class="tab-button admin-button"
-          (click)="goToAdminPage()">
-          Adminbeállítások
-        </button>
       </div>
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <!-- Kedvencek -->
-  <div class="favorites-section">
-    <button class="favorites-button" (click)="openFavoritesModal()">
-      Kedvencek 
-      <span class="favorites-count" *ngIf="favorites.length > 0">({{ favorites.length }})</span>
-    </button>
-  </div>
-
-  <!-- Kedvencek Modal -->
-  <div class="modal-overlay" *ngIf="isFavoritesModalOpen" (click)="closeFavoritesModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Kedvenceim ({{ favorites.length }})</h2>
-        <button class="modal-close-btn" (click)="closeFavoritesModal()">✕</button>
+  <!-- Quick Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-blue">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13"/>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
       </div>
-      <div class="modal-body">
-        <!-- Loading -->
-        <div class="loading-favorites" *ngIf="loadingFavorites">
-          <p>Kedvencek betöltése...</p>
-        </div>
-        
-        <!-- Kedvencek lista -->
-        <div class="favorites-list" *ngIf="!loadingFavorites && favorites.length > 0">
-          <div class="favorite-card" *ngFor="let item of favorites">
-            <div class="favorite-image">
-              <img [src]="getProductImageUrl(item)" [alt]="item.name" />
-            </div>
-            <div class="favorite-info">
-              <h3 class="favorite-name">{{ item.name }}</h3>
-              <p class="favorite-category">{{ item.categoryName }} - {{ item.brandName }}</p>
-              <div class="favorite-price-row">
-                <span class="favorite-price">{{ formatPrice(item.pPrice) }}</span>
-                <span class="favorite-old-price" *ngIf="item.price !== item.pPrice">{{ formatPrice(item.price) }}</span>
-              </div>
-              <div class="favorite-stock" [ngClass]="isInStock(item) ? 'in-stock' : 'out-of-stock'">
-                {{ isInStock(item) ? '✓ Készleten (' + item.stock + ' db)' : '✗ Nincs készleten' }}
-              </div>
-            </div>
-            <div class="favorite-actions">
-              <button 
-                class="add-to-cart-btn" 
-                [disabled]="!isInStock(item)"
-                (click)="addFavoriteToCart(item)"
-                title="Kosárba">
-                <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
-              </button>
-              <button 
-                class="remove-favorite-btn" 
-                (click)="removeFavorite(item.id)"
-                title="Eltávolítás">
-                <img src="assets/icons8-delete-trash-32.png" alt="remove" class="removeIcon">
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Üres állapot -->
-        <div class="no-favorites" *ngIf="!loadingFavorites && favorites.length === 0">
-          <p>Még nincs kedvenc terméked.</p>
-          <p class="hint">Adj hozzá termékeket a kedvenceidhez a ♡ gombra kattintva!</p>
-        </div>
+      <div class="stat-info">
+        <p class="stat-number">{{ orders.length }}</p>
+        <p class="stat-label">Rendelés</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#e53e3e" stroke="none">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-number">{{ favorites.length }}</p>
+        <p class="stat-label">Kedvenc</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-green">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-number">{{ addresses.length }}</p>
+        <p class="stat-label">Mentett cím</p>
       </div>
     </div>
   </div>
 
-  <!-- Rendeléseim -->
-  <div class="orders-section">
-    <button class="orders-button" (click)="openOrdersModal()">Rendeléseim</button>
-  </div>
-
-  <!-- Rendeléseim Modal -->
-  <div class="modal-overlay" *ngIf="isOrdersModalOpen" (click)="closeOrdersModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Rendeléseim</h2>
-        <button class="modal-close-btn" (click)="closeOrdersModal()">✕</button>
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    
+    <!-- Left Column - Account Settings -->
+    <div class="content-card">
+      <div class="card-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <h3>Fiók adatok</h3>
       </div>
-      <div class="modal-body">
-        <div class="orders-list" *ngIf="orders.length > 0">
-          <div class="order-card" *ngFor="let order of orders">
-            <div class="order-header">
-              <span class="order-id">#{{ order.id }}</span>
-              <span class="order-status" [ngClass]="order.statusClass">{{ order.status }}</span>
-            </div>
-            <div class="order-date">{{ formatOrderDate(order.date) }}</div>
-            
-            <!-- Order Items -->
-            <div class="order-items" *ngIf="order.items && order.items.length > 0">
-              <div class="order-item" *ngFor="let item of order.items">
-                <span class="item-name">{{ item.name || item.productName }}</span>
-                <span class="item-quantity">x{{ item.quantity }}</span>
-              </div>
-            </div>
-            
-            <!-- Fallback if no items -->
-            <div class="order-items" *ngIf="!order.items || order.items.length === 0">
-              <div class="order-item">
-                <span class="item-name">Termék részletek nem érhetők el</span>
-                <span class="item-quantity">x1</span>
-              </div>
-            </div>
-            
-            <div class="order-total">
-              <span>Összesen:</span>
-              <span class="total-price">{{ formatPrice(order.total) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="no-orders" *ngIf="orders.length === 0">
-          <p>Még nincs rendelésed.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button 
-      class="tab" 
-      [class.active]="activeTab === 'fiokkezeles'" 
-      (click)="setActiveTab('fiokkezeles')">
-      Fiókkezelés
-    </button>
-    <button 
-      class="tab" 
-      [class.active]="activeTab === 'adatok'" 
-      (click)="setActiveTab('adatok')">
-      Adatok
-    </button>
-  </div>
-
-  <!-- Tab Content: Fiókkezelés -->
-  <div class="tab-content" *ngIf="activeTab === 'fiokkezeles'">
-    <div class="content-section">
-      <h3 class="section-title">Vásárlói adatok</h3>
-      <form [formGroup]="customerDataForm">
-        <div class="form-group">
-          <label>Email cím</label>
-          <input type="email" formControlName="email" placeholder="Email cím">
-        </div>
-        <div class="form-row">
+      <div class="card-body">
+        <form [formGroup]="customerDataForm">
           <div class="form-group">
-            <label>Vezetéknév</label>
-            <input type="text" formControlName="vezetekNev" placeholder="Vezetéknév">
-          </div>
-          <div class="form-group">
-            <label>Keresztnév</label>
-            <input type="text" formControlName="keresztNev" placeholder="Keresztnév">
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <div class="content-section">
-      <h3 class="section-title">Jelszó módosítása</h3>
-      <form [formGroup]="passwordForm">
-        <div class="form-group">
-          <label>Régi jelszó</label>
-          <div class="password-input-group">
-            <input [type]="showOldPassword ? 'text' : 'password'" formControlName="regiJelszo" placeholder="Régi jelszó">
-            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('old')">
-              <!-- Eye icon (show) -->
-              <svg *ngIf="!showOldPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-              <!-- Eye-off icon (hide) -->
-              <svg *ngIf="showOldPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Új jelszó</label>
-          <div class="password-input-group">
-            <input [type]="showNewPassword ? 'text' : 'password'" formControlName="ujJelszo" placeholder="Új jelszó (min. 8 karakter)">
-            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('new')">
-              <!-- Eye icon (show) -->
-              <svg *ngIf="!showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-              <!-- Eye-off icon (hide) -->
-              <svg *ngIf="showNewPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Új jelszó megerősítése</label>
-          <div class="password-input-group">
-            <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="ujJelszoMegerosites" placeholder="Jelszó megerősítése">
-            <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirm')">
-              <!-- Eye icon (show) -->
-              <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-              <!-- Eye-off icon (hide) -->
-              <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-primary" (click)="onPasswordChange()" [disabled]="isChangingPassword">
-            {{ isChangingPassword ? 'Mentés...' : 'Jelszó módosítása' }}
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <div class="content-section">
-      <h3 class="section-title">Szállítási adatok</h3>
-      
-      <form [formGroup]="deliveryDataForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Ország</label>
-            <input type="text" formControlName="orszag" placeholder="Magyarország">
-          </div>
-          <div class="form-group">
-            <label>Irányítószám</label>
-            <input type="text" formControlName="iranyitoszam" placeholder="1234">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Város</label>
-            <input type="text" formControlName="varos" placeholder="Budapest">
-          </div>
-          <div class="form-group">
-            <label>Utca, házszám</label>
-            <input type="text" formControlName="utcaHazszam" placeholder="Fő utca 1.">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Email</label>
+            <label>Email cím</label>
             <input type="email" formControlName="email" placeholder="email@example.com">
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vezetéknév</label>
+              <input type="text" formControlName="vezetekNev" placeholder="Vezetéknév">
+            </div>
+            <div class="form-group">
+              <label>Keresztnév</label>
+              <input type="text" formControlName="keresztNev" placeholder="Keresztnév">
+            </div>
+          </div>
+        </form>
+        <form [formGroup]="deliveryDataForm">
           <div class="form-group">
             <label>Telefonszám</label>
             <input 
@@ -306,63 +160,249 @@
               placeholder="+36 XX XXX XXXX"
               maxlength="16">
           </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column - Shipping Address -->
+    <div class="content-card">
+      <div class="card-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <h3>Szállítási cím</h3>
+        <button class="card-header-btn" (click)="addNewAddress()" *ngIf="!isAddingNewAddress">+ Új cím</button>
+      </div>
+      <div class="card-body">
+        <!-- No addresses -->
+        <div class="empty-state" *ngIf="addresses.length === 0 && !isAddingNewAddress">
+          <p>Nincs mentett szállítási cím</p>
+          <span>Adj hozzá egy címet a gyorsabb rendeléshez</span>
         </div>
-      </form>
-    </div>
-
-    <div class="btn-group">
-      <button class="btn btn-primary" (click)="onSubmit()" [disabled]="isUpdatingProfile">
-        {{ isUpdatingProfile ? 'Mentés...' : 'Változások mentése' }}
-      </button>
-      <button class="btn btn-secondary" (click)="resetChanges()">Visszaállítás</button>
-    </div>
-  </div>
-
-  <!-- Tab Content: Adatok -->
-  <div class="tab-content" *ngIf="activeTab === 'adatok'">
-    <div class="content-section">
-      <div class="data-row">
-        <span class="data-label">Felhasználónév:</span>
-        <span class="data-value">{{ userData?.username || '-' }}</span>
-      </div>
-      <div class="data-row">
-        <span class="data-label">Email:</span>
-        <span class="data-value">{{ userData?.email || '-' }}</span>
-      </div>
-      <div class="data-row">
-        <span class="data-label">Teljes név:</span>
-        <span class="data-value">{{ getFullName() }}</span>
-      </div>
-      <div class="data-row">
-        <span class="data-label">Telefonszám:</span>
-        <span class="data-value">{{ userData?.telefonszam || '-' }}</span>
-      </div>
-      
-      <!-- Mentett címek -->
-      <div class="data-row" style="align-items: flex-start;">
-        <span class="data-label">Mentett címek:</span>
-        <div class="data-value saved-addresses-container">
-          <div *ngIf="addresses.length === 0" class="no-addresses">
-            Nincs mentett cím
-          </div>
-          <div *ngFor="let address of addresses" class="address-card">
-            <div>
-              <div class="address-header">
-                {{ address.city }}, {{ address.postalCode }}
-                <span *ngIf="address.isDefault" class="address-badge">
-                  ✓ Alapértelmezett
-                </span>
-              </div>
-              <div class="address-street">{{ address.street }}</div>
-              <div class="address-country">{{ address.country }}</div>
+        
+        <!-- Address Cards -->
+        <div class="address-list" *ngIf="addresses.length > 0 && !isAddingNewAddress">
+          <div *ngFor="let address of addresses" 
+               class="address-card" 
+               [class.selected]="selectedAddressId === address.id"
+               (click)="onAddressSelect(address.id)">
+            <div class="address-default-badge" *ngIf="address.isDefault">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Alapértelmezett
+            </div>
+            <p class="address-city">{{ address.city }}, {{ address.postalCode }}</p>
+            <p class="address-street">{{ address.street }}</p>
+            <p class="address-country">{{ address.country }}</p>
+            <div class="address-actions">
+              <button class="address-btn address-btn-danger" (click)="deleteAddress(address.id); $event.stopPropagation()">Törlés</button>
+              <button class="address-btn" *ngIf="!address.isDefault" (click)="setAsDefaultAddress(address.id); $event.stopPropagation()">Alapértelmezett</button>
             </div>
           </div>
         </div>
+
+        <!-- New/Edit Address Form -->
+        <form [formGroup]="deliveryDataForm" *ngIf="isAddingNewAddress || (addresses.length > 0 && selectedAddressId)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ország</label>
+              <input type="text" formControlName="orszag" placeholder="Magyarország">
+            </div>
+            <div class="form-group">
+              <label>Irányítószám</label>
+              <input type="text" formControlName="iranyitoszam" placeholder="1234">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Város</label>
+              <input type="text" formControlName="varos" placeholder="Budapest">
+            </div>
+            <div class="form-group">
+              <label>Utca, házszám</label>
+              <input type="text" formControlName="utcaHazszam" placeholder="Fő utca 1.">
+            </div>
+          </div>
+          <div class="address-form-actions" *ngIf="isAddingNewAddress">
+            <button type="button" class="btn btn-secondary" (click)="cancelNewAddress()">Mégse</button>
+            <button type="button" class="btn btn-primary" (click)="saveDeliveryAddress()">Cím mentése</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Password Change - Full Width -->
+    <div class="content-card content-card-full">
+      <div class="card-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <h3>Jelszó módosítása</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="passwordForm" class="password-form">
+          <div class="form-group">
+            <label>Jelenlegi jelszó</label>
+            <div class="password-input-wrapper">
+              <input [type]="showOldPassword ? 'text' : 'password'" formControlName="regiJelszo" placeholder="••••••••">
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility('old')">
+                <svg *ngIf="!showOldPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg *ngIf="showOldPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Új jelszó</label>
+            <div class="password-input-wrapper">
+              <input [type]="showNewPassword ? 'text' : 'password'" formControlName="ujJelszo" placeholder="Min. 8 karakter">
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility('new')">
+                <svg *ngIf="!showNewPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg *ngIf="showNewPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Jelszó megerősítése</label>
+            <div class="password-input-wrapper">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="ujJelszoMegerosites" placeholder="Jelszó újra">
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirm')">
+                <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group password-btn-container">
+            <button type="button" class="btn btn-primary" (click)="onPasswordChange()" [disabled]="isChangingPassword">
+              {{ isChangingPassword ? 'Mentés...' : 'Jelszó módosítása' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Save Button -->
+  <div class="save-actions">
+    <button class="btn btn-secondary" (click)="resetChanges()">Visszaállítás</button>
+    <button class="btn btn-primary btn-save" (click)="onSubmit()" [disabled]="isUpdatingProfile">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+      {{ isUpdatingProfile ? 'Mentés...' : 'Változások mentése' }}
+    </button>
+  </div>
+
+</div>
+
+<!-- Kedvencek Modal -->
+<div class="modal-overlay" *ngIf="isFavoritesModalOpen" (click)="closeFavoritesModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Kedvenceim ({{ favorites.length }})</h2>
+      <button class="modal-close-btn" (click)="closeFavoritesModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="loading-favorites" *ngIf="loadingFavorites">
+        <p>Kedvencek betöltése...</p>
       </div>
       
-      <div class="data-row">
-        <span class="data-label">Szerepkör:</span>
-        <span class="data-value">{{ userData?.role || 'Felhasználó' }}</span>
+      <div class="favorites-list" *ngIf="!loadingFavorites && favorites.length > 0">
+        <div class="favorite-card" *ngFor="let item of favorites">
+          <div class="favorite-image">
+            <img [src]="getProductImageUrl(item)" [alt]="item.name" />
+          </div>
+          <div class="favorite-info">
+            <h3 class="favorite-name">{{ item.name }}</h3>
+            <p class="favorite-category">{{ item.categoryName }} - {{ item.brandName }}</p>
+            <div class="favorite-price-row">
+              <span class="favorite-price">{{ formatPrice(item.pPrice) }}</span>
+              <span class="favorite-old-price" *ngIf="item.price !== item.pPrice">{{ formatPrice(item.price) }}</span>
+            </div>
+            <div class="favorite-stock" [ngClass]="isInStock(item) ? 'in-stock' : 'out-of-stock'">
+              {{ isInStock(item) ? '✓ Készleten (' + item.stock + ' db)' : '✗ Nincs készleten' }}
+            </div>
+          </div>
+          <div class="favorite-actions">
+            <button class="add-to-cart-btn" [disabled]="!isInStock(item)" (click)="addFavoriteToCart(item)" title="Kosárba">
+              <img src="assets/icons8-shopping-cart-64.png" alt="cart" class="cartIcon">
+            </button>
+            <button class="remove-favorite-btn" (click)="removeFavorite(item.id)" title="Eltávolítás">
+              <img src="assets/icons8-delete-trash-32.png" alt="remove" class="removeIcon">
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-favorites" *ngIf="!loadingFavorites && favorites.length === 0">
+        <p>Még nincs kedvenc terméked.</p>
+        <p class="hint">Adj hozzá termékeket a kedvenceidhez a ♡ gombra kattintva!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rendeléseim Modal -->
+<div class="modal-overlay" *ngIf="isOrdersModalOpen" (click)="closeOrdersModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Rendeléseim</h2>
+      <button class="modal-close-btn" (click)="closeOrdersModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="orders-list" *ngIf="orders.length > 0">
+        <div class="order-card" *ngFor="let order of orders">
+          <div class="order-header">
+            <span class="order-id">#{{ order.id }}</span>
+            <span class="order-status" [ngClass]="order.statusClass">{{ order.status }}</span>
+          </div>
+          <div class="order-date">{{ formatOrderDate(order.date) }}</div>
+          
+          <div class="order-items" *ngIf="order.items && order.items.length > 0">
+            <div class="order-item" *ngFor="let item of order.items">
+              <span class="item-name">{{ item.name || item.productName }}</span>
+              <span class="item-quantity">x{{ item.quantity }}</span>
+            </div>
+          </div>
+          
+          <div class="order-items" *ngIf="!order.items || order.items.length === 0">
+            <div class="order-item">
+              <span class="item-name">Termék részletek nem érhetők el</span>
+              <span class="item-quantity">x1</span>
+            </div>
+          </div>
+          
+          <div class="order-total">
+            <span>Összesen:</span>
+            <span class="total-price">{{ formatPrice(order.total) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="no-orders" *ngIf="orders.length === 0">
+        <p>Még nincs rendelésed.</p>
       </div>
     </div>
   </div>

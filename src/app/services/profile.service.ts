@@ -16,13 +16,13 @@ export interface UserProfile {
 
 export interface Address {
   id: number;
-  userId: number;  // Backend sends 'userId' not 'user_id'
+  userId: number;
   street: string;
   city: string;
-  postalCode: string;  // Backend sends 'postalCode' not 'postal_code'
+  postalCode: string;
   country: string;
-  isDefault: boolean;  // Backend sends 'isDefault' not 'is_default'
-  createdAt?: string;  // Backend sends 'createdAt' not 'created_at'
+  isDefault: boolean;
+  createdAt?: string;
 }
 
 interface ProfileResponse {
@@ -68,10 +68,11 @@ export class ProfileService {
   // ==================== USER PROFILE ====================
 
   // Get user profile from backend
+  // FONTOS: Backend endpoint: GET /Users (nincs /getUserProfile path!)
   getUserProfile(): Observable<UserProfile | null> {
     console.log('👤 Getting user profile from backend...');
     
-    return this.http.get<ProfileResponse>(`${this.usersUrl}/getUserProfile`, this.getAuthHeaders()).pipe(
+    return this.http.get<ProfileResponse>(`${this.usersUrl}`, this.getAuthHeaders()).pipe(
       tap(response => console.log('📦 Profile response:', response)),
       map(response => {
         if (response.status === 'Success' && response.user) {
@@ -88,13 +89,13 @@ export class ProfileService {
   }
 
   // Update user profile
+  // Backend endpoint: PUT /Users/updateUserProfile
   updateUserProfile(profileData: Partial<UserProfile>): Observable<boolean> {
     console.log('💾 Updating user profile:', profileData);
     
-    // Backend expects: username, fullName, email, phone
     const payload = {
       username: profileData.username,
-      fullName: profileData.teljesnev, // Backend expects 'fullName'
+      fullName: profileData.teljesnev,
       email: profileData.email,
       phone: profileData.phone
     };
@@ -122,7 +123,6 @@ export class ProfileService {
 
   // ==================== ADDRESSES ====================
 
-  // Get all addresses for current user
   getAddresses(): Observable<Address[]> {
     console.log('🏠 Getting user addresses from backend...');
     
@@ -145,7 +145,6 @@ export class ProfileService {
     );
   }
 
-  // Add new address
   addAddress(address: Omit<Address, 'id' | 'userId' | 'createdAt'>): Observable<boolean> {
     console.log('➕ Adding new address:', address);
     
@@ -170,7 +169,6 @@ export class ProfileService {
     );
   }
 
-  // Update existing address
   updateAddress(addressId: number, address: Partial<Address>): Observable<boolean> {
     console.log('✏️ Updating address:', addressId, address);
     
@@ -195,7 +193,6 @@ export class ProfileService {
     );
   }
 
-  // Delete address
   deleteAddress(addressId: number): Observable<boolean> {
     console.log('🗑️ Deleting address:', addressId);
     
@@ -219,7 +216,6 @@ export class ProfileService {
     );
   }
 
-  // Set default address
   setDefaultAddress(addressId: number): Observable<boolean> {
     console.log('⭐ Setting default address:', addressId);
     

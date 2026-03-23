@@ -1,9 +1,9 @@
-<app-shopmenu [hidden]="!shopMenu" (close)="closeShopMenu()"></app-shopmenu>
+<app-shopmenu *ngIf="shopMenu" (close)="closeShopMenu()"></app-shopmenu>
 <app-cart [isOpen]="cartOpen" (close)="closeCart()"></app-cart>
 
 <header class="navbar">
   <div class="header-container">
-    <!-- Left Section: Logo -->
+    <!-- Left Section: Logo (EREDETI) -->
     <div class="logo-section">
       <img src="assets/CoreTechLogo.png" alt="logo" class="logo">
       <p class="core" routerLink="/mainpage">CoreTech</p>
@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <!-- Right Section: Login/User + Cart -->
+    <!-- Right Section: Login/User + Cart (EREDETI CART IKON) -->
     <div class="right-section">
       <!-- Show login button if NOT logged in -->
       <button *ngIf="!username" routerLink="/login" class="loginBtn">Bejelentkezés</button>

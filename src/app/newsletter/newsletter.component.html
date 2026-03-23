@@ -1,0 +1,28 @@
+<!-- Notification -->
+<div *ngIf="notification" 
+     class="notification" 
+     [class.success]="notification.type === 'success'"
+     [class.error]="notification.type === 'error'">
+  {{ notification.message }}
+</div>
+
+<!-- Newsletter Card -->
+<div class="newsletter-card">
+  <h3>Értesülj a legfrissebb hírekről és újdonságokról!</h3>
+  <p>Iratkozz fel a hírlevelünkre</p>
+  
+  <div class="newsletter-form">
+    <input 
+      type="email" 
+      [(ngModel)]="email" 
+      placeholder="Email címed"
+      [disabled]="isLoading"
+      (keyup.enter)="subscribe()"
+    />
+    <button 
+      (click)="subscribe()" 
+      [disabled]="isLoading">
+      {{ isLoading ? 'Küldés...' : 'Feliratkozom!' }}
+    </button>
+  </div>
+</div>

@@ -1,26 +1,30 @@
-/* Backdrop overlay */
-.backdrop {
+/* Backdrop - teljes képernyő, kattintásra zár */
+.menu-backdrop {
   position: fixed;
   inset: 0;
-  background-color: transparent;
-  display: block;
-  z-index: 3000;
-  pointer-events: none;
-  margin-top: 13px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2999;
+  animation: fadeIn 0.2s ease;
 }
 
-.menu-dialog {
-  pointer-events: all;
-  position: absolute;
-  left: 350px;
-  top: 70px;
-  background: #3D4474;
-  border-radius: 12px;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Menu Container - FIXÁLT a viewport tetejére */
+.menu-container {
+  position: fixed;
+  top: 80px; /* header magassága */
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  background: linear-gradient(180deg, #3d4474 0%, #2d3461 100%);
+  border-bottom: 3px solid #212645;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  animation: slideDown 0.2s ease-out;
-  min-width: 750px;
-  max-width: 500px;
+  z-index: 3000;
+  animation: slideDown 0.25s ease;
 }
 
 @keyframes slideDown {
@@ -34,124 +38,189 @@
   }
 }
 
-/* Categories container */
-.categories {
-  display: flex;
-  flex-direction: row;
-  
-  gap: 0;
-  padding: 40px 16px 16px 16px;
-  position: relative;
-  max-height: 70vh;
-  overflow-y: auto;
+.menu-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
 }
 
-/* Custom scrollbar */
-.categories::-webkit-scrollbar {
-  width: 6px;
+/* Menu Card */
+.menu-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
 }
 
-.categories::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.categories::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
-
-.categories::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-
-/* Category section */
-.category {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
-  margin-left: 70px;
-  margin-right: 5px;
-}
-
-/* Category button - now just a label */
-.cat-btn {
-  background: transparent;
-  border: none;
-  padding: 12px 14px;
-  text-align: left;
-  width: 100%;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: default;
-  color: rgba(233, 235, 245, 0.7);
+.card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  pointer-events: none;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.cat-icon {
-  font-size: 16px;
-  line-height: 1;
-  opacity: 0.7;
-}
-
-.arrow {
-  display: none;
-}
-
-/* Submenu - now always visible */
-.submenu {
-  position: relative;
-  width: 100%;
-  opacity: 1;
-  padding: 0;
+.card-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }
 
-/* Submenu items */
-.submenu .item {
+.card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+/* Menu Items Grid */
+.card-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.menu-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 14px;
-  color: #E9EBF5;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.submenu .item:hover {
-  background: rgba(255, 255, 255, 0.15);
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
   transform: translateX(4px);
 }
 
-.item-icon {
-  font-size: 16px;
-  line-height: 1;
+.menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.8;
 }
 
-/* Focus states for accessibility */
-.submenu .item:focus {
-  outline: 2px solid rgba(233, 235, 245, 0.4);
-  outline-offset: 2px;
+.menu-item:hover svg {
+  opacity: 1;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .menu-dialog {
-    left: 20px;
-    right: 20px;
-    width: auto;
-    max-width: none;
+.menu-item span {
+  white-space: nowrap;
+}
+
+/* Teljes széles item (pl. Gépház) */
+.menu-item-full {
+  grid-column: span 2;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.menu-item-full:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(0);
+}
+
+/* Quick Links */
+.quick-links {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  gap: 12px;
+}
+
+.quick-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-link-sale {
+  background: #ffe10069;
+  border: 1px solid #ffe1009c;
+}
+
+.quick-link-sale:hover {
+  background: #ffe10075;
+  transform: translateY(-2px);
+}
+
+.quick-link-sale svg {
+  stroke: #ffe100;
+}
+
+.quick-link-new {
+  background: rgba(72, 187, 120, 0.2);
+  border: 1px solid rgba(72, 187, 120, 0.4);
+}
+
+.quick-link-new:hover {
+  background: rgba(72, 187, 120, 0.3);
+  transform: translateY(-2px);
+}
+
+.quick-link-new svg {
+  stroke: #68d391;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .menu-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+  
+  .card-items {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .menu-container {
+    top: 70px;
+  }
+  
+  .menu-content {
+    padding: 20px;
+  }
+  
+  .menu-card {
+    padding: 20px;
+  }
+  
+  .card-items {
+    grid-template-columns: 1fr;
+  }
+  
+  .menu-item-full {
+    grid-column: span 1;
+  }
+  
+  .quick-links {
+    flex-direction: column;
   }
 }

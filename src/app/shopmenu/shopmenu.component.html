@@ -1,87 +1,188 @@
-<div class="backdrop" >
-  <div class="menu-dialog" (click)="$event.stopPropagation()">
-    <nav class="categories">
-      
-      
-      <div class="category">
-        <button class="cat-btn">
-          <span class="cat-icon">🖥️</span>
-          Számítógép alkatrész
-          <span class="arrow">›</span>
-        </button>
-        <div class="submenu">
-          <a class="item" (click)="onVideokartya()">
-            <span class="item-icon">🎮</span>
-            Videókártya
-          </a>
-          <a class="item" (click)="onProcesszor()">
-            <span class="item-icon">⚡</span>
-            Processzor
-          </a>
-          <a class="item" (click)="onMemoria()">
-            <span class="item-icon">💾</span>
-            Memória (RAM)
-          </a>
-          <a class="item" (click)="onAlaplap()">
-            <span class="item-icon">🔧</span>
-            Alaplap
-          </a>
-          <a class="item" (click)="onSSD()">
-            <span class="item-icon">💿</span>
-            SSD
-          </a>
-          <a class="item" (click)="onHDD()">
-            <span class="item-icon">💽</span>
-            HDD
-          </a>
-          <a class="item" (click)="onHutes()">
-            <span class="item-icon">❄️</span>
-            Hűtés
-          </a>
-          <a class="item" (click)="onTapegyseg()">
-            <span class="item-icon">🔌</span>
-            Tápegység
-          </a>
-          <a class="item" (click)="onGephaz()">
-            <span class="item-icon">📦</span>
-            Gépház
-          </a>
-        </div>
-      </div>
+<!-- Backdrop - kattintásra bezárja a menüt -->
+<div class="menu-backdrop" (click)="close.emit()"></div>
 
-      <div class="category">
-        <button class="cat-btn">
-          <span class="cat-icon">⌨️</span>
-          Számítógép perifériák
-          <span class="arrow">›</span>
-        </button>
-        <div class="submenu">
-          <a class="item" (click)="onEger()">
-            <span class="item-icon">🖱️</span>
-            Egér
-          </a>
-          <a class="item" (click)="onBillentyuzet()">
-            <span class="item-icon">⌨️</span>
-            Billentyűzet
-          </a>
-          <a class="item" (click)="onEgerpad()">
-            <span class="item-icon">🎯</span>
-            Egérpad
-          </a>
-          <a class="item" (click)="onMonitor()">
-            <span class="item-icon">🖥️</span>
-            Monitor
-          </a>
-          <a class="item" (click)="onMikrofon()">
-            <span class="item-icon">🎤</span>
-            Mikrofon
-          </a>
-          <a class="item" (click)="onFejhallgato()">
-            <span class="item-icon">🎧</span>
-            Fejhallgató
-          </a>
+<!-- Shop Menu - Fix a header alatt -->
+<div class="menu-container" (click)="$event.stopPropagation()">
+  <div class="menu-content">
+    
+    <!-- Bal oldal: Számítógép alkatrész -->
+    <div class="menu-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <rect x="9" y="9" width="6" height="6"/>
+          </svg>
         </div>
+        <h3>Számítógép alkatrész</h3>
       </div>
-    </nav>
+      
+      <div class="card-items">
+        <a class="menu-item" (click)="onVideokartya(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <path d="M6 10h2v4H6z"/>
+            <path d="M12 10h6M12 14h4"/>
+          </svg>
+          <span>Videókártya</span>
+        </a>
+        
+        <a class="menu-item" (click)="onProcesszor(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
+          </svg>
+          <span>Processzor</span>
+        </a>
+        
+        <a class="menu-item" (click)="onMemoria(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="7" width="18" height="10" rx="1"/>
+            <path d="M7 7V5M12 7V5M17 7V5M7 17v2M12 17v2M17 17v2"/>
+          </svg>
+          <span>Memória (RAM)</span>
+        </a>
+        
+        <a class="menu-item" (click)="onAlaplap(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <circle cx="7" cy="9" r="1.5"/>
+            <rect x="12" y="8" width="7" height="3" rx="0.5"/>
+            <path d="M5 15h14"/>
+          </svg>
+          <span>Alaplap</span>
+        </a>
+        
+        <a class="menu-item" (click)="onSSD(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+          <span>SSD</span>
+        </a>
+        
+        <a class="menu-item" (click)="onHDD(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 3v3M12 18v3"/>
+          </svg>
+          <span>HDD</span>
+        </a>
+        
+        <a class="menu-item" (click)="onHutes(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 6v12M6 12h12M7.8 7.8l8.4 8.4M16.2 7.8l-8.4 8.4"/>
+          </svg>
+          <span>Hűtés</span>
+        </a>
+        
+        <a class="menu-item" (click)="onTapegyseg(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="6" width="16" height="12" rx="2"/>
+            <path d="M8 6V4M16 6V4"/>
+            <path d="M9 12h6M12 9v6"/>
+          </svg>
+          <span>Tápegység</span>
+        </a>
+        
+        <a class="menu-item menu-item-full" (click)="onGephaz(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="2" width="16" height="20" rx="2"/>
+            <path d="M8 6h8M8 10h8"/>
+            <circle cx="12" cy="16" r="2"/>
+          </svg>
+          <span>Gépház</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Jobb oldal: Perifériák -->
+    <div class="menu-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="20" height="12" rx="2"/>
+            <path d="M6 20h12"/>
+            <path d="M12 16v4"/>
+          </svg>
+        </div>
+        <h3>Perifériák</h3>
+      </div>
+      
+      <div class="card-items">
+        <a class="menu-item" (click)="onEger(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="6" y="3" width="12" height="18" rx="6"/>
+            <path d="M12 3v6"/>
+            <path d="M12 9v0"/>
+          </svg>
+          <span>Egér</span>
+        </a>
+        
+        <a class="menu-item" (click)="onBillentyuzet(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <path d="M6 10h1M9 10h1M12 10h1M15 10h1M18 10h1"/>
+            <path d="M7 14h10"/>
+          </svg>
+          <span>Billentyűzet</span>
+        </a>
+        
+        <a class="menu-item" (click)="onEgerpad(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span>Egérpad</span>
+        </a>
+        
+        <a class="menu-item" (click)="onMonitor(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="20" height="12" rx="2"/>
+            <path d="M8 20h8"/>
+            <path d="M12 16v4"/>
+          </svg>
+          <span>Monitor</span>
+        </a>
+        
+        <a class="menu-item" (click)="onMikrofon(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="9" y="2" width="6" height="11" rx="3"/>
+            <path d="M5 10a7 7 0 0014 0"/>
+            <path d="M12 17v4M8 21h8"/>
+          </svg>
+          <span>Mikrofon</span>
+        </a>
+        
+        <a class="menu-item" (click)="onFejhallgato(); close.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 18v-6a9 9 0 0118 0v6"/>
+            <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
+          </svg>
+          <span>Fejhallgató</span>
+        </a>
+      </div>
+      
+      <!-- Gyors linkek -->
+      <div class="quick-links">
+        <a class="quick-link quick-link-sale" routerLink="/discounts" (click)="close.emit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <span>Akciók</span>
+        </a>
+        <a class="quick-link quick-link-new" routerLink="/newproducts" (click)="close.emit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Újdonságok</span>
+        </a>
+      </div>
+    </div>
+    
   </div>
 </div>
