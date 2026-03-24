@@ -6,6 +6,7 @@ package com.mycompany.coretech3.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -40,6 +41,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "PcConfigurations.findByGameTypes", query = "SELECT p FROM PcConfigurations p WHERE p.gameTypes = :gameTypes"),
     @NamedQuery(name = "PcConfigurations.findByRequirementLevel", query = "SELECT p FROM PcConfigurations p WHERE p.requirementLevel = :requirementLevel"),
     @NamedQuery(name = "PcConfigurations.findByTotalPrice", query = "SELECT p FROM PcConfigurations p WHERE p.totalPrice = :totalPrice"),
+    @NamedQuery(name = "PcConfigurations.findByProductId", query = "SELECT p FROM PcConfigurations p WHERE p.productId = :productId"),
     @NamedQuery(name = "PcConfigurations.findByIsFeatured", query = "SELECT p FROM PcConfigurations p WHERE p.isFeatured = :isFeatured"),
     @NamedQuery(name = "PcConfigurations.findByCreatedAt", query = "SELECT p FROM PcConfigurations p WHERE p.createdAt = :createdAt"),
     @NamedQuery(name = "PcConfigurations.findByIsDeleted", query = "SELECT p FROM PcConfigurations p WHERE p.isDeleted = :isDeleted"),
@@ -86,6 +88,8 @@ public class PcConfigurations implements Serializable {
     @NotNull
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+    @Column(name = "product_id")
+    private BigInteger productId;
     @Column(name = "is_featured")
     private Boolean isFeatured;
     @Basic(optional = false)
@@ -187,6 +191,14 @@ public class PcConfigurations implements Serializable {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public BigInteger getProductId() {
+        return productId;
+    }
+
+    public void setProductId(BigInteger productId) {
+        this.productId = productId;
     }
 
     public Boolean getIsFeatured() {

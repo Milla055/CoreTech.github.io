@@ -9,9 +9,7 @@ import javax.persistence.StoredProcedureQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- * QuestionnaireService - PC konfigurátor kérdőív üzleti logika
- */
+
 @Stateless
 public class QuestionnaireService {
 
@@ -43,6 +41,7 @@ public class QuestionnaireService {
                 query.execute();
                 results = query.getResultList();
             }
+            
             JSONArray gamesArray = new JSONArray();
             
             for (Object[] row : results) {
@@ -69,9 +68,7 @@ public class QuestionnaireService {
         return resp;
     }
 
-    /**
-     * Ajánlott PC konfigurációk lekérdezése
-     */
+    
     public JSONObject getRecommendedConfigurations(
             Integer budgetMin, 
             Integer budgetMax, 
@@ -81,9 +78,6 @@ public class QuestionnaireService {
         JSONObject resp = new JSONObject();
         
         try {
-            List<Object[]> results;
-            
-            // Mindig használjuk a stored procedure-t, de selectedGameIds lehet üres string
             StoredProcedureQuery query = em.createStoredProcedureQuery("getRecommendedConfigurations");
             
             query.registerStoredProcedureParameter("budgetMinIN", Integer.class, ParameterMode.IN);
@@ -98,11 +92,14 @@ public class QuestionnaireService {
             query.setParameter("selectedGameIdsIN", (selectedGameIds != null && !selectedGameIds.trim().isEmpty()) ? selectedGameIds : "");
             
             query.execute();
-            results = query.getResultList();
+            List<Object[]> results = query.getResultList();
+            
             JSONArray configurationsArray = new JSONArray();
             
             for (Object[] row : results) {
                 JSONObject config = new JSONObject();
+                
+                // Alap konfiguráció adatok
                 config.put("id", row[0]);
                 config.put("name", row[1]);
                 config.put("description", row[2]);
@@ -113,6 +110,28 @@ public class QuestionnaireService {
                 config.put("requirementLevel", row[7]);
                 config.put("totalPrice", row[8]);
                 config.put("isFeatured", row[9]);
+                
+                // ÚJ MEZŐK - products táblából JOIN-olva
+                config.put("productId", row[10]);      // pc.product_id
+                config.put("stock", row[11]);          // p.stock
+                config.put("imageUrl", row[12]);       // p.image_url
+                config.put("price", row[13]);          // p.price (aktuális ár)
+                
+                // PROPERTIES JSON - pre-built PC specifikációk
+                String propertiesJson = (String) row[14];  // p.properties
+                if (propertiesJson != null && !propertiesJson.trim().isEmpty()) {
+                    // Parse-oljuk a JSON string-et JSONObject-té
+                    try {
+                        JSONObject properties = new JSONObject(propertiesJson);
+                        config.put("properties", properties);
+                    } catch (Exception e) {
+                        // Ha nem valid JSON, akkor string-ként adjuk vissza
+                        config.put("properties", propertiesJson);
+                    }
+                } else {
+                    config.put("properties", JSONObject.NULL);
+                }
+                
                 configurationsArray.put(config);
             }
             
@@ -130,23 +149,17 @@ public class QuestionnaireService {
         return resp;
     }
 
-    /**
-     * PC konfiguráció részletes adatainak lekérdezése
-     */
+    
     public JSONObject getConfigurationDetails(Long configId) {
         JSONObject resp = new JSONObject();
         
         try {
             StoredProcedureQuery query = em.createStoredProcedureQuery("getConfigurationDetails");
             
-            // Parameter regisztráció
             query.registerStoredProcedureParameter("configIdIN", Long.class, ParameterMode.IN);
             query.setParameter("configIdIN", configId);
             
-            // Végrehajtás
             query.execute();
-            
-            // Eredmény feldolgozása
             List<Object[]> results = query.getResultList();
             
             if (results.isEmpty()) {
@@ -158,6 +171,8 @@ public class QuestionnaireService {
             
             Object[] row = results.get(0);
             JSONObject config = new JSONObject();
+            
+            // Alap konfiguráció adatok
             config.put("id", row[0]);
             config.put("name", row[1]);
             config.put("description", row[2]);
@@ -169,6 +184,25 @@ public class QuestionnaireService {
             config.put("totalPrice", row[8]);
             config.put("isFeatured", row[9]);
             config.put("createdAt", row[10]);
+            
+            // ÚJ MEZŐK - products táblából JOIN-olva
+            config.put("productId", row[11]);      // pc.product_id
+            config.put("stock", row[12]);          // p.stock
+            config.put("imageUrl", row[13]);       // p.image_url
+            config.put("price", row[14]);          // p.price
+            
+            // PROPERTIES JSON - pre-built PC specifikációk
+            String propertiesJson = (String) row[15];  // p.properties
+            if (propertiesJson != null && !propertiesJson.trim().isEmpty()) {
+                try {
+                    JSONObject properties = new JSONObject(propertiesJson);
+                    config.put("properties", properties);
+                } catch (Exception e) {
+                    config.put("properties", propertiesJson);
+                }
+            } else {
+                config.put("properties", JSONObject.NULL);
+            }
             
             resp.put("configuration", config);
             resp.put("status", "Success");
@@ -184,48 +218,51 @@ public class QuestionnaireService {
         return resp;
     }
 
-    /**
-     * PC konfiguráció termékeinek lekérdezése
-     */
+    
     public JSONObject getConfigurationProducts(Long configId) {
         JSONObject resp = new JSONObject();
         
         try {
-            StoredProcedureQuery query = em.createStoredProcedureQuery("getConfigurationProducts");
-            
-            // Parameter regisztráció
-            query.registerStoredProcedureParameter("configIdIN", Long.class, ParameterMode.IN);
-            query.setParameter("configIdIN", configId);
-            
-            // Végrehajtás
-            query.execute();
-            
-            // Eredmények feldolgozása
-            List<Object[]> results = query.getResultList();
-            JSONArray productsArray = new JSONArray();
-            
-            for (Object[] row : results) {
-                JSONObject product = new JSONObject();
-                product.put("configProductId", row[0]);
-                product.put("componentType", row[1]);
-                product.put("quantity", row[2]);
-                product.put("isRequired", row[3]);
-                product.put("productId", row[4]);
-                product.put("productName", row[5]);
-                product.put("productDescription", row[6]);
-                product.put("price", row[7]);
-                product.put("stock", row[8]);
-                product.put("imageUrl", row[9]);
-                product.put("categoryName", row[10]);
-                product.put("brandName", row[11]);
-                product.put("subtotal", row[12]);
-                product.put("inStock", row[13]);
-                productsArray.put(product);
+            // Ellenőrizzük hogy létezik-e még a stored procedure
+            try {
+                StoredProcedureQuery query = em.createStoredProcedureQuery("getConfigurationProducts");
+                query.registerStoredProcedureParameter("configIdIN", Long.class, ParameterMode.IN);
+                query.setParameter("configIdIN", configId);
+                query.execute();
+                
+                List<Object[]> results = query.getResultList();
+                JSONArray productsArray = new JSONArray();
+                
+                for (Object[] row : results) {
+                    JSONObject product = new JSONObject();
+                    product.put("configProductId", row[0]);
+                    product.put("componentType", row[1]);
+                    product.put("quantity", row[2]);
+                    product.put("isRequired", row[3]);
+                    product.put("productId", row[4]);
+                    product.put("productName", row[5]);
+                    product.put("productDescription", row[6]);
+                    product.put("price", row[7]);
+                    product.put("stock", row[8]);
+                    product.put("imageUrl", row[9]);
+                    product.put("categoryName", row[10]);
+                    product.put("brandName", row[11]);
+                    product.put("subtotal", row[12]);
+                    product.put("inStock", row[13]);
+                    productsArray.put(product);
+                }
+                
+                resp.put("products", productsArray);
+                resp.put("status", "Success");
+                resp.put("statusCode", 200);
+                
+            } catch (Exception procError) {
+                // Ha a stored procedure nem létezik, üres listát adunk vissza
+                resp.put("products", new JSONArray());
+                resp.put("status", "Success");
+                resp.put("statusCode", 200);
+                resp.put("message", "Configuration products are stored in properties JSON");
             }
-            
-            resp.put("products", productsArray);
-            resp.put("status", "Success");
-            resp.put("statusCode", 200);
             
         } catch (Exception e) {
             e.printStackTrace();

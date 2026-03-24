@@ -1,4 +1,3 @@
-com\mycompany\coretech3\model\ConfigurationProducts.class
 com\mycompany\coretech3\model\ProductAttributes.class
 com\mycompany\coretech3\controller\ProductsController.class
 com\mycompany\coretech3\filter\CorsFilter.class
@@ -6,6 +5,7 @@ com\mycompany\coretech3\service\CartService.class
 com\mycompany\coretech3\model\Products.class
 com\mycompany\coretech3\controller\OrdersController.class
 com\mycompany\coretech3\controller\CategoriesController.class
+com\mycompany\coretech3\filter\CorsResponseFilter.class
 com\mycompany\coretech3\controller\BrandsController.class
 com\mycompany\coretech3\controller\ApplicationConfig.class
 com\mycompany\coretech3\model\Reviews.class
