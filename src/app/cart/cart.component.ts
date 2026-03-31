@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../services/cart.service';
+import { DiscountService } from '../services/discount.service';
 
 @Component({
   selector: 'app-cart',
@@ -25,7 +26,8 @@ export class CartComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private discountService: DiscountService
   ) {}
 
   ngOnInit(): void {
@@ -104,6 +106,20 @@ export class CartComponent implements OnInit {
 
   formatPrice(price: number): string {
     return Math.round(price).toLocaleString('hu-HU') + ' Ft';
+  }
+
+  // Get display price for cart item - only show p_price if on discount
+  getItemDisplayPrice(item: CartItem): number {
+    if (this.discountService.isProductOnDiscount(item.product_id)) {
+      return item.product_p_price || item.product_price;
+    }
+    return item.product_price;
+  }
+
+  // Check if cart item has discount
+  itemHasDiscount(item: CartItem): boolean {
+    return this.discountService.isProductOnDiscount(item.product_id) && 
+           item.product_p_price < item.product_price;
   }
 
   goToProduct(productId: number): void {

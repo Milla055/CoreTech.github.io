@@ -31,6 +31,7 @@ export class ProfilepageComponent implements OnInit {
   addresses: Address[] = [];
   selectedAddressId: number | null = null;
   isAddingNewAddress: boolean = false;
+  isAddressDropdownOpen: boolean = false;
   
   isUpdatingProfile: boolean = false;
   isChangingPassword: boolean = false;
@@ -413,6 +414,11 @@ export class ProfilepageComponent implements OnInit {
       return;
     }
 
+    if (!favorite.stock || favorite.stock <= 0) {
+      this.showError('A termék nincs készleten!');
+      return;
+    }
+
     const product: any = {
       id: favorite.id,
       name: favorite.name,
@@ -425,10 +431,20 @@ export class ProfilepageComponent implements OnInit {
       description: favorite.description
     };
 
-    const success = this.cartService.addToCart(product, 1);
-    if (success) {
-      this.showSuccess('Termék hozzáadva a kosárhoz!');
-    }
+    // addToCart returns Observable - need to subscribe!
+    this.cartService.addToCart(product, 1).subscribe({
+      next: (success) => {
+        if (success) {
+          this.showSuccess(`${favorite.name} hozzáadva a kosárhoz!`);
+        } else {
+          this.showError('Nem sikerült hozzáadni a kosárhoz.');
+        }
+      },
+      error: (err) => {
+        console.error('Error adding to cart:', err);
+        this.showError('Hiba történt a kosárba helyezés során.');
+      }
+    });
   }
 
   // ==================== HELPER METHODS ====================
@@ -497,6 +513,20 @@ export class ProfilepageComponent implements OnInit {
     if (address) {
       this.populateDeliveryForm(address);
     }
+  }
+
+  toggleAddressDropdown(): void {
+    this.isAddressDropdownOpen = !this.isAddressDropdownOpen;
+  }
+
+  selectAddressFromDropdown(address: Address): void {
+    this.selectedAddressId = address.id;
+    this.populateDeliveryForm(address);
+    this.isAddressDropdownOpen = false;
+  }
+
+  getSelectedAddress(): Address | undefined {
+    return this.addresses.find(addr => addr.id === this.selectedAddressId);
   }
 
   saveDeliveryAddress(): void {

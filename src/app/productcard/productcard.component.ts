@@ -146,9 +146,7 @@ export class ProductcardComponent implements OnInit {
     return hasDisc;
   }
 
-  onImageError(event: any): void {
-    event.target.src = 'assets/placeholder-product.png';
-  }
+  
 
   // Notification helpers
   private showSuccess(message: string, duration: number = 2000): void {

@@ -1056,3 +1056,178 @@
     font-size: 24px;
   }
 }
+
+/* ============================================== */
+/* ADDRESS DROPDOWN STYLES                        */
+/* ============================================== */
+
+.address-dropdown-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.address-dropdown-trigger {
+  background: #f8fafc;
+  border: 2px solid #3d4474;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.address-dropdown-trigger:hover {
+  background: #f1f5f9;
+}
+
+.address-dropdown-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.address-dot {
+  width: 8px;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.address-dot-default {
+  background: #16a34a;
+}
+
+.address-dropdown-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-dropdown-title {
+  margin: 0;
+  font-weight: 600;
+  color: #1a202c;
+  font-size: 14px;
+}
+
+.address-dropdown-default {
+  margin: 2px 0 0;
+  color: #16a34a;
+  font-size: 11px;
+}
+
+.address-dropdown-arrow {
+  color: #3d4474;
+  transition: transform 0.2s ease;
+}
+
+.address-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.address-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-top: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.address-dropdown-item {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.address-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.address-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.address-dropdown-item.active {
+  background: #f0fdf4;
+  border-left: 3px solid #16a34a;
+}
+
+.address-dropdown-item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-dropdown-item-title {
+  margin: 0;
+  font-weight: 500;
+  color: #1a202c;
+  font-size: 13px;
+}
+
+.address-dropdown-item-default {
+  margin: 2px 0 0;
+  color: #16a34a;
+  font-size: 11px;
+}
+
+/* Address Details Card */
+.address-details {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.address-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.address-detail-item label {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.address-detail-item p {
+  margin: 0;
+  color: #1a202c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.address-details-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive for dropdown */
+@media (max-width: 600px) {
+  .address-details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .address-dropdown-title,
+  .address-dropdown-item-title {
+    font-size: 13px;
+  }
+}

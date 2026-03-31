@@ -49,19 +49,20 @@ export interface SendNewsletterResponse {
   providedIn: 'root'
 })
 export class NewsletterService {
-  private apiUrl = 'http://localhost:8080/coreTech3-1.0-SNAPSHOT/api/newsletter';
+  private apiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/newsletter';
 
   constructor(private http: HttpClient) {}
 
   /**
    * POST /newsletter/subscribe
    * Body: { email: string }
-   * Feliratkozás hírlevélre - NEM kell JWT token
+   * Feliratkozás hírlevélre - JWT token szükséges
    */
   subscribe(email: string): Observable<NewsletterResponse> {
     return this.http.post<NewsletterResponse>(
       `${this.apiUrl}/subscribe`,
-      { email }
+      { email },
+      { headers: this.getAuthHeaders() }
     );
   }
 

@@ -23,14 +23,10 @@ export class DiscountsComponent implements OnInit {
   loading: boolean = true;
 
   ngOnInit(): void {
-    this.productService.getAllProducts().subscribe({
+    this.discountService.getDiscountedProducts().subscribe({
       next: (products) => {
-        this.allDiscountProducts = this.selectDiscountProducts(products);
+        this.allDiscountProducts = products;
         this.filteredProducts = [...this.allDiscountProducts];
-        
-        const discountIds = this.allDiscountProducts.map(p => p.id);
-        this.discountService.setDiscountProducts(discountIds);
-        
         this.loading = false;
       },
       error: (err) => {
@@ -52,26 +48,5 @@ export class DiscountsComponent implements OnInit {
         return categoryMatch && brandMatch;
       });
     }
-  }
-
-  private selectDiscountProducts(products: Product[]): Product[] {
-    if (products.length === 0) return [];
-
-    const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    let seed = Math.floor(daysSinceEpoch / 3);
-
-    const rng = () => {
-      seed = (seed * 1664525 + 1013904223) & 0xffffffff;
-      return (seed >>> 0) / 0xffffffff;
-    };
-
-    const shuffled = [...products];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    const count = Math.min(30 + Math.floor(rng() * 11), shuffled.length);
-    return shuffled.slice(0, count);
   }
 }

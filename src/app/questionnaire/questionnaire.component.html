@@ -1,119 +1,161 @@
 <app-header></app-header>
 
+<!-- Success Notification -->
+<div class="success-notification" *ngIf="showSuccessMessage">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+  <span>{{ successMessage }}</span>
+</div>
+
+<!-- Error Notification -->
+<div class="error-notification" *ngIf="showErrorMessage">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+  <span>{{ errorMessage }}</span>
+</div>
+
 <div class="questionnaire-container">
   
-  <!-- Results View -->
+  <!-- ==================== RESULTS VIEW ==================== -->
   <div *ngIf="showResults" class="results-section">
     <div class="results-header">
-      <h1>Az Ön számára ajánlott konfigurációk</h1>
+      <h1>Ajánlott konfigurációk</h1>
       <p class="results-subtitle">
-        Válassza ki a neki legmegfelelőbb PC konfigurációt az alábbiak közül
+        A megadott igények alapján ezeket a PC-ket ajánljuk neked
       </p>
     </div>
 
-    <div class="results-grid" *ngIf="recommendedConfigurations.length > 0">
+    <div class="results-list" *ngIf="recommendedConfigurations.length > 0">
       <div class="config-card" *ngFor="let config of recommendedConfigurations">
-        <div class="config-badge" *ngIf="config.isFeatured">Ajánlott</div>
         
-        <h3 class="config-name">{{ config.name }}</h3>
-        <p class="config-description">{{ config.description }}</p>
-        
-        <div class="config-details">
-          <div class="detail-row">
-            <span class="detail-label">Költségkeret:</span>
-            <span class="detail-value">{{ formatPrice(config.budgetMin) }} - {{ formatPrice(config.budgetMax) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Felhasználás:</span>
-            <span class="detail-value">{{ config.useCase }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Követelmény szint:</span>
-            <span class="detail-value">{{ config.requirementLevel }} / 5</span>
-          </div>
+        <!-- Featured Badge -->
+        <div class="config-badge" *ngIf="config.isFeatured">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Ajánlott
         </div>
 
-        <div class="config-price">
-          <span class="price-label">Teljes ár:</span>
-          <span class="price-value">{{ formatPrice(config.totalPrice) }}</span>
-        </div>
+        <!-- Card Content with Image -->
+        <div class="config-layout">
+          <!-- Image -->
+          <div class="config-image">
+            <img [src]="getConfigImage(config)" [alt]="getConfigDisplayName(config)">
+          </div>
 
-        <button 
-          class="show-products-btn" 
-          (click)="loadConfigProducts(config.id)">
-          {{ isConfigExpanded(config.id) ? '▲ Termékek elrejtése' : '▼ Termékek megtekintése' }}
-        </button>
-
-        <!-- Product List (expandable) -->
-        <div class="products-list" *ngIf="isConfigExpanded(config.id)">
-          <div class="product-item" *ngFor="let product of getConfigProducts(config.id)">
-            <div class="product-info">
-              <span class="component-type">{{ product.componentType }}</span>
-              <span class="product-name">{{ product.productName }}</span>
-              <span class="product-quantity" *ngIf="product.quantity > 1">× {{ product.quantity }}</span>
+          <!-- Info -->
+          <div class="config-info">
+            <!-- Header -->
+            <div class="config-header">
+              <div class="config-title-section">
+                <h2 class="config-name">{{ getConfigDisplayName(config) }}</h2>
+                <p class="config-description">{{ config.description }}</p>
+              </div>
+              <div class="config-price-section">
+                <span class="config-price">{{ formatPrice(config.totalPrice) }}</span>
+                <span class="config-stock" [class.out-of-stock]="config.stock <= 0">
+                  {{ config.stock > 0 ? 'Raktáron: ' + config.stock + ' db' : 'Nincs raktáron' }}
+                </span>
+              </div>
             </div>
-            <div class="product-price">
-              <span [class.out-of-stock]="!product.inStock">
-                {{ formatPrice(product.subtotal) }}
-              </span>
-              <span class="stock-status" *ngIf="!product.inStock">Nincs raktáron</span>
+
+            <!-- Specs Grid -->
+            <div class="config-specs" *ngIf="hasProperties(config)">
+              <div class="specs-grid">
+                <div class="spec-item" *ngFor="let prop of getPropertyEntries(config.properties)">
+                  <span class="spec-label">{{ prop.key }}</span>
+                  <span class="spec-value">{{ prop.value }}</span>
+                </div>
+              </div>
             </div>
+
+            <!-- Meta Info -->
+            <div class="config-meta">
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span>{{ getUseCaseLabel(config.useCase) }}</span>
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20V10"></path>
+                  <path d="M18 20V4"></path>
+                  <path d="M6 20v-4"></path>
+                </svg>
+                <span>Szint: {{ getRequirementLabel(config.requirementLevel) }}</span>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button 
+              class="add-to-cart-btn"
+              [class.disabled]="config.stock <= 0"
+              [disabled]="config.stock <= 0"
+              (click)="addToCart(config)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {{ config.stock > 0 ? 'Kosárba rakom' : 'Nincs raktáron' }}
+            </button>
           </div>
         </div>
+
       </div>
     </div>
 
+    <!-- No Results -->
     <div class="no-results" *ngIf="recommendedConfigurations.length === 0">
-      <p>Sajnos nem találtunk megfelelő konfigurációt a megadott feltételekkel.</p>
-      <p>Próbálja meg más költségkerettel vagy felhasználási céllal!</p>
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3D4474" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <h3>Nem találtunk megfelelő konfigurációt</h3>
+      <p>Próbáld meg más költségkerettel vagy felhasználási céllal!</p>
     </div>
 
+    <!-- Back Button -->
     <div class="results-actions">
       <button class="btn-secondary" (click)="resetQuestionnaire()">
-        ← Új keresés
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Új keresés
       </button>
     </div>
   </div>
 
-  <!-- Questionnaire Wizard -->
+  <!-- ==================== WIZARD ==================== -->
   <div *ngIf="!showResults && !loadingResults" class="wizard-section">
     
     <!-- Progress Bar -->
     <div class="progress-container">
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
-          [style.width.%]="(currentStep / totalSteps) * 100">
-        </div>
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
       </div>
       <div class="progress-steps">
-        <div 
-          class="step-indicator" 
-          [class.active]="currentStep >= 1"
-          [class.current]="currentStep === 1">
+        <div class="step-indicator" [class.active]="currentStep >= 1" [class.current]="currentStep === 1">
           <span class="step-number">1</span>
           <span class="step-label">Költségkeret</span>
         </div>
-        <div 
-          class="step-indicator" 
-          [class.active]="currentStep >= 2"
-          [class.current]="currentStep === 2">
+        <div class="step-indicator" [class.active]="currentStep >= 2" [class.current]="currentStep === 2">
           <span class="step-number">2</span>
           <span class="step-label">Felhasználás</span>
         </div>
-        <div 
-          class="step-indicator" 
-          [class.active]="currentStep >= 3"
-          [class.current]="currentStep === 3"
-          *ngIf="selectedUseCase === 'gaming'">
+        <div class="step-indicator" [class.active]="currentStep >= 3" [class.current]="currentStep === 3" *ngIf="selectedUseCase === 'gaming'">
           <span class="step-number">3</span>
           <span class="step-label">Játék típusok</span>
         </div>
-        <div 
-          class="step-indicator" 
-          [class.active]="currentStep >= 4"
-          [class.current]="currentStep === 4"
-          *ngIf="selectedUseCase === 'gaming'">
+        <div class="step-indicator" [class.active]="currentStep >= 4" [class.current]="currentStep === 4" *ngIf="selectedUseCase === 'gaming'">
           <span class="step-number">4</span>
           <span class="step-label">Játékok</span>
         </div>
@@ -122,8 +164,8 @@
 
     <!-- Step 1: Budget Selection -->
     <div class="step-content" *ngIf="currentStep === 1">
-      <h2 class="step-title">Mekkora költségkeretet tervez?</h2>
-      <p class="step-subtitle">Válassza ki az Önnek megfelelő árkategóriát</p>
+      <h2 class="step-title">Mekkora a költségkereted?</h2>
+      <p class="step-subtitle">Válaszd ki az árkategóriát</p>
 
       <div class="options-grid">
         <div 
@@ -131,18 +173,33 @@
           *ngFor="let budget of budgetOptions"
           [class.selected]="selectedBudget === budget.value"
           (click)="selectedBudget = budget.value">
+          
           <div class="option-icon">
-            <img [src]="budget.iconPath" [alt]="budget.label">
+            <!-- Budget Low -->
+            <svg *ngIf="budget.icon === 'budget-low'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            <!-- Budget Mid -->
+            <svg *ngIf="budget.icon === 'budget-mid'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <!-- Budget High -->
+            <svg *ngIf="budget.icon === 'budget-high'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
           </div>
           <h3>{{ budget.label }}</h3>
+          <div class="checkbox-indicator" *ngIf="selectedBudget === budget.value">✓</div>
         </div>
       </div>
     </div>
 
     <!-- Step 2: Use Case Selection -->
     <div class="step-content" *ngIf="currentStep === 2">
-      <h2 class="step-title">Mire szeretné használni a számítógépet?</h2>
-      <p class="step-subtitle">Válasszon az alábbi lehetőségek közül</p>
+      <h2 class="step-title">Mire használnád a számítógépet?</h2>
+      <p class="step-subtitle">Válaszd ki a fő felhasználási célt</p>
 
       <div class="options-grid">
         <div 
@@ -150,17 +207,42 @@
           *ngFor="let useCase of useCaseOptions"
           [class.selected]="selectedUseCase === useCase.value"
           (click)="selectedUseCase = useCase.value">
+          
           <div class="option-icon">
-            <img [src]="useCase.iconPath" [alt]="useCase.label">
+            <!-- Gaming -->
+            <svg *ngIf="useCase.icon === 'gaming'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="6" y1="12" x2="10" y2="12"></line>
+              <line x1="8" y1="10" x2="8" y2="14"></line>
+              <line x1="15" y1="13" x2="15.01" y2="13"></line>
+              <line x1="18" y1="11" x2="18.01" y2="11"></line>
+              <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            </svg>
+            <!-- Video -->
+            <svg *ngIf="useCase.icon === 'video'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <!-- Code -->
+            <svg *ngIf="useCase.icon === 'code'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <!-- All Purpose -->
+            <svg *ngIf="useCase.icon === 'all'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
           </div>
           <h3>{{ useCase.label }}</h3>
+          <div class="checkbox-indicator" *ngIf="selectedUseCase === useCase.value">✓</div>
         </div>
       </div>
     </div>
 
     <!-- Step 3: Game Types (only if gaming) -->
     <div class="step-content" *ngIf="currentStep === 3 && selectedUseCase === 'gaming'">
-      <h2 class="step-title">Milyen típusú játékokat szeretnél játszani?</h2>
+      <h2 class="step-title">Milyen típusú játékokat játszol?</h2>
       <p class="step-subtitle">Választhatsz többet is!</p>
 
       <div class="options-grid multi-select">
@@ -169,30 +251,57 @@
           *ngFor="let gameGroup of gameTypeGroups"
           [class.selected]="isGameTypeSelected(gameGroup.type)"
           (click)="toggleGameType(gameGroup.type)">
+          
           <div class="option-icon">
-            <img [src]="gameGroup.iconPath" [alt]="gameGroup.label">
+            <!-- AAA -->
+            <svg *ngIf="gameGroup.icon === 'aaa'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            <!-- FPS -->
+            <svg *ngIf="gameGroup.icon === 'fps'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+              <line x1="12" y1="2" x2="12" y2="4"></line>
+              <line x1="12" y1="20" x2="12" y2="22"></line>
+              <line x1="2" y1="12" x2="4" y2="12"></line>
+              <line x1="20" y1="12" x2="22" y2="12"></line>
+            </svg>
+            <!-- RPG -->
+            <svg *ngIf="gameGroup.icon === 'rpg'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"></path>
+              <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
+              <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"></path>
+              <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"></path>
+              <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"></path>
+              <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"></path>
+              <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"></path>
+              <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"></path>
+            </svg>
+            <!-- Indie -->
+            <svg *ngIf="gameGroup.icon === 'indie'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
           </div>
           <h3>{{ gameGroup.label }}</h3>
+          <p class="option-description">{{ gameGroup.description }}</p>
           <div class="checkbox-indicator" *ngIf="isGameTypeSelected(gameGroup.type)">✓</div>
         </div>
       </div>
-
-      <p class="step-note" *ngIf="selectedGameTypes.length === 0">
-        Tipp: Ha nem vagy biztos, válaszd az AAA játékokat
-      </p>
     </div>
 
-    <!-- Step 4: Individual Games (only if gaming and game types selected) -->
+    <!-- Step 4: Individual Games (only if gaming) -->
     <div class="step-content" *ngIf="currentStep === 4 && selectedUseCase === 'gaming'">
-      <h2 class="step-title">Milyen játékokkal szeretnél játszani?</h2>
-      <p class="step-subtitle">Választhatsz többet is! Minél többet választasz, annál pontosabb az ajánlat.</p>
+      <h2 class="step-title">Milyen játékokat szeretnél futtatni?</h2>
+      <p class="step-subtitle">Válaszd ki a játékokat - a legigényesebb alapján ajánlunk konfigurációt</p>
 
       <div class="loading-container" *ngIf="loadingGames">
         <div class="spinner"></div>
         <p>Játékok betöltése...</p>
       </div>
 
-      <div class="games-grid" *ngIf="!loadingGames">
+      <div class="games-grid" *ngIf="!loadingGames && filteredGames.length > 0">
         <div 
           class="game-card" 
           *ngFor="let game of filteredGames"
@@ -206,47 +315,53 @@
           
           <p class="game-description">{{ game.description }}</p>
           
-          <div class="game-requirements">
-            <span class="requirement-badge">
-              Követelmény: {{ game.requirementLevel }}/5
-            </span>
+          <div class="game-footer">
+            <div class="requirement-badge" [attr.data-level]="game.requirementLevel">
+              <span class="req-dots">
+                <span *ngFor="let i of [1,2,3,4,5]" class="req-dot" [class.active]="i <= game.requirementLevel"></span>
+              </span>
+              <span>{{ getRequirementLabel(game.requirementLevel) }}</span>
+            </div>
           </div>
 
           <div class="checkbox-indicator" *ngIf="isGameSelected(game.id)">✓</div>
         </div>
       </div>
 
-      <p class="step-note" *ngIf="filteredGames.length === 0 && !loadingGames">
-        Tipp: Válassz legalább egy játék típust az előző lépésben
-      </p>
+      <div class="no-games" *ngIf="!loadingGames && filteredGames.length === 0">
+        <p>Válassz legalább egy játék típust az előző lépésben!</p>
+      </div>
       
       <p class="selected-count" *ngIf="selectedGameIds.length > 0">
-        Kiválasztva: {{ selectedGameIds.length }} játék
+        <strong>{{ selectedGameIds.length }}</strong> játék kiválasztva
       </p>
     </div>
 
     <!-- Navigation Buttons -->
     <div class="wizard-navigation">
-      <button 
-        class="btn-secondary" 
-        (click)="prevStep()" 
-        *ngIf="currentStep > 1">
-        ← Vissza
+      <button class="btn-secondary" (click)="prevStep()" *ngIf="currentStep > 1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Vissza
       </button>
       
-      <button 
-        class="btn-primary" 
-        (click)="nextStep()">
-        {{ (currentStep === 4 && selectedUseCase === 'gaming') || (currentStep === 2 && selectedUseCase !== 'gaming') ? 'Ajánlatok megtekintése' : 'Tovább →' }}
+      <button class="btn-primary" (click)="nextStep()">
+        {{ (currentStep === 4 && selectedUseCase === 'gaming') || (currentStep === 2 && selectedUseCase !== 'gaming') ? 'Ajánlatok megtekintése' : 'Tovább' }}
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
       </button>
     </div>
 
   </div>
 
-  <!-- Loading State -->
+  <!-- ==================== LOADING STATE ==================== -->
   <div *ngIf="loadingResults" class="loading-container">
     <div class="spinner"></div>
-    <p>Keressük az Önnek legmegfelelőbb konfigurációkat...</p>
+    <p>Keressük a legjobb konfigurációkat...</p>
   </div>
 
 </div>

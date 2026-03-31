@@ -181,30 +181,66 @@
           <span>Adj hozzá egy címet a gyorsabb rendeléshez</span>
         </div>
         
-        <!-- Address Cards -->
-        <div class="address-list" *ngIf="addresses.length > 0 && !isAddingNewAddress">
-          <div *ngFor="let address of addresses" 
-               class="address-card" 
-               [class.selected]="selectedAddressId === address.id"
-               (click)="onAddressSelect(address.id)">
-            <div class="address-default-badge" *ngIf="address.isDefault">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Alapértelmezett
+        <!-- Address Dropdown Selector -->
+        <div class="address-dropdown-container" *ngIf="addresses.length > 0 && !isAddingNewAddress">
+          <!-- Dropdown trigger -->
+          <div class="address-dropdown-trigger" (click)="toggleAddressDropdown()">
+            <div class="address-dropdown-selected">
+              <div class="address-dot" [class.address-dot-default]="getSelectedAddress()?.isDefault"></div>
+              <div class="address-dropdown-text">
+                <p class="address-dropdown-title">{{ getSelectedAddress()?.city }}, {{ getSelectedAddress()?.postalCode }} - {{ getSelectedAddress()?.street }}</p>
+                <p class="address-dropdown-default" *ngIf="getSelectedAddress()?.isDefault">✓ Alapértelmezett</p>
+              </div>
             </div>
-            <p class="address-city">{{ address.city }}, {{ address.postalCode }}</p>
-            <p class="address-street">{{ address.street }}</p>
-            <p class="address-country">{{ address.country }}</p>
-            <div class="address-actions">
-              <button class="address-btn address-btn-danger" (click)="deleteAddress(address.id); $event.stopPropagation()">Törlés</button>
-              <button class="address-btn" *ngIf="!address.isDefault" (click)="setAsDefaultAddress(address.id); $event.stopPropagation()">Alapértelmezett</button>
+            <svg class="address-dropdown-arrow" [class.open]="isAddressDropdownOpen" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          
+          <!-- Dropdown list -->
+          <div class="address-dropdown-list" *ngIf="isAddressDropdownOpen">
+            <div 
+              *ngFor="let address of addresses" 
+              class="address-dropdown-item"
+              [class.active]="selectedAddressId === address.id"
+              (click)="selectAddressFromDropdown(address)">
+              <div class="address-dot" [class.address-dot-default]="address.isDefault"></div>
+              <div class="address-dropdown-item-text">
+                <p class="address-dropdown-item-title">{{ address.city }}, {{ address.postalCode }} - {{ address.street }}</p>
+                <p class="address-dropdown-item-default" *ngIf="address.isDefault">✓ Alapértelmezett</p>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Selected Address Details -->
+        <div class="address-details" *ngIf="addresses.length > 0 && !isAddingNewAddress && selectedAddressId">
+          <div class="address-details-grid">
+            <div class="address-detail-item">
+              <label>Ország</label>
+              <p>{{ getSelectedAddress()?.country }}</p>
+            </div>
+            <div class="address-detail-item">
+              <label>Irányítószám</label>
+              <p>{{ getSelectedAddress()?.postalCode }}</p>
+            </div>
+            <div class="address-detail-item">
+              <label>Város</label>
+              <p>{{ getSelectedAddress()?.city }}</p>
+            </div>
+            <div class="address-detail-item">
+              <label>Utca, házszám</label>
+              <p>{{ getSelectedAddress()?.street }}</p>
+            </div>
+          </div>
+          <div class="address-details-actions">
+            <button class="address-btn address-btn-danger" (click)="deleteAddress(selectedAddressId!)">Törlés</button>
+            <button class="address-btn" *ngIf="!getSelectedAddress()?.isDefault" (click)="setAsDefaultAddress(selectedAddressId!)">Alapértelmezett</button>
+          </div>
+        </div>
+
         <!-- New/Edit Address Form -->
-        <form [formGroup]="deliveryDataForm" *ngIf="isAddingNewAddress || (addresses.length > 0 && selectedAddressId)">
+        <form [formGroup]="deliveryDataForm" *ngIf="isAddingNewAddress">
           <div class="form-row">
             <div class="form-group">
               <label>Ország</label>
@@ -225,7 +261,7 @@
               <input type="text" formControlName="utcaHazszam" placeholder="Fő utca 1.">
             </div>
           </div>
-          <div class="address-form-actions" *ngIf="isAddingNewAddress">
+          <div class="address-form-actions">
             <button type="button" class="btn btn-secondary" (click)="cancelNewAddress()">Mégse</button>
             <button type="button" class="btn btn-primary" (click)="saveDeliveryAddress()">Cím mentése</button>
           </div>

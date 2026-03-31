@@ -33,27 +33,14 @@ export class MainpageComponent implements OnInit {
   }
 
   loadDiscountProducts(): void {
-    this.productService.getAllProducts().subscribe({
+    this.discountService.getDiscountedProducts().subscribe({
       next: (products) => {
-        const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-        let seed = Math.floor(daysSinceEpoch / 3);
-
-        const rng = () => {
-          seed = (seed * 1664525 + 1013904223) & 0xffffffff;
-          return (seed >>> 0) / 0xffffffff;
-        };
-
-        const shuffled = [...products];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(rng() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-
-        this.discountProducts = shuffled.slice(0, 4);
+        // Csak az első 4 akciós terméket mutatjuk
+        this.discountProducts = products.slice(0, 4);
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading products:', err);
+        console.error('Error loading discount products:', err);
         this.loading = false;
       }
     });

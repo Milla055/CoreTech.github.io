@@ -46,6 +46,9 @@ export class ProductService {
   private apiUrl = 'http://127.0.0.1:8080/coreTech3-1.0-SNAPSHOT/webresources/products';
   private http = inject(HttpClient);
 
+  // Pre-built PC ID-k - ezek csak a kérdőíven keresztül érhetők el
+  private readonly PREBUILT_PC_IDS = Array.from({ length: 25 }, (_, i) => 250 + i); // 250-274
+
   headers = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -63,13 +66,19 @@ export class ProductService {
     };
   }
 
-  // Get all products
+  // Filter out pre-built PCs from product list
+  private filterOutPrebuiltPCs(products: Product[]): Product[] {
+    return products.filter(p => !this.PREBUILT_PC_IDS.includes(p.id));
+  }
+
+  // Get all products (excluding pre-built PCs)
   getAllProducts(): Observable<Product[]> {
     return this.http.get<ProductsResponse>(`${this.apiUrl}`, this.headers).pipe(
       map(response => {
         console.log('Backend response:', response);
         if (response.status === 'Success' && response.products) {
-          return response.products.map(p => this.mapBackendProduct(p));
+          const allProducts = response.products.map(p => this.mapBackendProduct(p));
+          return this.filterOutPrebuiltPCs(allProducts);
         }
         return [];
       })
@@ -89,13 +98,14 @@ export class ProductService {
     );
   }
 
-  // Get products by category
+  // Get products by category (excluding pre-built PCs)
   getProductsByCategoryId(categoryId: number): Observable<Product[]> {
     return this.http.get<ProductsResponse>(`${this.apiUrl}/category/${categoryId}`, this.headers).pipe(
       map(response => {
         console.log('Backend response for category:', response);
         if (response.status === 'Success' && response.products) {
-          return response.products.map(p => this.mapBackendProduct(p));
+          const allProducts = response.products.map(p => this.mapBackendProduct(p));
+          return this.filterOutPrebuiltPCs(allProducts);
         }
         return [];
       })

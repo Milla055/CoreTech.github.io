@@ -1,32 +1,61 @@
-/* Notification */
-.notification {
+/* Success Notification */
+.success-notification {
   position: fixed;
   top: 20px;
   right: 20px;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-weight: 500;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.notification.success {
   background-color: #81C784;
-  color: #1b5e20;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideDownFade 0.3s ease-out;
 }
 
-.notification.error {
+/* Error Notification */
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
   background-color: #E57373;
-  color: #b71c1c;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideDownFade 0.3s ease-out;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Newsletter Card */
 .newsletter-card {
-  background-color: #d5d5dc;
+  background-color: #E9EBF5;
   border-radius: 12px;
   padding: 30px 40px;
   margin: 30px auto;
   max-width: 700px;
+  border: 2px solid #d1d1e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .newsletter-card h3 {

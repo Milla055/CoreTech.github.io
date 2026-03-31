@@ -50,7 +50,10 @@
 
         <div class="item-details">
           <h3 class="item-name" (click)="goToProduct(item.product_id)">{{ item.product_name }}</h3>
-          <p class="item-price">{{ formatPrice(item.product_p_price) }}</p>
+          <div class="item-price">
+            <span class="original-price" *ngIf="itemHasDiscount(item)">{{ formatPrice(item.product_price) }}</span>
+            <span class="current-price" [class.discounted]="itemHasDiscount(item)">{{ formatPrice(getItemDisplayPrice(item)) }}</span>
+          </div>
           
           <div class="item-controls">
             <div class="quantity-controls">

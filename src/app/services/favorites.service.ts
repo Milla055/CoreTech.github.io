@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
+import { map, tap, catchError, switchMap } from 'rxjs/operators';
 
 export interface FavoriteProduct {
   id: number;
@@ -40,6 +40,27 @@ export class FavoritesService {
     });
   }
 
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  }
+
+  // Fetch full product details by ID
+  private getProductDetails(productId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/products/${productId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      map(response => {
+        if (response.status === 'Success' && response.product) {
+          return response.product;
+        }
+        return null;
+      }),
+      catchError(() => of(null))
+    );
+  }
+
   // Load favorites from backend
   loadFavoritesFromBackend(): void {
     const token = localStorage.getItem('JWT');
@@ -56,39 +77,56 @@ export class FavoritesService {
     this.http.get<any>(`${this.apiUrl}/favorites`, {
       headers: this.getAuthHeaders()
     }).pipe(
-      map(response => {
+      switchMap(response => {
         console.log('📥 Backend response:', response);
         
-        if (response.status === 'Success' && response.favorites) {
+        if (response.status === 'Success' && response.favorites && response.favorites.length > 0) {
           console.log('✅ Found favorites:', response.favorites.length);
-          return response.favorites.map((fav: any) => ({
-            id: fav.product_id,
-            name: fav.product_name || '',
-            description: '',
-            price: fav.product_price || 0,
-            pPrice: fav.product_price || 0,
-            stock: 0,
-            imageUrl: '',
-            categoryId: 0,
-            categoryName: fav.category_name || '',
-            brandId: 0,
-            brandName: fav.brand_name || '',
-            addedAt: fav.created_at || new Date().toISOString()
-          }));
+          
+          // Fetch full product details for each favorite
+          const productRequests: Observable<{favoriteData: any, productData: any}>[] = response.favorites.map((fav: any) => 
+            this.getProductDetails(fav.product_id).pipe(
+              map(product => ({
+                favoriteData: fav,
+                productData: product
+              }))
+            )
+          );
+          
+          return forkJoin(productRequests);
         }
-        console.log('⚠️ No favorites in response or wrong format');
-        return [];
+        
+        return of([] as {favoriteData: any, productData: any}[]);
+      }),
+      map((results) => {
+        if (!results || results.length === 0) return [];
+        
+        return results.map(({ favoriteData, productData }) => {
+          const product = productData || {};
+          return {
+            id: favoriteData.product_id,
+            name: product.name || favoriteData.product_name || '',
+            description: product.description || '',
+            price: product.price || favoriteData.product_price || 0,
+            pPrice: product.p_price || product.price || favoriteData.product_price || 0,
+            stock: product.stock ?? 0,
+            imageUrl: product.image_url || '',
+            categoryId: product.category_id || 0,
+            categoryName: product.category_name || '',
+            brandId: product.brand_id || 0,
+            brandName: product.brand_name || '',
+            addedAt: favoriteData.created_at || new Date().toISOString()
+          };
+        });
       }),
       catchError(err => {
         console.error('❌ Error loading favorites:', err);
-        console.error('❌ Error details:', err.error);
-        console.error('❌ Status:', err.status);
         return of([]);
       })
     ).subscribe(favorites => {
-      console.log('💾 Setting favorites in BehaviorSubject:', favorites);
+      console.log('💾 Favorites loaded:', favorites);
       this.favoritesSubject.next(favorites);
-      console.log('📦 Kedvencek betöltve backend-ről:', favorites.length, 'db');
+      console.log('📦 Kedvencek betöltve:', favorites.length, 'db');
     });
   }
 
@@ -121,7 +159,7 @@ export class FavoritesService {
           name: product.name || '',
           description: product.description || '',
           price: product.price || 0,
-          pPrice: product.pPrice || product.p_price || 0,
+          pPrice: product.pPrice || product.p_price || product.price || 0,
           stock: product.stock || 0,
           imageUrl: product.imageUrl || product.image_url || '',
           categoryId: product.categoryId?.id || product.category_id || 0,
