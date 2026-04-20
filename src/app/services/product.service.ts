@@ -159,13 +159,29 @@ export class ProductService {
   // Create new product (admin only)
   createProduct(productData: any): Observable<any> {
     const adminUrl = this.apiUrl.replace('/products', '/admin/products');
-    return this.http.post<any>(adminUrl, productData, this.getAuthHeaders());
+    const payload = this.mapToBackendProduct(productData);
+    return this.http.post<any>(adminUrl, payload, this.getAuthHeaders());
   }
 
   // Update existing product (admin only)
   updateProduct(productId: number, productData: any): Observable<any> {
     const adminUrl = this.apiUrl.replace('/products', '/admin/products');
-    return this.http.put<any>(`${adminUrl}/${productId}`, productData, this.getAuthHeaders());
+    const payload = this.mapToBackendProduct(productData);
+    return this.http.put<any>(`${adminUrl}/${productId}`, payload, this.getAuthHeaders());
+  }
+
+  // Map frontend product structure to backend expected format
+  private mapToBackendProduct(productData: any): any {
+    return {
+      categoryId: productData.categoryId,
+      brandId: productData.brandId,
+      name: productData.name,
+      description: productData.description || '',
+      price: productData.price,
+      stock: productData.stock ?? 0,
+      imageUrl: productData.imageUrl || '',
+      p_price: productData.pPrice ?? productData.p_price ?? 0
+    };
   }
 
   // Delete product (admin only)

@@ -17,13 +17,13 @@ export class AdminpageComponent implements OnInit {
   activeMenu: string = 'dashboard';
   today: string = '';
   loading: boolean = true;
-  
+
   // Notification state
   showSuccessNotification: boolean = false;
   showErrorNotification: boolean = false;
   successMessage: string = '';
   errorMessage: string = '';
-  
+
   // Stats data
   stats = {
     users: 0,
@@ -77,6 +77,7 @@ export class AdminpageComponent implements OnInit {
     name: '',
     description: '',
     price: 0,
+    pPrice: 0,
     stock: 0,
     imageUrl: ''
   };
@@ -89,14 +90,12 @@ export class AdminpageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if user is admin
     const user = this.authService.getCurrentUser();
     if (!user || user.role?.toLowerCase() !== 'admin') {
       this.router.navigate(['/mainpage']);
       return;
     }
-    
-    // Set today's date
+
     const now = new Date();
     const days = ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'];
     this.today = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, '0')}. ${String(now.getDate()).padStart(2, '0')}. ${days[now.getDay()]}`;
@@ -104,67 +103,45 @@ export class AdminpageComponent implements OnInit {
     this.loadDashboardData();
   }
 
+  // ==================== DASHBOARD ====================
+
   loadDashboardData(): void {
     this.loading = true;
 
-    // 1. Felhasználók számának lekérése
     this.adminService.getUserCount().subscribe({
-      next: (count) => {
-        console.log('👥 User count:', count);
-        this.stats.users = count;
-      },
-      error: (err) => {
-        console.error('❌ Error loading user count:', err);
-      }
+      next: (count) => { this.stats.users = count; },
+      error: (err) => console.error('❌ Error loading user count:', err)
     });
 
-    // 2. Adminok betöltése dinamikusan
     this.loadAdmins();
-
-    // 3. További dashboard adatok betöltése
     this.loadChartData();
     this.loadRecentOrders();
     this.loadTopProducts();
-    
-    // 4. Stats betöltése (orders, revenue, profit)
     this.loadStats();
-    
+
     this.loading = false;
   }
 
   loadStats(): void {
-    console.log('📊 Loading dashboard stats...');
-    
-    // Revenue
     this.adminService.getTotalRevenue().subscribe({
-      next: (response) => {
-        this.stats.revenue = response.totalRevenue || 0;
-      },
+      next: (response) => { this.stats.revenue = response.totalRevenue || 0; },
       error: (err) => console.error('❌ Error loading revenue:', err)
     });
 
-    // Profit
     this.adminService.getTotalProfit().subscribe({
-      next: (response) => {
-        this.stats.profit = response.totalProfit || 0;
-      },
+      next: (response) => { this.stats.profit = response.totalProfit || 0; },
       error: (err) => console.error('❌ Error loading profit:', err)
     });
 
-    // Orders
     this.adminService.getOrdersCount().subscribe({
-      next: (response) => {
-        this.stats.orders = response.totalOrders || 0;
-      },
+      next: (response) => { this.stats.orders = response.totalOrders || 0; },
       error: (err) => console.error('❌ Error loading orders:', err)
     });
   }
 
   loadAdmins(): void {
-    console.log('🔍 Loading admins...');
     this.adminService.getAdminUsers().subscribe({
       next: (admins) => {
-        console.log('👑 Admins loaded:', admins);
         this.admins = admins;
         this.stats.admins = admins.length;
       },
@@ -178,44 +155,30 @@ export class AdminpageComponent implements OnInit {
 
   loadChartData(): void {
     this.adminService.getMonthlySalesData().subscribe({
-      next: (data) => {
-        console.log('📊 Chart data loaded:', data);
-        this.chartData = data;
-      },
-      error: (err) => {
-        console.error('❌ Error loading chart data:', err);
-      }
+      next: (data) => { this.chartData = data; },
+      error: (err) => console.error('❌ Error loading chart data:', err)
     });
   }
 
   loadRecentOrders(): void {
     this.adminService.getRecentOrders().subscribe({
-      next: (orders) => {
-        console.log('📦 Recent orders loaded:', orders);
-        this.recentOrders = orders.slice(0, 5);
-      },
-      error: (err) => {
-        console.error('❌ Error loading recent orders:', err);
-      }
+      next: (orders) => { this.recentOrders = orders.slice(0, 5); },
+      error: (err) => console.error('❌ Error loading recent orders:', err)
     });
   }
 
   loadTopProducts(): void {
     this.adminService.getTopProducts().subscribe({
-      next: (products) => {
-        console.log('🏆 Top products loaded:', products);
-        this.topProducts = products;
-      },
-      error: (err) => {
-        console.error('❌ Error loading top products:', err);
-      }
+      next: (products) => { this.topProducts = products; },
+      error: (err) => console.error('❌ Error loading top products:', err)
     });
   }
+
+  // ==================== NAVIGATION ====================
 
   setActiveMenu(menu: string): void {
     this.activeMenu = menu;
 
-    // Load specific data for each tab
     if (menu === 'users' && this.allUsers.length === 0) {
       this.loadAllUsers();
     } else if (menu === 'orders' && this.allOrders.length === 0) {
@@ -227,6 +190,8 @@ export class AdminpageComponent implements OnInit {
     }
   }
 
+  // ==================== USERS ====================
+
   loadAllUsers(): void {
     this.adminService.getAllUsers().subscribe({
       next: (users) => {
@@ -237,39 +202,6 @@ export class AdminpageComponent implements OnInit {
     });
   }
 
-  loadAllOrders(): void {
-    this.adminService.getRecentOrders().subscribe({
-      next: (orders) => {
-        this.allOrders = orders;
-        this.filteredOrders = [...this.allOrders];
-      },
-      error: (err) => console.error('Error loading orders:', err)
-    });
-  }
-
-  loadAllReviews(): void {
-    this.adminService.getReviewsWithDetails().subscribe({
-      next: (reviews) => {
-        this.reviews = reviews;
-        this.filteredReviews = [...this.reviews];
-      },
-      error: (err) => console.error('Error loading reviews:', err)
-    });
-  }
-
-  loadAllProducts(): void {
-    console.log('📦 Loading all products...');
-    this.productService.getAllProducts().subscribe({
-      next: (products) => {
-        console.log('✅ Products loaded:', products);
-        this.products = products;
-        this.filteredProducts = [...this.products];
-      },
-      error: (err) => console.error('❌ Error loading products:', err)
-    });
-  }
-
-  // Filter functions
   filterUsers(): void {
     const query = this.userSearchQuery.toLowerCase().trim();
     if (!query) {
@@ -282,13 +214,40 @@ export class AdminpageComponent implements OnInit {
     }
   }
 
+  softDeleteUser(userId: number, username: string): void {
+    if (!confirm(`Biztosan törölni szeretnéd "${username}" felhasználót? Ez a művelet visszavonható.`)) return;
+
+    this.adminService.softDeleteUser(userId).subscribe({
+      next: () => {
+        this.showSuccess(`"${username}" felhasználó sikeresen törölve!`);
+        this.loadAllUsers();
+      },
+      error: (err) => {
+        console.error('❌ Error soft-deleting user:', err);
+        this.showError('Hiba történt a törlés során: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  // ==================== ORDERS ====================
+
+  loadAllOrders(): void {
+    this.adminService.getAllOrdersWithUsernames().subscribe({
+      next: (orders) => {
+        this.allOrders = orders;
+        this.filterOrders();
+      },
+      error: (err) => console.error('Error loading orders:', err)
+    });
+  }
+
   filterOrders(): void {
     let filtered = [...this.allOrders];
-    
+
     if (this.orderStatusFilter !== 'all') {
       filtered = filtered.filter(o => o.status?.toLowerCase() === this.orderStatusFilter.toLowerCase());
     }
-    
+
     const query = this.orderSearchQuery.toLowerCase().trim();
     if (query) {
       filtered = filtered.filter(o =>
@@ -296,8 +255,40 @@ export class AdminpageComponent implements OnInit {
         o.username?.toLowerCase().includes(query)
       );
     }
-    
+
     this.filteredOrders = filtered;
+  }
+
+  cancelOrder(orderId: number): void {
+    if (!confirm(`Biztosan le szeretnéd mondani a #${orderId} rendelést?`)) return;
+
+    this.adminService.cancelOrder(orderId).subscribe({
+      next: () => {
+        this.showSuccess(`#${orderId} rendelés sikeresen lemondva!`);
+        this.loadAllOrders();
+      },
+      error: (err) => {
+        console.error('❌ Error cancelling order:', err);
+        this.showError('Hiba történt a rendelés lemondásakor: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  canCancelOrder(status: string): boolean {
+    const nonCancellable = ['completed', 'shipped', 'delivered', 'cancelled'];
+    return !nonCancellable.includes(status?.toLowerCase());
+  }
+
+  // ==================== REVIEWS ====================
+
+  loadAllReviews(): void {
+    this.adminService.getReviewsWithDetails().subscribe({
+      next: (reviews) => {
+        this.reviews = reviews;
+        this.filteredReviews = [...this.reviews];
+      },
+      error: (err) => console.error('Error loading reviews:', err)
+    });
   }
 
   filterReviews(): void {
@@ -313,6 +304,18 @@ export class AdminpageComponent implements OnInit {
     }
   }
 
+  // ==================== PRODUCTS ====================
+
+  loadAllProducts(): void {
+    this.productService.getAllProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+        this.filteredProducts = [...this.products];
+      },
+      error: (err) => console.error('❌ Error loading products:', err)
+    });
+  }
+
   filterProducts(): void {
     const query = this.productSearchQuery.toLowerCase().trim();
     if (!query) {
@@ -324,9 +327,7 @@ export class AdminpageComponent implements OnInit {
     }
   }
 
-  // Product Management Functions
   openAddProductForm(): void {
-    console.log('➕ Opening add product form');
     this.editingProduct = false;
     this.productForm = {
       id: 0,
@@ -335,6 +336,7 @@ export class AdminpageComponent implements OnInit {
       name: '',
       description: '',
       price: 0,
+      pPrice: 0,
       stock: 0,
       imageUrl: ''
     };
@@ -342,7 +344,6 @@ export class AdminpageComponent implements OnInit {
   }
 
   openEditProductForm(product: Product): void {
-    console.log('✏️ Opening edit product form for:', product);
     this.editingProduct = true;
     this.productForm = {
       id: product.id || 0,
@@ -351,6 +352,7 @@ export class AdminpageComponent implements OnInit {
       name: product.name || '',
       description: product.description || '',
       price: product.price || 0,
+      pPrice: product.pPrice || 0,
       stock: product.stock || 0,
       imageUrl: product.imageUrl || ''
     };
@@ -358,14 +360,11 @@ export class AdminpageComponent implements OnInit {
   }
 
   closeProductForm(): void {
-    console.log('❌ Closing product form');
     this.showProductForm = false;
     this.editingProduct = false;
   }
 
   saveProduct(): void {
-    console.log('💾 Saving product...', this.productForm);
-    
     if (!this.productForm.name || this.productForm.price <= 0) {
       this.showError('Kérlek töltsd ki az összes kötelező mezőt!');
       return;
@@ -377,40 +376,30 @@ export class AdminpageComponent implements OnInit {
       name: this.productForm.name,
       description: this.productForm.description,
       price: this.productForm.price,
+      pPrice: this.productForm.pPrice,
       stock: this.productForm.stock,
       imageUrl: this.productForm.imageUrl
     };
 
-    console.log('📤 Product data to send:', productData);
-
     if (this.editingProduct) {
-      // Update existing product - use productService
-      console.log('🔄 Updating product with ID:', this.productForm.id);
       this.productService.updateProduct(this.productForm.id, productData).subscribe({
-        next: (response) => {
-          console.log('✅ Product updated:', response);
+        next: () => {
           this.showSuccess('Termék sikeresen frissítve!');
           this.closeProductForm();
           this.loadAllProducts();
         },
         error: (err) => {
-          console.error('❌ Error updating product:', err);
           this.showError('Hiba történt a termék frissítése során: ' + (err.error?.message || err.message));
         }
       });
     } else {
-      // Create new product - use productService
-      console.log('➕ Creating new product');
       this.productService.createProduct(productData).subscribe({
-        next: (response) => {
-          console.log('✅ Product created:', response);
+        next: () => {
           this.showSuccess('Termék sikeresen létrehozva!');
           this.closeProductForm();
           this.loadAllProducts();
         },
         error: (err) => {
-          console.error('❌ Error creating product:', err);
-          console.error('❌ Full error object:', JSON.stringify(err, null, 2));
           const errorMsg = err.error?.message || err.message || 'Ismeretlen hiba';
           this.showError('Hiba történt a termék létrehozása során: ' + errorMsg);
         }
@@ -419,28 +408,21 @@ export class AdminpageComponent implements OnInit {
   }
 
   deleteProduct(productId: number): void {
-    console.log('🗑️ Delete product requested for ID:', productId);
-    
-    if (!confirm('Biztosan törölni szeretnéd ezt a terméket?')) {
-      console.log('❌ Delete cancelled by user');
-      return;
-    }
+    if (!confirm('Biztosan törölni szeretnéd ezt a terméket?')) return;
 
-    console.log('🔄 Deleting product...');
     this.productService.deleteProduct(productId).subscribe({
-      next: (response) => {
-        console.log('✅ Product deleted:', response);
+      next: () => {
         this.showSuccess('Termék sikeresen törölve!');
         this.loadAllProducts();
       },
       error: (err) => {
-        console.error('❌ Error deleting product:', err);
         this.showError('Hiba történt a termék törlése során: ' + (err.error?.message || err.message));
       }
     });
   }
 
-  // Formatting functions
+  // ==================== FORMATTING ====================
+
   formatPrice(price: number): string {
     if (price >= 1000000) {
       return (price / 1000000).toFixed(2) + 'M Ft';
@@ -469,31 +451,26 @@ export class AdminpageComponent implements OnInit {
     switch (status.toLowerCase()) {
       case 'completed':
       case 'shipped':
-      case 'delivered':
-        return 'status-completed';
-      case 'shipping':
-        return 'status-shipping';
+      case 'delivered':  return 'status-completed';
+      case 'shipping':   return 'status-shipping';
       case 'processing':
-      case 'pending':
-        return 'status-processing';
-      case 'cancelled':
-        return 'status-cancelled';
-      default:
-        return '';
+      case 'pending':    return 'status-processing';
+      case 'cancelled':  return 'status-cancelled';
+      default:           return '';
     }
   }
 
   getStatusText(status: string): string {
     if (!status) return 'Ismeretlen';
     switch (status.toLowerCase()) {
-      case 'completed': return 'Teljesítve';
-      case 'shipped': return 'Kiszállítva';
-      case 'delivered': return 'Kézbesítve';
-      case 'shipping': return 'Szállítás alatt';
+      case 'completed':  return 'Teljesítve';
+      case 'shipped':    return 'Kiszállítva';
+      case 'delivered':  return 'Kézbesítve';
+      case 'shipping':   return 'Szállítás alatt';
       case 'processing': return 'Feldolgozás';
-      case 'pending': return 'Függőben';
-      case 'cancelled': return 'Törölve';
-      default: return status;
+      case 'pending':    return 'Függőben';
+      case 'cancelled':  return 'Törölve';
+      default:           return status;
     }
   }
 
@@ -532,20 +509,17 @@ export class AdminpageComponent implements OnInit {
     this.router.navigate(['/mainpage']);
   }
 
-  // Notification helpers
+  // ==================== NOTIFICATIONS ====================
+
   private showSuccess(message: string, duration: number = 2000): void {
     this.successMessage = message;
     this.showSuccessNotification = true;
-    setTimeout(() => {
-      this.showSuccessNotification = false;
-    }, duration);
+    setTimeout(() => { this.showSuccessNotification = false; }, duration);
   }
 
   private showError(message: string, duration: number = 3000): void {
     this.errorMessage = message;
     this.showErrorNotification = true;
-    setTimeout(() => {
-      this.showErrorNotification = false;
-    }, duration);
+    setTimeout(() => { this.showErrorNotification = false; }, duration);
   }
 }

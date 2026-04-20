@@ -955,6 +955,359 @@
   font-size: 14px;
 }
 
+/* ==================== USERS TAB REDESIGN ==================== */
+.users-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.users-search-wrapper,
+.orders-search-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+
+.users-search-wrapper .search-icon,
+.orders-search-wrapper .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.users-search-wrapper input,
+.orders-search-wrapper input {
+  width: 100%;
+  padding: 11px 16px 11px 40px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.users-search-wrapper input:focus,
+.orders-search-wrapper input:focus {
+  outline: none;
+  border-color: #3D4474;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(61, 68, 116, 0.1);
+}
+
+.users-count-badge {
+  background: #e8e8f0;
+  color: #3D4474;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* Users Table */
+.users-table-container {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #e5e7eb;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 820px;
+}
+
+.users-table thead {
+  background: #3D4474;
+}
+
+.users-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.85);
+  border: none;
+}
+
+.users-table tbody tr {
+  border-bottom: 1px solid #f0f0f5;
+  transition: background 0.15s;
+}
+
+.users-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.users-table tbody td {
+  padding: 14px 18px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.uc-id, .oc-id {
+  width: 80px;
+}
+
+.uc-actions, .oc-actions {
+  width: 120px;
+  text-align: right;
+}
+
+.user-id-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-table-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3D4474 0%, #2d3561 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-table-name {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.user-email {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.user-phone {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.user-date {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* Soft Delete Button */
+.soft-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.soft-delete-btn:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.2);
+}
+
+.soft-delete-btn:active {
+  transform: translateY(0);
+}
+
+/* ==================== ORDERS TAB REDESIGN ==================== */
+.orders-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.orders-filters-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orders-status-select {
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fafafa;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.orders-status-select:focus {
+  outline: none;
+  border-color: #3D4474;
+  box-shadow: 0 0 0 3px rgba(61, 68, 116, 0.1);
+}
+
+/* Orders Table */
+.orders-table-container {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #e5e7eb;
+}
+
+.orders-full-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 780px;
+}
+
+.orders-full-table thead {
+  background: #3D4474;
+}
+
+.orders-full-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.85);
+  border: none;
+}
+
+.orders-full-table tbody tr {
+  border-bottom: 1px solid #f0f0f5;
+  transition: background 0.15s;
+}
+
+.orders-full-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.orders-full-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.order-row-cancelled {
+  opacity: 0.6;
+}
+
+.orders-full-table tbody td {
+  padding: 14px 18px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.oc-amount {
+  width: 130px;
+}
+
+.order-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3D4474;
+}
+
+.order-customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.order-customer-name {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.order-total {
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.order-date-cell {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* Cancel Order Button */
+.cancel-order-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1.5px solid #fed7aa;
+  background: #fff7ed;
+  color: #ea580c;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.cancel-order-btn:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.2);
+}
+
+.cancel-order-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cancel-order-btn--disabled,
+.cancel-order-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 1400px) {
   .stats-grid {
@@ -1271,7 +1624,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: #4F46E5;
+  background: #3D4474;
   color: white;
   border: none;
   border-radius: 10px;
@@ -1279,14 +1632,13 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+  
   white-space: nowrap;
 }
 
 .add-product-btn:hover {
   background: #3D4474;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
 .add-product-btn svg {

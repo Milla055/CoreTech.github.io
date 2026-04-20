@@ -136,6 +136,11 @@ export class AdminService {
     return this.http.put<any>(`${this.apiUrl}/admin/users/delete/${userId}`, {}, { headers: this.getAuthHeaders() });
   }
 
+  // Soft delete - alias a komponens számára
+  softDeleteUser(userId: number): Observable<any> {
+    return this.deleteUser(userId);
+  }
+
   // ==================== ORDERS ====================
   
   getAllOrders(): Observable<any[]> {
@@ -159,6 +164,11 @@ export class AdminService {
 
   deleteOrder(orderId: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/admin/orders/delete/${orderId}`, {}, { headers: this.getAuthHeaders() });
+  }
+
+  // Cancel order - státuszt 'cancelled'-re állít
+  cancelOrder(orderId: number): Observable<any> {
+    return this.updateOrderStatus(orderId, 'cancelled');
   }
 
   // ==================== PRODUCTS ====================
@@ -331,6 +341,13 @@ export class AdminService {
 
   // Recent orders with username
   getRecentOrders(): Observable<Order[]> {
+    return this.getAllOrdersWithUsernames().pipe(
+      map(orders => orders.slice(0, 10))
+    );
+  }
+
+  // All orders with username - no limit
+  getAllOrdersWithUsernames(): Observable<Order[]> {
     return forkJoin({
       orders: this.getAllOrders(),
       users: this.getAllUsers()
@@ -353,11 +370,10 @@ export class AdminService {
             const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
             const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
             return dateB - dateA;
-          })
-          .slice(0, 10);
+          });
       }),
       catchError(err => {
-        console.error('Error fetching recent orders:', err);
+        console.error('Error fetching orders with usernames:', err);
         return of([]);
       })
     );
