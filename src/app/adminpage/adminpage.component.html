@@ -407,7 +407,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let order of filteredOrders" class="order-row" [class.order-row-cancelled]="order.status?.toLowerCase() === 'cancelled'">
+              <tr *ngFor="let order of filteredOrders" class="order-row" [class.order-row-cancelled]="order.status.toLowerCase() === 'cancelled'">
                 <td class="oc-id">
                   <span class="order-num">#{{ order.id }}</span>
                 </td>

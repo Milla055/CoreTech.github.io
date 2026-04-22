@@ -11,7 +11,6 @@ import { AdminpageComponent } from './adminpage/adminpage.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { DiscountsComponent } from './discounts/discounts.component';
 import { Top50Component } from './top50/top50.component';
-import { QuestionnaireComponent } from './questionnaire/questionnaire.component';
 import { NewproductspageComponent } from './newproductspage/newproductspage.component';
 
 export const routes: Routes = [
@@ -27,7 +26,6 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent },
   { path: 'discounts', component: DiscountsComponent },
   { path: 'top50', component: Top50Component },
-  { path: 'questionnaire', component: QuestionnaireComponent },
   { path: 'newproducts', component: NewproductspageComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
