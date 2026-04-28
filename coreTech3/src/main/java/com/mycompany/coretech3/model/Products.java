@@ -95,17 +95,19 @@ public class Products implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
     private Collection<Favorites> favoritesCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
-    private Collection<Reviews> reviewsCollection;
+    private Collection<CartItems> cartItemsCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
     private Collection<ProductAttributes> productAttributesCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
-    private Collection<OrderItems> orderItemsCollection;
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Categories categoryId;
     @JoinColumn(name = "brand_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Brands brandId;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
+    private Collection<Reviews> reviewsCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "productId")
+    private Collection<OrderItems> orderItemsCollection;
 
     public Products() {
     }
@@ -220,12 +222,12 @@ public class Products implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Reviews> getReviewsCollection() {
-        return reviewsCollection;
+    public Collection<CartItems> getCartItemsCollection() {
+        return cartItemsCollection;
     }
 
-    public void setReviewsCollection(Collection<Reviews> reviewsCollection) {
-        this.reviewsCollection = reviewsCollection;
+    public void setCartItemsCollection(Collection<CartItems> cartItemsCollection) {
+        this.cartItemsCollection = cartItemsCollection;
     }
 
     @XmlTransient
@@ -235,15 +237,6 @@ public class Products implements Serializable {
 
     public void setProductAttributesCollection(Collection<ProductAttributes> productAttributesCollection) {
         this.productAttributesCollection = productAttributesCollection;
-    }
-
-    @XmlTransient
-    public Collection<OrderItems> getOrderItemsCollection() {
-        return orderItemsCollection;
-    }
-
-    public void setOrderItemsCollection(Collection<OrderItems> orderItemsCollection) {
-        this.orderItemsCollection = orderItemsCollection;
     }
 
     public Categories getCategoryId() {
@@ -260,6 +253,24 @@ public class Products implements Serializable {
 
     public void setBrandId(Brands brandId) {
         this.brandId = brandId;
+    }
+
+    @XmlTransient
+    public Collection<Reviews> getReviewsCollection() {
+        return reviewsCollection;
+    }
+
+    public void setReviewsCollection(Collection<Reviews> reviewsCollection) {
+        this.reviewsCollection = reviewsCollection;
+    }
+
+    @XmlTransient
+    public Collection<OrderItems> getOrderItemsCollection() {
+        return orderItemsCollection;
+    }
+
+    public void setOrderItemsCollection(Collection<OrderItems> orderItemsCollection) {
+        this.orderItemsCollection = orderItemsCollection;
     }
 
     @Override

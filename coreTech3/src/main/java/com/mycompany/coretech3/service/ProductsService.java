@@ -29,17 +29,19 @@ public class ProductsService {
             JSONArray productsArray = new JSONArray();
             for (Object[] row : results) {
                 JSONObject product = new JSONObject();
-                product.put("id", row[0]);
+                 product.put("id", row[0]);
                 product.put("name", row[1]);
                 product.put("description", row[2]);
-                product.put("price", row[3]);
-                product.put("stock", row[4]);
-                product.put("image_url", row[5]);
-                product.put("category_id", row[6]);
-                product.put("brand_id", row[7]);
-                product.put("created_at", row[8]);
-                product.put("category_name", row[9]);
-                product.put("brand_name", row[10]);
+                product.put("properties", row[3]);
+                product.put("price", row[4]);
+                product.put("p_price", row[5]); 
+                product.put("stock", row[6]);
+                product.put("image_url", row[7]);
+                product.put("category_id", row[8]);
+                product.put("brand_id", row[9]);
+                product.put("created_at", row[10]);
+                product.put("category_name", row[11]);
+                product.put("brand_name", row[12]);
                 productsArray.put(product);
             }
 

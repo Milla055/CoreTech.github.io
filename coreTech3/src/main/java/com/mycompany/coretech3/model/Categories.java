@@ -67,10 +67,10 @@ public class Categories implements Serializable {
     @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
-    @OneToMany(mappedBy = "categoryId")
-    private Collection<Attributes> attributesCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "categoryId")
     private Collection<Products> productsCollection;
+    @OneToMany(mappedBy = "categoryId")
+    private Collection<Attributes> attributesCollection;
 
     public Categories() {
     }
@@ -134,21 +134,21 @@ public class Categories implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Attributes> getAttributesCollection() {
-        return attributesCollection;
-    }
-
-    public void setAttributesCollection(Collection<Attributes> attributesCollection) {
-        this.attributesCollection = attributesCollection;
-    }
-
-    @XmlTransient
     public Collection<Products> getProductsCollection() {
         return productsCollection;
     }
 
     public void setProductsCollection(Collection<Products> productsCollection) {
         this.productsCollection = productsCollection;
+    }
+
+    @XmlTransient
+    public Collection<Attributes> getAttributesCollection() {
+        return attributesCollection;
+    }
+
+    public void setAttributesCollection(Collection<Attributes> attributesCollection) {
+        this.attributesCollection = attributesCollection;
     }
 
     @Override

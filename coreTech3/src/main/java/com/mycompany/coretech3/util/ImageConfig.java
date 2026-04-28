@@ -13,9 +13,9 @@ public class ImageConfig {
                     .getResourceAsStream("images.properties");
             props.load(input);
             basePath = props.getProperty("images.basePath");
-            System.out.println("📁 Images base path loaded: " + basePath);
+            System.out.println(" Images base path loaded: " + basePath);
         } catch (Exception e) {
-            System.err.println("❌ Failed to load images.properties, using default");
+            System.err.println(" Failed to load images.properties, using default");
             basePath = "/Users/markbajor/Downloads/wildfly-preview-26.1.1.Final/domain/tmp";
         }
     }

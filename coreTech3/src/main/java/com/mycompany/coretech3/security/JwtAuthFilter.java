@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.mycompany.coretech3.security;
 
 import io.jsonwebtoken.Claims;
@@ -26,24 +23,30 @@ public class JwtAuthFilter implements ContainerRequestFilter {
         if (path.contains("Users/login")
                 || path.contains("Users/refresh")
                 || path.contains("Users/createUser")) {
-            System.out.println("✅ PUBLIC USER ENDPOINT - ALLOWED");
+            System.out.println(" PUBLIC USER ENDPOINT - ALLOWED");
             return;
         }
 
         if ((path.equals("products") || path.equals("/products")
                 || path.startsWith("products/") || path.startsWith("/products/"))
                 && !path.contains("admin")) {
-            System.out.println("✅ PUBLIC PRODUCT ENDPOINT - ALLOWED");
+            System.out.println(" PUBLIC PRODUCT ENDPOINT - ALLOWED");
             return;
         }
+
         if (path.contains("categories") && !path.contains("admin")) {
             return;
         }
         if (path.contains("brands") && !path.contains("admin")) {
             return;
         }
+        // Public questionnaire endpoints
+        if (path.contains("questionnaire")) {
+            System.out.println(" PUBLIC QUESTIONNAIRE ENDPOINT - ALLOWED");
+            return;
+        }
 
-        System.out.println("🔒 PROTECTED ENDPOINT - JWT REQUIRED");
+        System.out.println(" PROTECTED ENDPOINT - JWT REQUIRED");
 
         String auth = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
 
