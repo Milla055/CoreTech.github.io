@@ -1,0 +1,36 @@
+<app-header></app-header>
+
+<div class="brands-page">
+  <div class="brands-header">
+    <h1>Márkák</h1>
+    <p>Válassz egy márkát a termékek szűréséhez</p>
+  </div>
+
+  <div class="brands-loading" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="brands-error" *ngIf="error">
+    <p>Hiba történt a márkák betöltésekor.</p>
+  </div>
+
+  <div class="brands-grid" *ngIf="!loading && !error">
+    <div
+      class="brand-card"
+      *ngFor="let brand of brands"
+      (click)="selectBrand(brand)"
+    >
+      <div class="brand-logo-wrapper">
+        <img
+          [src]="brand.logo_url"
+          [alt]="brand.name"
+          class="brand-logo"
+          onerror="this.style.display='none'"
+        />
+      </div>
+      <span class="brand-name">{{ brand.name }}</span>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

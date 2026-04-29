@@ -85,13 +85,25 @@ export class ProductpageComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const searchParam = params['search'] || '';
       const categoryParam = params['category'] ? +params['category'] : null;
+      const brandParam = params['brand'] ? +params['brand'] : null;
+      const brandNameParam = params['brandName'] || '';
       
       this.searchQuery = searchParam;
       
       // Check if search is a category keyword
       const categoryFromSearch = this.getCategoryFromKeyword(searchParam);
-      
-      if (categoryParam) {
+
+      if (brandParam) {
+        // Brand selected from brand selector page
+        this.categoryId = null;
+        this.isGlobalSearch = false;
+        this.activeFilters.categories = [];
+        this.activeFilters.brands = [brandParam];
+        this.categoryName = brandNameParam || 'Márka termékei';
+        this.selectedSort = 'default';
+        this.loadProducts();
+        return;
+      } else if (categoryParam) {
         // Category explicitly specified - pre-select in filter
         this.categoryId = categoryParam;
         this.isGlobalSearch = false;

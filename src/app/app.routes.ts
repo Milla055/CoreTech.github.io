@@ -12,6 +12,7 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { DiscountsComponent } from './discounts/discounts.component';
 import { Top50Component } from './top50/top50.component';
 import { NewproductspageComponent } from './newproductspage/newproductspage.component';
+import { BrandlogothingComponent } from './brandlogothing/brandlogothing.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,11 +22,12 @@ export const routes: Routes = [
   { path: 'productcard', component: ProductcardComponent },
   { path: 'profile', component: ProfilepageComponent },
   { path: 'products', component: ProductpageComponent },
-  { path: 'product/:id', component: ProductsdetailpageComponent }, // Termék részletes oldal
+  { path: 'product/:id', component: ProductsdetailpageComponent },
   { path: 'adminpage', component: AdminpageComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'discounts', component: DiscountsComponent },
   { path: 'top50', component: Top50Component },
   { path: 'newproducts', component: NewproductspageComponent },
+  { path: 'brands', component: BrandlogothingComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
