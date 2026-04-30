@@ -215,7 +215,6 @@ export class AdminpageComponent implements OnInit {
   }
 
   softDeleteUser(userId: number, username: string): void {
-    if (!confirm(`Biztosan törölni szeretnéd "${username}" felhasználót? Ez a művelet visszavonható.`)) return;
 
     this.adminService.softDeleteUser(userId).subscribe({
       next: () => {
@@ -260,7 +259,6 @@ export class AdminpageComponent implements OnInit {
   }
 
   cancelOrder(orderId: number): void {
-    if (!confirm(`Biztosan le szeretnéd mondani a #${orderId} rendelést?`)) return;
 
     this.adminService.cancelOrder(orderId).subscribe({
       next: () => {
@@ -408,7 +406,7 @@ export class AdminpageComponent implements OnInit {
   }
 
   deleteProduct(productId: number): void {
-    if (!confirm('Biztosan törölni szeretnéd ezt a terméket?')) return;
+    
 
     this.productService.deleteProduct(productId).subscribe({
       next: () => {
