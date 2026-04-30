@@ -1,3 +1,4 @@
+# !!! A termékek képei A Wildfly szervermappa domain/tmp mappájában vannak saját gépen !!!
 # CoreTech
 
 **CoreTech** egy Angular alapú webshop alkalmazás, amely számítógépes alkatrészek és perifériák online vásárlását teszi lehetővé.
